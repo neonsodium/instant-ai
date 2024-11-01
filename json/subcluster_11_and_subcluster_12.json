@@ -1,0 +1,38 @@
+{
+    "level": 1,
+    "path": [1], 
+    "clusters": [
+      {
+        "clusterNo": 1,
+        "metrics": {
+          "Average Reading Fee Paid (₹)": "Median ranges from 2,160 to 5,514",
+        "Coupon Discount (₹)": 1037609.89,
+        "Peak Transaction Month": "March (325 transactions)",
+        "Top Membership Expiry Year": "2024-2025 (multiple expirations)",
+        "Top Number of Months": "6 months - 2769 transactions",
+        "Top Performing Branch ID": "Branch 137 - 592 transactions",
+        "Top Transaction Type ID": "Renewal (2.0) - 2748 transactions",
+        "Total Reading Fee Paid (₹)": 7779765.64,
+        "Total Revenue (₹)": 7815143,
+        "Total Transactions": 2992
+        }
+      },
+      {
+        "clusterNo": 2,
+        "metrics": {
+          "Average Reading Fee Paid (₹)": "Median ranges from 2,160 to 5,148",
+        "Coupon Discount (₹)": 1664780.4,
+        "Peak Transaction Month": "April (275 transactions)",
+        "Top Membership Expiry Year": "2024-2025 (multiple expirations)",
+        "Top Number of Months": "6 months - 1941 transactions",
+        "Top Performing Branch ID": "Branch 137 - 546 transactions",
+        "Top Transaction Type ID": "Signup (1.0) - 1941 transactions",
+        "Total Reading Fee Paid (₹)": 4539393.6,
+        "Total Revenue (₹)": 4538354,
+        "Total Transactions": 1941
+          
+        }
+      }
+    ]
+  }
+  

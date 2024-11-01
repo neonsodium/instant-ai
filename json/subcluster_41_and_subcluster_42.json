@@ -1,0 +1,41 @@
+{
+  "level": 1,
+  "path": [4], 
+  "clusters": [
+    {
+      "clusterNo": 1,
+      "metrics": {
+        "Coupon Discount (₹)": 3535822,
+        "Membership Expiry Date": "Most Expiry Dates in February 2025",
+        "Number of Months": "12 months - 3322 (97.6%)",
+        "Package Used": "Default Package - 2133 (63%)",
+        "Peak Transaction Month": "March - 389 transactions",
+        "Reading Fee Paid (₹)": 14318095.81,
+        "Top Branch Type": "Company Owned - 2095 transactions",
+        "Top Transaction Branch": "Branch 810 - 1559 transactions",
+        "Top Transaction Type ID": "Renewal (2.0) - 3392 (99.7%)",
+        "Total Amount Paid (₹)": 13132456,
+        "Transaction Count": 3403
+      }
+    },
+    {
+      "clusterNo": 2,
+      "metrics": {
+        "Coupon Discount (₹)": 2035661.76,
+        "Membership Expiry Date": "Most Expiry Dates in April 2025",
+        "Number of Months": "12 months - 1298 (94%)",
+        "Package Used": "Default Package - 864 (63%)",
+        "Peak Transaction Month": "January - 166 transactions",
+        "Reading Fee Paid (₹)": 7267609.01,
+        "Top Branch Type": "Company Owned - 751 transactions",
+        "Top Transaction Branch": "Branch 810 - 605 transactions",
+        "Top Transaction Type ID": "Signup (1.0) - 794 (57.5%)",
+        "Total Amount Paid (₹)": 6965988,
+        "Transaction Count": 1381
+        
+      }
+    }
+  ]
+}
+
+

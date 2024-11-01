@@ -1,0 +1,13 @@
+transaction_branch_id,branch_type,transaction_type_id,member_card,Number_of_Months,amount_paid,Coupon_Discount,magazine_fee_paid,payable_amount,reading_fee_paid,security_deposit,reward_points,num_books,num_magazine,display_name,adjustment_amount,Percentage_Share,member_branch_id,Transaction_Month,Transaction_Year,TAX_TYPE,Renewal_Amount,taxable_amount,TAX_AMOUNT,Membership_expiry_date,created_name,hierarchical_cluster
+810,Company Owned,1.0,M2202336,12,16,9581.68,0.0,16,5760.0,598,0,4,0,Primus OnlinePackage,0,100,1008,6,2022,GST,164,-493,-88.78,2023-06-10,SYSTEM,7
+810,Company Owned,1.0,M2202285,12,3,5395.0,0.0,3,3840.0,598,0,2,0,Online Package,0,100,1008,4,2022,GST,41,-504,-90.76,2023-04-25,SYSTEM,7
+810,Company Owned,1.0,M2202265,12,3,5395.0,0.0,3,3840.0,598,0,2,0,Online Package,0,100,1008,4,2022,GST,66,-504,-90.76,2023-04-22,SYSTEM,7
+810,Company Owned,1.0,M2202266,12,3,5395.0,0.0,3,3840.0,598,0,2,0,Primus OnlinePackage,0,100,1008,4,2022,GST,66,-504,-90.76,2023-04-22,SYSTEM,7
+810,Company Owned,1.0,M2202268,12,3,5395.0,0.0,3,3840.0,598,0,2,0,Online Package,0,100,1008,4,2022,GST,66,-504,-90.76,2023-04-22,SYSTEM,7
+810,Company Owned,1.0,M2202269,12,3,5395.0,0.0,3,3840.0,598,0,2,0,Primus OnlinePackage,0,100,1008,4,2022,GST,66,-504,-90.76,2023-04-22,SYSTEM,7
+810,Company Owned,1.0,M2202270,12,3,5395.0,0.0,3,3840.0,598,0,2,2,Online Package,0,100,1008,4,2022,GST,66,-504,-90.76,2023-07-26,SYSTEM,7
+810,Company Owned,1.0,M2202275,12,3,5395.0,0.0,3,3840.0,598,0,2,0,Online Package,0,100,1008,4,2022,GST,66,-504,-90.76,2023-04-22,SYSTEM,7
+810,Company Owned,1.0,M2202276,12,3,5395.0,0.0,3,3840.0,598,0,2,0,Primus OnlinePackage,0,100,1008,4,2022,GST,66,-504,-90.76,2023-04-22,SYSTEM,7
+810,Company Owned,1.0,M2202277,12,3,5395.0,0.0,3,3840.0,598,0,2,0,Online Package,0,100,1008,4,2022,GST,66,-504,-90.76,2023-04-22,SYSTEM,7
+810,Company Owned,1.0,M2202278,12,3,5395.0,0.0,3,3840.0,598,0,2,0,Online Package,0,100,1008,4,2022,GST,66,-504,-90.76,2023-04-22,SYSTEM,7
+810,Company Owned,1.0,M2202257,12,3,5395.0,0.0,3,3840.0,598,0,2,0,Online Package,0,100,1008,4,2022,GST,98,-504,-90.76,2023-04-18,SYSTEM,7
