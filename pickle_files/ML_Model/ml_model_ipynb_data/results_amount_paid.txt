@@ -1,0 +1,82 @@
+Running f_test_anova on target variable 'amount_paid'
+                 Feature    Importance
+0         taxable_amount  1.304566e+06
+1             TAX_AMOUNT  1.304533e+06
+2    transaction_type_id  2.688092e+03
+3  transaction_branch_id  1.270235e+03
+4           display_name  1.201772e+03
+5       member_branch_id  1.172830e+03
+6       Percentage_Share  5.763021e+02
+7            branch_type  4.598666e+02
+8       Transaction_Year  3.688580e+02
+9            branch_name  2.511333e+02
+
+Running mutual_info on target variable 'amount_paid'
+                   Feature  Importance
+18              TAX_AMOUNT    3.774926
+17          taxable_amount    3.761249
+4              member_card    0.756839
+13         subscription_id    0.694405
+3      transaction_type_id    0.558383
+11        security_deposit    0.399868
+19  Membership_expiry_date    0.395407
+0    transaction_branch_id    0.372845
+1              branch_name    0.364363
+16        Transaction_Year    0.355692
+
+Running extra_trees on target variable 'amount_paid'
+                  Feature  Importance
+18             TAX_AMOUNT    0.483442
+17         taxable_amount    0.477536
+11       security_deposit    0.025461
+3     transaction_type_id    0.009776
+14       member_branch_id    0.001024
+12       Percentage_Share    0.000628
+1             branch_name    0.000422
+0   transaction_branch_id    0.000421
+8            display_name    0.000385
+2             branch_type    0.000276
+
+Running seq_feature_selector on target variable 'amount_paid'
+                  Feature  Importance
+1        security_deposit  237.271279
+2        member_branch_id    0.000465
+3  Membership_expiry_date    0.000070
+0           primus_amount   -0.000514
+
+Running random_forest on target variable 'amount_paid'
+                  Feature  Importance
+8          taxable_amount    0.495906
+7        security_deposit    0.485139
+4       adjustment_amount    0.018713
+1   transaction_branch_id    0.000040
+2        Percentage_Share    0.000034
+3  Membership_expiry_date    0.000030
+9              TAX_AMOUNT    0.000027
+5             member_card    0.000018
+0        member_branch_id    0.000016
+6     transaction_type_id    0.000016
+
+
+Final Ranking with Impact Score:
+                       Feature  Impact_Score
+0               taxable_amount      1.000000
+1                   TAX_AMOUNT      0.971642
+2             security_deposit      0.565174
+3             member_branch_id      0.284705
+4          transaction_type_id      0.278756
+5        transaction_branch_id      0.205970
+6       Membership_expiry_date      0.178872
+7                  member_card      0.157998
+8             Percentage_Share      0.150199
+9            adjustment_amount      0.102318
+10                display_name      0.093167
+11             subscription_id      0.092259
+12               primus_amount      0.083752
+13                 branch_name      0.081824
+14            Transaction_Year      0.061200
+15                 branch_type      0.061162
+16            last_card_number      0.036938
+17                   TAX_STATE      0.013624
+18           Transaction_Month      0.010220
+19  over_due_adjustment_amount      0.005808

@@ -1,0 +1,66 @@
+{
+  "level": 0,
+  "path": [],
+  "clusters": [
+    {
+      "clusterNo": 1,
+      "metrics": {
+        "Average Reading Fee Paid (₹)": 2497,
+        "Coupon Discount (₹)": 2702390,
+        "Peak Transaction Month": "April (587 transactions)",
+        "Top Membership Expiry Year": "2024-2025 (multiple expirations)",
+        "Top Number of Months": "6 months - 2748 transactions",
+        "Top Performing Branch ID": "Branch 137 - 1138 transactions",
+        "Top Transaction Type ID": "Renewal (2.0) - 2748 transactions",
+        "Total Reading Fee Paid (₹)": 12353497,
+        "Total Revenue (₹)": 12353497,
+        "Total Transactions": 4933
+      }
+    },
+    {
+      "clusterNo": 2,
+      "metrics": {
+        "Average Reading Fee Paid (₹)": 1089,
+        "Coupon Discount (₹)": 467928,
+        "Peak Transaction Month": "April (1245 transactions)",
+        "Top Membership Expiry Year": "2024-2025 (multiple expirations)",
+        "Top Number of Months": "6 months - 7659 transactions",
+        "Top Performing Branch ID": "Branch 810 - 1520 transactions",
+        "Top Transaction Type ID": "Renewal (2.0) - 7659 transactions",
+        "Total Reading Fee Paid (₹)": 10352328,
+        "Total Revenue (₹)": 10352328,
+        "Total Transactions": 9099
+      }
+    },
+    {
+      "clusterNo": 3,
+      "metrics": {
+        "Average Reading Fee Paid (₹)": 1429,
+        "Coupon Discount (₹)": 319926.80,
+        "Peak Transaction Month": "April (552 transactions)",
+        "Top Membership Expiry Year": "2024-2025 (multiple expirations)",
+        "Top Number of Months": "6 months - 9 transactions",
+        "Top Performing Branch ID": "Branch 810 - 1344 transactions",
+        "Top Transaction Type ID": "Signups (1.0) - 97.5% of transactions",
+        "Total Reading Fee Paid (₹)": 6993595,
+        "Total Revenue (₹)": 6993595,
+        "Total Transactions": 3650
+      }
+    },
+    {
+      "clusterNo": 4,
+      "metrics": {
+        "Average Reading Fee Paid (₹)": 4512,
+        "Coupon Discount (₹)": 5571483,
+        "Peak Transaction Month": "January (544 transactions)",
+        "Top Membership Expiry Year": "2024-2025 (multiple expirations)",
+        "Top Number of Months": "6 months - 3978 transactions",
+        "Top Performing Branch ID": "Branch 810 - 2164 transactions",
+        "Top Transaction Type ID": "Renewal (2.0) - 3978 transactions",
+        "Total Reading Fee Paid (₹)": 20098444,
+        "Total Revenue (₹)": 20098444,
+        "Total Transactions": 4784
+      }
+    }
+  ]
+}

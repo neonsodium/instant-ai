@@ -1,0 +1,67 @@
+{
+  "level": 0,
+  "path": [],
+  "clusters": [
+    {
+      "clusterNo": 1,
+      "metrics": {
+        "Average Reading Fee (₹)": 2497,
+        "Coupon Usage": "97% (₹27,02,390 in discounts)",
+        "Packages": "Default Package (4863 members)",
+        "Peak Transaction Month": "April (587 transactions)",
+        "Renewals (%)": "55.7% (2748 renewals)",
+        "Top Performing Branch (Transactions)": "Branch 137 (1138)",
+        "Top Transaction Type": "2.0 (Renewals - 55.7%)",
+        "Total Revenue (₹)": "1,23,53,497",
+        "Total Transactions": 4933,
+        "Unique Members": 3419
+      }
+    },
+    {
+      "clusterNo": 2,
+      "metrics": {
+        "Average Reading Fee (₹)": 1089,
+        "Coupon Usage": "12% (₹4,67,928 in discounts)",
+        "Packages": "Default Package (7863 members)",
+        "Peak Transaction Month": "April (1245 transactions)",
+        "Renewals (%)": "84.2% (7659 renewals)",
+        "Top Performing Branch (Transactions)": "Branch 810 (1520)",
+        "Top Transaction Type": "2.0 (Renewals - 84.2%)",
+        "Total Revenue (₹)": "1,03,52,328",
+        "Total Transactions": 9099,
+        "Unique Members": 4593
+      }
+    },
+      {
+      "clusterNo": 3,
+      "metrics": {
+      "Average Reading Fee (₹)": 1429,
+      "Coupon Usage": "15% (₹3,19,926.80 in discounts)",
+      "Packages": "Default Package (2429 members)",
+      "Peak Transaction Month": "April (552 transactions)",
+      "Renewals (%)": "0.2% (9 renewals)",
+      "Top Performing Branch (Transactions)": "Branch 810 (1344)",
+      "Top Transaction Type": "1.0 (Signups - 97.5%)",
+      "Total Revenue (₹)": "69,93,595",
+      "Total Transactions": 3650,
+      "Unique Members": 3647
+  }
+},
+     {
+      "clusterNo": 4,
+      "metrics": {
+      "Average Reading Fee (₹)": 4512,
+      "Coupon Usage": "99% (₹55,71,483 in discounts)",
+      "Packages": "Default Package (2997 members)",
+      "Peak Transaction Month": "January (544 transactions)",
+      "Renewals (%)": "83.1% (3978 renewals)",
+      "Top Performing Branch (Transactions)": "Branch 810 (2164)",
+      "Top Transaction Type": "2.0 (Renewals - 83.1%)",
+      "Total Revenue (₹)": "2,00,98,444",
+      "Total Transactions": 4784,
+      "Unique Members": 3303
+}
+  }
+    
+  ]
+}
