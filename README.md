@@ -1,2 +1,2 @@
 # instant-ai
-![Architecture Diagram](./assets/architecture-diagram.png)
+![Architecture Diagram](./assets/architecture-diagram.jpeg)
