@@ -45,7 +45,7 @@ def get_regressors(target_y, models):
     # If no matching model is found, return None or an empty list
     return None
 
-with open('section.json') as f:
+with open('json/section.json') as f:
         data = json.load(f)
 def build_dynamic_time_series_dict() -> dict:
     return {section['endpoint']: url_for('dynamic_time_series', target=section['endpoint']) for section in data['sections']}

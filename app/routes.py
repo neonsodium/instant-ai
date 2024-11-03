@@ -279,18 +279,17 @@ def post_cluster_files():
     )
 
 def load_cluster_data():
-    with open('cluster_data.json', 'r') as file:
+    with open('json/cluster_data.json', 'r') as file:
         return json.load(file)
 
 def load_sub_cluster_data():
-    with open('sub_cluster.json', 'r') as file:
+    with open('json/sub_cluster.json', 'r') as file:
         return json.load(file)
 
 @app.route('/sub_cluster/<cluster_number>', methods=['GET'])
 def get_sub_cluster_data(cluster_number):
     # Check if the cluster number exists in the dictionary
     clusters_data = load_sub_cluster_data()
-    print(type(cluster_number))
     if cluster_number in clusters_data:
         return jsonify(clusters_data[cluster_number])
     else:
