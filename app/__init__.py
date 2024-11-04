@@ -23,6 +23,7 @@ if Config.ENV == 'development':
     app.config.from_object(DevelopmentConfig)
 elif Config.ENV == 'production':
     from app import old_routes
+    from app import demo_api_routes
     app.config.from_object(ProductionConfig)
 elif Config.ENV == 'testing':
     app.config.from_object(TestingConfig)
