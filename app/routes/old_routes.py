@@ -1,5 +1,5 @@
-from app import app
-from flask import redirect, url_for, session, flash
+# from app import app
+from flask import redirect, url_for, session, flash,current_app
 import json
 import pickle
 import matplotlib
@@ -10,8 +10,10 @@ from prophet import Prophet
 import os
 import plotly.graph_objs as go
 from datetime import datetime
-from flask import  render_template, request, send_file
+from flask import  render_template, request, send_file, Blueprint
 from app.dynamic_time_series_utils import create_future_df, adjust_for_weekend_effect, generate_forecast
+
+old_routes = Blueprint('old_routes', __name__)
 
 models = [
         {
@@ -65,10 +67,10 @@ def login_check():
         return redirect(url_for('login'))
 
 # Login Page
-@app.route('/')
+@old_routes.route('/')
 def login():
     """Renders the login page."""
-    if not app.config.get('LOGIN_REQUIRED', True):
+    if not current_app.config.get('LOGIN_REQUIRED', True):
         return redirect(url_for('index'))
     if session.get('username'):
         return redirect(url_for('index'))
@@ -85,14 +87,14 @@ def generate_section_urls(data):
     ]
 
 # Home page
-@app.route('/index')
+@old_routes.route('/index')
 def index():
     return render_template('index.html', sections=generate_section_urls(data))
 
 # Auth API
-@app.route('/auth', methods=['POST'])
+@old_routes.route('/auth', methods=['POST'])
 def auth():
-    if app.config.get('PASSWORD') == request.form['password'] and app.config.get('USERNAME'):
+    if current_app.config.get('PASSWORD') == request.form['password'] and current_app.config.get('USERNAME'):
         session['username'] = request.form['username']
         return redirect(url_for('index'))
     else:
@@ -125,7 +127,7 @@ def get_top_15_features(df, target):
     return df[(df['Feature'] != target) & (~df['Feature'].isin(id_fields))].head(15)
 
 
-@app.route('/cluster')
+@old_routes.route('/cluster')
 def cluster_data():
     catagories = ['Non_Fiction', 'Teens', 'Self_Help', 'Fiction', 'Kids', 'GK', 'Languages', 'Entertainment']
     return render_template(
@@ -134,7 +136,7 @@ def cluster_data():
     )
     
 
-@app.route('/cluster/<target>')
+@old_routes.route('/cluster/<target>')
 def cluster_data_downlaod(target):
     catagories = ['Non_Fiction', 'Teens', 'Self_Help', 'Fiction', 'Kids', 'GK', 'Languages', 'Entertainment']
     if target not in catagories:
@@ -150,7 +152,7 @@ def cluster_data_downlaod(target):
                     download_name='cluster_data.csv')
 
 
-@app.route('/index/<target>')
+@old_routes.route('/index/<target>')
 def rank_data(target):
     try:
         if target == "revenue":
@@ -210,7 +212,7 @@ def generate_plotly_plot(forecast):
 
 
 
-@app.route('/dynamic_time_series/<target>')
+@old_routes.route('/dynamic_time_series/<target>')
 def dynamic_time_series(target):
     model,historical_data = load_model_and_data(model_pickle_file(target))
     start_date_str = request.args.get('start_date', '2024-08-15')
@@ -223,7 +225,7 @@ def dynamic_time_series(target):
     plotly_plot = generate_plotly_plot(create_future_forecast(model, historical_data, get_regressors(target,models), start_date, end_date))
     return render_template('dynamic_time_series.html', plotly_plot=plotly_plot,target=target,start_date=start_date,end_date=end_date)
 
-@app.route('/temp/plot.png')
+@old_routes.route('/temp/plot.png')
 def plot_png():
     target = request.args.get('target', None)
     if target is None:

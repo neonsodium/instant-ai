@@ -8,6 +8,11 @@ class Config:
     PROJECTS_DIR = 'projects'
     PROJECTS_DIR_VAR = 'PROJECTS_DIR'
 
+    # Using Redis as broker
+    # TODO RabbitMQ
+    CELERY_BROKER_URL = "redis://localhost:6379/0"  
+    CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+
     if platform.system() == 'Darwin' or platform.system() == 'Windows':  # macOS cox i work on
         ENV = 'development'
     elif platform.system() == 'Linux':  # Linux

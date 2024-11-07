@@ -67,10 +67,15 @@ pip3 install -r requirements.txt
 
 ## Usage
 
-To run the project, execute the following command:
+To run the flask server, execute the following command:
 
 ```bash
 python3 run.py
+```
+To run the celery worker, ececute the following command:
+
+```bash
+celery -A celery_worker.celery worker --loglevel=info
 ```
 
 ## Architecture Diagram
