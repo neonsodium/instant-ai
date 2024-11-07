@@ -1,4 +1,3 @@
-# from app import app
 from flask import redirect, url_for, session, flash,current_app
 import json
 import pickle
@@ -6,7 +5,7 @@ import matplotlib
 matplotlib.use('agg')  # Set the backend before importing pyplot
 import matplotlib.pyplot as plt
 import io
-from prophet import Prophet
+from prophet import Prophet # Dont remove
 import os
 import plotly.graph_objs as go
 from datetime import datetime
