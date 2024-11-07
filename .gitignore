@@ -1,2 +1,6 @@
 pickle_files/ML_Model/
+.DS_Store
 __pycache__/
+__pycache__
+app/__pycache__
+app/__pycache__/
