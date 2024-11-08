@@ -28,9 +28,10 @@ elif Config.ENV == 'testing':
     app.config.from_object(TestingConfig)
 
 #projects folder exists
-app.config[Config.PROJECTS_DIR_VAR] = Config.PROJECTS_DIR
+app.config[Config.PROJECTS_DIR_VAR_NAME] = Config.PROJECTS_DIR
 try:
-    os.makedirs(app.config[Config.PROJECTS_DIR_VAR],exist_ok=True)
+    # os.path.join(os.getcwd(), app.config[Config.PROJECTS_DIR_VAR_NAME])
+    os.makedirs(os.path.join(os.getcwd(), app.config[Config.PROJECTS_DIR_VAR_NAME]),exist_ok=True)
 except OSError:
     print(OSError)
     

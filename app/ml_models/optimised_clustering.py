@@ -1,11 +1,13 @@
+import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.mixture import GaussianMixture
 from sklearn.metrics import silhouette_score
+from ..filename_utils import filename_cluster_format_csv
 
-def find_and_save_separate_clusters(df, features, cluster_range=range(2, 11)):
+def optimised_clustering(df, features,project_dir, cluster_range=range(2, 11)):
     # Standardizing features
     x_scaled = StandardScaler().fit_transform(df[features])
 
@@ -39,9 +41,12 @@ def find_and_save_separate_clusters(df, features, cluster_range=range(2, 11)):
     # Save each cluster as a separate file
     for cluster in df['cluster_label'].unique():
         cluster_df = df[df['cluster_label'] == cluster]
-        cluster_filename = f"cluster_{cluster}.csv"
-        cluster_df.to_csv(cluster_filename, index=False)
-        print(f"Cluster {cluster} data saved to {cluster_filename}")
+        cluster_filename_path = os.path.join(
+            project_dir,
+            filename_cluster_format_csv(cluster)
+            )
+        cluster_df.to_csv(cluster_filename_path, index=False)
+        print(f"Cluster {cluster} data saved to {cluster_filename_path}")
 
     # plt.figure(figsize=(10, 5))
     # plt.plot(cluster_range, silhouette_scores, marker='o', label='Silhouette Score')

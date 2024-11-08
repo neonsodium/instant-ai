@@ -6,7 +6,7 @@ class Config:
     DEBUG = False
     HOST = '127.0.0.1'
     PROJECTS_DIR = 'projects'
-    PROJECTS_DIR_VAR = 'PROJECTS_DIR'
+    PROJECTS_DIR_VAR_NAME = 'PROJECTS_DIR'
 
     # Using Redis as broker
     # TODO RabbitMQ
