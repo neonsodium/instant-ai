@@ -1,6 +1,7 @@
 import os
 import pickle
 import pandas as pd
+from ..filename_utils import filename_label_encoded_data_csv,filename_feature_rank_result_txt,filename_feature_rank_list_pkl,filename_feature_rank_score_df
 from .mutual_info import mutual_info
 from .extra_trees import extra_trees
 from .f_test_anova import f_test_anova
@@ -56,11 +57,11 @@ def run_algorithm(algorithm, X, Y,feature_vars):
 
         return importance_df
     else:
-        print("Algorithm not recognized.")
+        # print("Algorithm not recognized.")
         return None
 
-def feature_ranking_algorithm(target_var,target_vars,project_dir):
-    df = pd.read_csv(os.path.join(project_dir,"label_encode_data.csv"))
+def optimised_feature_rank(target_var,target_vars,directory_project):
+    df = pd.read_csv(os.path.join(directory_project,filename_label_encoded_data_csv()))
     df = df.drop(columns=['# created_date'])
     feature_vars = [col for col in df.columns if col not in target_vars]
     # target = input(f"Please enter a target variable from the list {target_vars}: ")
@@ -82,9 +83,9 @@ def feature_ranking_algorithm(target_var,target_vars,project_dir):
     results = {}
     impact_data = pd.DataFrame(columns=['Feature'])
 
-    with open(os.path.join(project_dir,f"results_{target_var}.txt"), 'w') as file:
+    with open(os.path.join(directory_project,filename_feature_rank_result_txt(target_var)), 'w') as file:
         for algorithm in algorithms:
-            print(f"Running {algorithm} on target variable '{target_var}'")
+            # print(f"Running {algorithm} on target variable '{target_var}'")
             file.write(f"Running {algorithm} on target variable '{target_var}'\n")
             result = run_algorithm(algorithm, X, Y,feature_vars)
 
@@ -123,8 +124,8 @@ def feature_ranking_algorithm(target_var,target_vars,project_dir):
 
         # final ranking data saved in the project dir
         # TODO improve logic
-        final_output[['Feature', 'Impact_Score']].to_pickle(os.path.join(project_dir,"feature_ranking_scores_df.pkl"))
-        print(final_output[['Feature', 'Impact_Score']])
+        final_output[['Feature', 'Impact_Score']].to_pickle(os.path.join(directory_project,filename_feature_rank_score_df()))
+        # print(final_output[['Feature', 'Impact_Score']])
         feature_list = final_output['Feature'].to_list()
-        with open(os.path.join(project_dir,"feature_list.pkl"), "wb") as file:
+        with open(os.path.join(directory_project,filename_feature_rank_list_pkl()), "wb") as file:
             pickle.dump(feature_list, file)
