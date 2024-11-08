@@ -51,6 +51,12 @@ Follow the following instructions for Contributing to the repository.
 
 ## Installation
 
+Install Redis 
+
+``` bash
+sudo apt-get install redis-server
+```
+
 Follow these steps to set up the project:
 
 ```bash
@@ -72,10 +78,15 @@ To run the flask server, execute the following command:
 ```bash
 python3 run.py
 ```
-To run the celery worker, ececute the following command:
+To run the celery worker, execute the following command:
 
 ```bash
 celery -A celery_worker.celery worker --loglevel=info
+```
+
+To run the redis, execute the following command:
+```bash
+redis-server
 ```
 
 ## Architecture Diagram
