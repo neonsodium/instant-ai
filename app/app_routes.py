@@ -4,9 +4,10 @@ from . import app # TODO Change it to current app -> from flask import current_a
 from .filename_utils import *
 from config import Config
 from .tasks import *
+from celery.result import AsyncResult
 from flask import jsonify,request,Blueprint
-from .ml_models.label_encode_data import label_encode_data
-from .ml_models.optimised_feature_rank import optimised_feature_rank
+# from .ml_models.label_encode_data import label_encode_data
+# from .ml_models.optimised_feature_rank import optimised_feature_rank
 
 # TODO add main route
 # split main route
@@ -88,12 +89,12 @@ def list_tasks():
         return jsonify({"error": "Project directory not configured"}), 404
     
     try:
-        tasks: list = list_sub_directories(all_project_dir_path())
+        projects: list = list_sub_directories(all_project_dir_path())
 
     except OSError as e:
         return jsonify({"error": f"An error occurred while accessing the directory: {str(e)}"}), 500
 
-    return jsonify({"tasks": tasks}), 200
+    return jsonify({"projects": projects}), 200
 
 
 @app.route('/create_new_project',methods=['GET','POST'])
@@ -151,24 +152,31 @@ def upload_file():
     # TODO Check if the file uploaded is allowed i.e csv/xlsx
     if file:
         # filename = secure_filename(file.filename)
-        raw_data_filename = filename_raw_data_csv()
-        label_encode_filename = filename_label_encoded_data_csv()
-        filepath_raw_data = os.path.join(project_dir, raw_data_filename)
-        filepath_label_encode = os.path.join(project_dir, label_encode_filename)
+        filepath_raw_data = os.path.join(project_dir, filename_raw_data_csv())
+        filepath_label_encode = os.path.join(project_dir, filename_label_encoded_data_csv())
+        filepath_rev_label_encode = os.path.join(project_dir, filename_rev_label_encoded_dict_pkl())
+        filepath_one_hot_label_encode = os.path.join(project_dir, filename_one_hot_encoded_data_csv())
         file.save(filepath_raw_data)
-        result = async_label_encode_data.delay(filepath_raw_data, filepath_label_encode)
+        label_encoded_result = async_label_encode_data.delay(filepath_raw_data, filepath_label_encode,filepath_rev_label_encode)
+        one_hot_encoded_result = async_one_hot_encode_data.delay(filepath_raw_data,filepath_one_hot_label_encode)
 
-        return jsonify({"message": "File encoding has started", "task_id": result.id,"Project_id": project_id}), 202
+        return jsonify({"message": "File encoding has started", "label_encode_id": label_encoded_result.id,"one_hot_encoding_id": one_hot_encoded_result.id}), 202
     else:
         return jsonify({"error": "Invalid file type"}), 400
 
 @app.route('/check-task/<task_id>', methods=['GET'])
 def check_task(task_id):
     result = celery.AsyncResult(task_id)
-    if result.ready():
-        return jsonify({"status": "completed", "result": result.result})
-    else:
-        return jsonify({"status": "pending"}), 202
+    # if result.ready():
+    return jsonify({
+        "status": result.status,           
+        "is_successful": result.successful(),
+        "is_ready": result.ready(),        
+        "result": result.result if result.result else "Error",           
+        "traceback": result.traceback if result.failed() else None 
+    })
+    # else:
+    #     return jsonify({"status": "pending"}), 202
 
 @app.route('/get_clusters', methods=['POST'])
 def display_cluster():
@@ -217,7 +225,12 @@ def start_sub_clustering():
     # target_vars = ['reading_fee_paid', 'Number_of_Months', 'Coupon_Discount','num_books', 'magazine_fee_paid', 'Renewal_Amount','amount_paid']
     # target_var = "amount_paid"
     directory_project = directory_project_path_full(project_id,list_path)
-    result = async_optimised_feature_rank.delay(target_var,target_vars,directory_project)
+    # result = async_optimised_feature_rank.delay(target_var,target_vars,directory_project)
+    features = ['Number_of_Months', 'amount_paid', 'magazine_fee_paid', 'Coupon_Discount',
+            'reading_fee_paid', 'security_deposit', 'Percentage_Share', 'Renewal_Amount', 'taxable_amount']
+    # task = async_optimised_clustering(directory_project,features)
+    task = run_feature_rank_and_clustering.delay(target_var, target_vars, directory_project)
+
     # optimised_feature_rank(target_var,target_vars,directory_project_path_full(project_id,list_path))
 
-    return jsonify({"message": "File encoding has started", "task_id": result.id,"Project_id": project_id,"project_dir": os.path.join(directory_project,filename_label_encoded_data_csv())}), 202
+    return jsonify({"message": "File encoding has started", "task_id": str(task.id),"Project_id": project_id,"project_dir": os.path.join(directory_project,filename_label_encoded_data_csv())}), 202

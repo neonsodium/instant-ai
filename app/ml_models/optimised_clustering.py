@@ -1,13 +1,19 @@
 import os
+import pickle
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.mixture import GaussianMixture
 from sklearn.metrics import silhouette_score
-from ..filename_utils import filename_cluster_format_csv
+from ..filename_utils import filename_cluster_format_csv,filename_label_encoded_data_csv,filename_feature_rank_list_pkl
 
-def optimised_clustering(df, features,project_dir, cluster_range=range(2, 11)):
+def optimised_clustering(directory_project,*a):
+    cluster_range=range(2, 11)
+    features = []
+    with open(os.path.join(directory_project,filename_feature_rank_list_pkl()), 'rb') as file:
+        features = pickle.load(file)
+    df = pd.read_csv( os.path.join(directory_project,filename_label_encoded_data_csv()) )
     # Standardizing features
     x_scaled = StandardScaler().fit_transform(df[features])
 
@@ -42,7 +48,7 @@ def optimised_clustering(df, features,project_dir, cluster_range=range(2, 11)):
     for cluster in df['cluster_label'].unique():
         cluster_df = df[df['cluster_label'] == cluster]
         cluster_filename_path = os.path.join(
-            project_dir,
+            directory_project,
             filename_cluster_format_csv(cluster)
             )
         cluster_df.to_csv(cluster_filename_path, index=False)
