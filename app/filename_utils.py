@@ -10,6 +10,9 @@ def filename_raw_data_csv() -> str:
 def filename_label_encoded_data_csv() -> str:
     return "label_encode_data.csv"
 
+def filename_one_hot_encoded_data_csv() -> str:
+    return "one_hot_encode_data.csv"
+
 def directory_cluster_format(cluster_num: str | int) -> str:
     return f"cluster_{cluster_num}"
 
@@ -25,3 +28,6 @@ def filename_feature_rank_list_pkl()  -> str:
 
 def filename_feature_rank_result_txt(target_var: str):
     return f"results_{re.sub(r'[^A-Za-z0-9_]', '', target_var)}.txt"
+
+def filename_rev_label_encoded_dict_pkl() -> str:
+    return f"dict_rev_label_encode_data.pkl"
