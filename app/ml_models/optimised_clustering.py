@@ -1,19 +1,25 @@
 import os
 import pickle
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import StandardScaler
-from sklearn.mixture import GaussianMixture
-from sklearn.metrics import silhouette_score
-from ..filename_utils import filename_cluster_format_csv,directory_cluster_format,filename_label_encoded_data_csv
 
-def optimised_clustering(directory_project,input_file_path_label_encoded_csv,input_file_path_feature_rank_pkl):
-    cluster_range=range(2, 11)
+import numpy as np
+import pandas as pd
+from sklearn.metrics import silhouette_score
+from sklearn.mixture import GaussianMixture
+from sklearn.preprocessing import StandardScaler
+
+from app.filename_utils import directory_cluster_format, filename_label_encoded_data_csv
+
+
+def optimised_clustering(
+    directory_project,
+    input_file_path_label_encoded_csv,
+    input_file_path_feature_rank_pkl,
+):
+    cluster_range = range(2, 11)
     features = []
-    with open(input_file_path_feature_rank_pkl, 'rb') as file:
+    with open(input_file_path_feature_rank_pkl, "rb") as file:
         features = pickle.load(file)
-    df = pd.read_csv( input_file_path_label_encoded_csv )
+    df = pd.read_csv(input_file_path_label_encoded_csv)
     # Standardizing features
     x_scaled = StandardScaler().fit_transform(df[features])
 
@@ -36,21 +42,27 @@ def optimised_clustering(directory_project,input_file_path_label_encoded_csv,inp
 
     # Select the optimal cluster count (you can choose BIC or AIC)
     # TODO Here we use BIC; change to optimal_clusters_aic if preferred
-    # optimal_clusters_bic  
+    # optimal_clusters_bic
     # TODO silhouette_scores peak numebr of cluster
     # will  be input for GaussianMixture n_components = peak numebr of cluster
     # if n is 1, then stop
 
     # Refit the GMM model with the best cluster count
-    df['cluster_label'] = GaussianMixture(n_components=optimal_clusters_bic, random_state=0).fit_predict(x_scaled)
+    df["cluster_label"] = GaussianMixture(
+        n_components=optimal_clusters_bic, random_state=0
+    ).fit_predict(x_scaled)
 
     # Save each cluster as a separate file
-    for cluster in df['cluster_label'].unique():
-        cluster_df = df[df['cluster_label'] == cluster]
-        cluster_directory = os.path.join(directory_project, directory_cluster_format(cluster))
+    for cluster in df["cluster_label"].unique():
+        cluster_df = df[df["cluster_label"] == cluster]
+        cluster_directory = os.path.join(
+            directory_project, directory_cluster_format(cluster)
+        )
         os.makedirs(cluster_directory, exist_ok=True)
         # cluster_filename_path = os.path.join(cluster_directory, filename_cluster_format_csv(cluster))
-        cluster_filename_path = os.path.join(cluster_directory,filename_label_encoded_data_csv())
+        cluster_filename_path = os.path.join(
+            cluster_directory, filename_label_encoded_data_csv()
+        )
         cluster_df.to_csv(cluster_filename_path, index=False)
         # print(f"Cluster {cluster} data saved to {cluster_filename_path}")
 
@@ -74,10 +86,19 @@ def optimised_clustering(directory_project,input_file_path_label_encoded_csv,inp
     # print(f"Optimal number of clusters based on BIC: {optimal_clusters_bic}")
     # print(f"Optimal number of clusters based on AIC: {optimal_clusters_aic}")
 
-#TODO from feature selection: final ranking
-features = ['Number_of_Months', 'amount_paid', 'magazine_fee_paid', 'Coupon_Discount',
-            'reading_fee_paid', 'security_deposit', 'Percentage_Share', 'Renewal_Amount', 'taxable_amount']
 
-# 
+# TODO from feature selection: final ranking
+features = [
+    "Number_of_Months",
+    "amount_paid",
+    "magazine_fee_paid",
+    "Coupon_Discount",
+    "reading_fee_paid",
+    "security_deposit",
+    "Percentage_Share",
+    "Renewal_Amount",
+    "taxable_amount",
+]
+
 # df = pd.read_csv("encoded_file.csv")
 # find_and_save_separate_clusters(df, features)
