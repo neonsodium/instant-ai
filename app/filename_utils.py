@@ -4,14 +4,26 @@ import re
 def create_project_uuid() -> str:
     return str(uuid.uuid4())
 
+def filename_dropeed_column_data_csv() -> str:
+    return "data_dropped_column.csv"
+
 def filename_raw_data_csv() -> str:
     return "data_raw.csv"
 
+def filename_pre_label_data_csv() -> str:
+    return "data_pre_label.csv"
+
 def filename_label_encoded_data_csv() -> str:
-    return "label_encode_data.csv"
+    return "data_label_encode.csv"
 
 def filename_one_hot_encoded_data_csv() -> str:
-    return "one_hot_encode_data.csv"
+    return "data_one_hot_encode.csv"
+
+def filename_pre_one_hot_encoded_data_csv() -> str:
+    return "data_pre_one_hot_encode.csv"
+
+def filename_label_mapping_data_csv() -> str:
+    return "data_label_mapping.csv"
 
 def directory_cluster_format(cluster_num: str | int) -> str:
     return f"cluster_{cluster_num}"
