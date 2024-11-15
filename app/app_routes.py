@@ -121,46 +121,19 @@ def create_new_project():
 @app.route('/upload', methods=['POST'])
 def upload_file():
     project_id = os.path.basename(request.form.get('project_id'))
-    # TODO project_name = request.form.get('project_name')
-    # project_dir = os.path.join(
-    #     all_project_dir_path(), 
-    #     project_id
-    # )
-    project_dir = directory_project_path_full(project_id,[])
+    project_dir = directory_project_path_full(project_id, [])
 
     if not os.path.isdir(project_dir):
-        return jsonify({"error": "Invaild Project Id"}), 400
+        return jsonify({"error": "Invalid Project ID"}), 400
     
     if 'file' not in request.files:
         return jsonify({"error": "No file part in the request"}), 400
-    
-    # TODO
-    # Create directory for the task ID if it doesn't exist
-    # os.makedirs(project_dir, exist_ok=True)
-
-    # TODO
-    # if task_name:
-    #     task_name_path = os.path.join(project_dir, 'task_name.txt')
-    #     with open(task_name_path, 'w') as f:
-    #         f.write(task_name)
-
-
-    # Check if the 'file' part is present in the request
 
     file = request.files['file']
-
-    # TODO Check if the file uploaded is allowed i.e csv/xlsx
     if file:
-        # filename = secure_filename(file.filename)
-        filepath_raw_data = os.path.join(project_dir, filename_raw_data_csv())
-        filepath_label_encode = os.path.join(project_dir, filename_label_encoded_data_csv())
-        filepath_rev_label_encode = os.path.join(project_dir, filename_rev_label_encoded_dict_pkl())
-        filepath_one_hot_label_encode = os.path.join(project_dir, filename_one_hot_encoded_data_csv())
-        file.save(filepath_raw_data)
-        label_encoded_result = async_label_encode_data.delay(filepath_raw_data, filepath_label_encode,filepath_rev_label_encode)
-        one_hot_encoded_result = async_one_hot_encode_data.delay(filepath_raw_data,filepath_one_hot_label_encode)
-
-        return jsonify({"message": "File encoding has started", "label_encode_id": label_encoded_result.id,"one_hot_encoding_id": one_hot_encoded_result.id}), 202
+        result = async_save_and_process_file.delay(project_dir, file.read(), file.filename)
+        
+        return jsonify({"message": "File processing has started", "task_id": result.id}), 202
     else:
         return jsonify({"error": "Invalid file type"}), 400
 
@@ -169,11 +142,11 @@ def check_task(task_id):
     result = celery.AsyncResult(task_id)
     # if result.ready():
     return jsonify({
-        "status": result.status,           
-        "is_successful": result.successful(),
-        "is_ready": result.ready(),        
-        "result": result.result if result.result else "Error",           
-        "traceback": result.traceback if result.failed() else None 
+        "status": result.status         
+        # "is_successful": result.successful(),
+        # "is_ready": result.ready(),        
+        # "result": result.result if result.result else "Error",           
+        # "traceback": result.traceback if result.failed() else None 
     })
     # else:
     #     return jsonify({"status": "pending"}), 202
@@ -205,10 +178,10 @@ def display_cluster():
     return jsonify({"full_path": full_path,"project_id": project_id,"clusters": clusters})
 
 
-@app.route('/process',methods=['POST'])
-def start_sub_clustering():
+@app.route('/process/feature_ranking',methods=['POST'])
+def start_feature_ranking():
     '''
-    curl -X POST http://127.0.0.1:8080/process -H "Content-Type: application/json" -d '{
+    curl -X POST http://127.0.0.1:8080/process/feature_ranking -H "Content-Type: application/json" -d '{
     "target_vars": ["reading_fee_paid", "Number_of_Months", "Coupon_Discount", "num_books", "magazine_fee_paid", "Renewal_Amount", "amount_paid"],
     "target_var": "amount_paid",
     "level": 3,
@@ -222,15 +195,33 @@ def start_sub_clustering():
     target_var = request_data_json.get('target_var', None)
     
 
-    # target_vars = ['reading_fee_paid', 'Number_of_Months', 'Coupon_Discount','num_books', 'magazine_fee_paid', 'Renewal_Amount','amount_paid']
-    # target_var = "amount_paid"
+    target_vars_list = ["reading_fee_paid", "Number_of_Months", "Coupon_Discount", "num_books", "magazine_fee_paid", "Renewal_Amount", "amount_paid"]
+    target_var = "amount_paid"
     directory_project = directory_project_path_full(project_id,list_path)
-    # result = async_optimised_feature_rank.delay(target_var,target_vars,directory_project)
-    features = ['Number_of_Months', 'amount_paid', 'magazine_fee_paid', 'Coupon_Discount',
-            'reading_fee_paid', 'security_deposit', 'Percentage_Share', 'Renewal_Amount', 'taxable_amount']
-    # task = async_optimised_clustering(directory_project,features)
-    task = run_feature_rank_and_clustering.delay(target_var, target_vars, directory_project)
+    result = async_optimised_feature_rank.delay(target_var,target_vars_list,directory_project)
+    return jsonify({"message": "File encoding has started", "task_id": str(result.id),"Project_id": project_id,"project_dir": os.path.join(directory_project,filename_label_encoded_data_csv())}), 202
 
-    # optimised_feature_rank(target_var,target_vars,directory_project_path_full(project_id,list_path))
+@app.route('/process/cluster',methods=['POST'])
+def start_sub_clustering():
+    '''
+    curl -X POST http://127.0.0.1:8080/process -H "Content-Type: application/json" -d '{
+    "target_vars": ["reading_fee_paid", "Number_of_Months", "Coupon_Discount", "num_books", "magazine_fee_paid", "Renewal_Amount", "amount_paid"],
+    "target_var": "amount_paid",
+    "level": 3,
+    "path": [1, 2, 1]
+    }'
+    '''
+    request_data_json = request.get_json()
+    project_id = os.path.basename(request_data_json.get("project_id"))
+    list_path = request_data_json.get("path")
+    directory_project_base = directory_project_path_full(project_id,[])
+    directory_project_cluster = directory_project_path_full(project_id,list_path)
+    input_file_path_feature_rank_pkl = os.path.join(directory_project_base,filename_feature_rank_list_pkl())
 
-    return jsonify({"message": "File encoding has started", "task_id": str(task.id),"Project_id": project_id,"project_dir": os.path.join(directory_project,filename_label_encoded_data_csv())}), 202
+    if not os.path.exists(input_file_path_feature_rank_pkl):
+        return jsonify({"error": "Feature ranking file not found", "project_id": project_id}), 404 
+    
+    result = async_optimised_clustering(directory_project_cluster,input_file_path_feature_rank_pkl)
+    print(type(result))
+
+    return jsonify({"message": "File encoding has started", "task_id": result,"Project_id": project_id,"project_dir": directory_project_cluster}), 202

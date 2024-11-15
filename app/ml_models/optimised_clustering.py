@@ -6,14 +6,14 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.mixture import GaussianMixture
 from sklearn.metrics import silhouette_score
-from ..filename_utils import filename_cluster_format_csv,filename_label_encoded_data_csv,filename_feature_rank_list_pkl
+from ..filename_utils import filename_cluster_format_csv,directory_cluster_format,filename_label_encoded_data_csv
 
-def optimised_clustering(directory_project,*a):
+def optimised_clustering(directory_project,input_file_path_label_encoded_csv,input_file_path_feature_rank_pkl):
     cluster_range=range(2, 11)
     features = []
-    with open(os.path.join(directory_project,filename_feature_rank_list_pkl()), 'rb') as file:
+    with open(input_file_path_feature_rank_pkl, 'rb') as file:
         features = pickle.load(file)
-    df = pd.read_csv( os.path.join(directory_project,filename_label_encoded_data_csv()) )
+    df = pd.read_csv( input_file_path_label_encoded_csv )
     # Standardizing features
     x_scaled = StandardScaler().fit_transform(df[features])
 
@@ -47,12 +47,12 @@ def optimised_clustering(directory_project,*a):
     # Save each cluster as a separate file
     for cluster in df['cluster_label'].unique():
         cluster_df = df[df['cluster_label'] == cluster]
-        cluster_filename_path = os.path.join(
-            directory_project,
-            filename_cluster_format_csv(cluster)
-            )
+        cluster_directory = os.path.join(directory_project, directory_cluster_format(cluster))
+        os.makedirs(cluster_directory, exist_ok=True)
+        # cluster_filename_path = os.path.join(cluster_directory, filename_cluster_format_csv(cluster))
+        cluster_filename_path = os.path.join(cluster_directory,filename_label_encoded_data_csv())
         cluster_df.to_csv(cluster_filename_path, index=False)
-        print(f"Cluster {cluster} data saved to {cluster_filename_path}")
+        # print(f"Cluster {cluster} data saved to {cluster_filename_path}")
 
     # plt.figure(figsize=(10, 5))
     # plt.plot(cluster_range, silhouette_scores, marker='o', label='Silhouette Score')
@@ -71,8 +71,8 @@ def optimised_clustering(directory_project,*a):
     # plt.legend()
     # plt.show()
 
-    print(f"Optimal number of clusters based on BIC: {optimal_clusters_bic}")
-    print(f"Optimal number of clusters based on AIC: {optimal_clusters_aic}")
+    # print(f"Optimal number of clusters based on BIC: {optimal_clusters_bic}")
+    # print(f"Optimal number of clusters based on AIC: {optimal_clusters_aic}")
 
 #TODO from feature selection: final ranking
 features = ['Number_of_Months', 'amount_paid', 'magazine_fee_paid', 'Coupon_Discount',

@@ -1,7 +1,7 @@
 import os
 import pickle
 import pandas as pd
-from ..filename_utils import filename_label_encoded_data_csv,filename_feature_rank_result_txt,filename_feature_rank_list_pkl,filename_feature_rank_score_df
+from ..filename_utils import filename_feature_rank_result_txt,filename_feature_rank_list_pkl,filename_feature_rank_score_df,filename_label_encoded_data_csv
 from .mutual_info import mutual_info
 from .extra_trees import extra_trees
 from .f_test_anova import f_test_anova
@@ -50,6 +50,9 @@ def run_algorithm(algorithm, X, Y,feature_vars):
         selected_feature_indices = [i for i in range(len(feature_vars)) if feature_vars[i] in selected_features]
         filtered_importances = [importances[i] for i in selected_feature_indices]
 
+        print("Length of selected_features:", len(selected_features))
+        print("Length of filtered_importances:", len(filtered_importances))
+
         importance_df = pd.DataFrame({
             'Feature': selected_features,
             'Importance': filtered_importances
@@ -60,10 +63,11 @@ def run_algorithm(algorithm, X, Y,feature_vars):
         # print("Algorithm not recognized.")
         return None
 
-def optimised_feature_rank(target_var,target_vars,directory_project):
-    df = pd.read_csv(os.path.join(directory_project,filename_label_encoded_data_csv()))
+
+def optimised_feature_rank(target_var,target_vars_list: list,file_path_label_encoded_csv: str,directory_project: str):
+    df = pd.read_csv(file_path_label_encoded_csv)
     df = df.drop(columns=['# created_date'])
-    feature_vars = [col for col in df.columns if col not in target_vars]
+    feature_vars = [col for col in df.columns if col not in target_vars_list]
     # target = input(f"Please enter a target variable from the list {target_vars}: ")
 
     # if target not in target_vars:
