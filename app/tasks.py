@@ -19,7 +19,7 @@ from . import celery
 
 
 @celery.task
-def async_data_processer(directory_project):
+def async_data_processer(directory_project: str):
     input_file = os.path.join(directory_project, filename_raw_data_csv())
     output_drop_tables = os.path.join(
         directory_project, filename_dropeed_column_data_csv()
@@ -35,14 +35,26 @@ def async_data_processer(directory_project):
     output_rev_label_mapping = os.path.join(
         directory_project, filename_label_mapping_data_csv()
     )
+    output_rev_one_hot_dict = os.path.join(
+        directory_project, filename_rev_one_hot_encoded_dict_pkl()
+    )
+    output_rev_label_dict = os.path.join(
+        directory_project, filename_rev_label_encoded_dict_pkl()
+    )
 
     drop_columns_df(input_file, output_drop_tables)
     preprocess_label_encoded_data(output_drop_tables, output_pre_label)
     preprocess_one_hot_data(output_drop_tables, output_pre_one_hot)
-
-    label_encode_data(output_pre_label, output_label, output_rev_label_mapping)
-    one_hot_encode_data(output_pre_one_hot, output_one_hot)
+    label_encode_data(
+        output_pre_label, output_label, output_rev_label_dict, output_rev_label_mapping
+    )
+    one_hot_encode_data(output_pre_one_hot, output_rev_one_hot_dict, output_one_hot)
     return {"status": "Label encoding completed"}
+
+
+@celery.task
+def async_drop_columns(directory_project: str):
+    pass
 
 
 @celery.task
