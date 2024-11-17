@@ -1,92 +1,17 @@
-import json
 import os
 
-from celery.result import AsyncResult
-from flask import Blueprint, jsonify, request
+from flask import jsonify, request
 
 from app.filename_utils import *
-from config import Config
+from app.os_utils import *
+from app.tasks import *
+from app.ml_models.summarising import summerise_cluster
 
 from . import app  # TODO Change it to current app -> from flask import current_app
-from .tasks import *
 
 # TODO add main route
 # split main route
 # main_routes = Blueprint('main_routes', __name__)
-
-
-def os_path_join_secure(base_dir: str, *sub_dirs: str) -> str:
-    full_path = os.path.abspath(os.path.join(base_dir, *sub_dirs))
-    if not full_path.startswith(os.path.abspath(base_dir)):
-        raise ValueError("Unsafe path detected.")
-
-    return full_path
-
-
-def directory_project_path_full(project_id: str, path: list) -> str:
-    # Create the list of formatted subdirectories
-    sub_dirs = [directory_cluster_format(cluster_num) for cluster_num in path]
-    return os_path_join_secure(
-        os_path_join_secure(all_project_dir_path(), project_id), *sub_dirs
-    )
-
-
-def create_directory(base_dir: str, *sub_dirs: str) -> dict:
-    """
-    Creates a nested directory structure under the specified base directory.
-
-    Usage:
-        create_project_directory(app.config[Config.PROJECTS_DIR_VAR_NAME], 'dir1', 'dir11', 'task123')
-        create_project_directory( project_dir_path(), 'dir1', 'dir11', 'task123')
-
-    Args:
-        base_dir (str): base directory under which subdirectories will be created.
-        sub_dirs (str): Variable number of subdirectories to nest within the base directory.
-
-    Returns:
-        dict: A response indicating 'success' or 'error' with a message.
-    """
-    directory_path = os_path_join_secure(base_dir, *sub_dirs)
-
-    try:
-        os.makedirs(directory_path, exist_ok=True)
-        return {
-            "status": "success",
-            "message": f"Directory created at {directory_path}",
-        }
-    except OSError as e:
-        return {"status": "error", "message": f"Failed to create directory: {e}"}
-
-
-def load_processed_data(json_file_path: str):
-    with open(json_file_path, "r") as json_file:
-        return json.load(json_file)
-
-
-def load_project_name(project_dir: str) -> str:
-    project_name_path = os.path.join(project_dir, "project_name.txt")
-    if os.path.exists(project_name_path):
-        with open(project_name_path, "r") as f:
-            return f.read().strip()  # Remove any surrounding whitespace
-    return None
-
-
-def all_project_dir_path() -> str:
-    # TODO change app to current_app
-    return app.config[Config.PROJECTS_DIR_VAR_NAME]
-
-
-def list_sub_directories(base_dir: str) -> list:
-    list_sub_dir = []
-
-    for project_id in os.listdir(base_dir):
-        project_dir = os.path.join(base_dir, project_id)
-        if os.path.isdir(project_dir):
-            # TODO project_name = load_project_name(project_dir)
-            list_sub_dir.append(project_id)
-            # TODO tasks.append({"project_id": project_id, "project_name": project_name})
-
-    return list_sub_dir
 
 
 @app.route("/get_all_projects", methods=["GET", "POST"])
@@ -111,23 +36,11 @@ def list_tasks():
 
 @app.route("/create_new_project", methods=["GET", "POST"])
 def create_new_project():
-    """TODO
-    if request.method == 'POST':
-        #expect JSON input
-        data = request.get_json()
-        project_name = data.get('project_name')
-    elif request.method == 'GET':
-        project_name = request.args.get('project_name')
-    if not project_name:
-        return jsonify({"error": "project_name is required"}), 400
-    """
-
     new_project_id = create_project_uuid()
     result = create_directory(all_project_dir_path(), new_project_id)
     return jsonify({"project_id": new_project_id, **result})
 
 
-# TODO add a proper uri name
 @app.route("/upload", methods=["POST"])
 def upload_file():
     project_id = os.path.basename(request.form.get("project_id"))
@@ -141,9 +54,7 @@ def upload_file():
 
     file = request.files["file"]
     if file:
-        result = async_save_and_process_file.delay(
-            project_dir, file.read(), file.filename
-        )
+        result = async_save_and_process_file.delay(project_dir, file.read())
 
         return (
             jsonify({"message": "File processing has started", "task_id": result.id}),
@@ -156,18 +67,7 @@ def upload_file():
 @app.route("/check-task/<task_id>", methods=["GET"])
 def check_task(task_id):
     result = celery.AsyncResult(task_id)
-    # if result.ready():
-    return jsonify(
-        {
-            "status": result.status
-            # "is_successful": result.successful(),
-            # "is_ready": result.ready(),
-            # "result": result.result if result.result else "Error",
-            # "traceback": result.traceback if result.failed() else None
-        }
-    )
-    # else:
-    #     return jsonify({"status": "pending"}), 202
+    return jsonify({"status": result.status})
 
 
 @app.route("/get_clusters", methods=["POST"])
@@ -203,7 +103,7 @@ def display_cluster():
 def start_feature_ranking():
     """
     curl -X POST http://127.0.0.1:8080/process/feature_ranking -H "Content-Type: application/json" -d '{
-    "target_vars": ["reading_fee_paid", "Number_of_Months", "Coupon_Discount", "num_books", "magazine_fee_paid", "Renewal_Amount", "amount_paid"],
+    "target_vars_list": ["reading_fee_paid", "Number_of_Months", "Coupon_Discount", "num_books", "magazine_fee_paid", "Renewal_Amount", "amount_paid"],
     "target_var": "amount_paid",
     "level": 3,
     "path": [1, 2, 1]
@@ -212,7 +112,7 @@ def start_feature_ranking():
     request_data_json = request.get_json()
     project_id = os.path.basename(request_data_json.get("project_id"))
     list_path = request_data_json.get("path")
-    target_vars = request_data_json.get("target_vars", [])
+    target_vars_list = request_data_json.get("target_vars_list", [])
     target_var = request_data_json.get("target_var", None)
 
     target_vars_list = [
@@ -244,19 +144,66 @@ def start_feature_ranking():
     )
 
 
-@app.route("/process/cluster", methods=["POST"])
-def start_sub_clustering():
+@app.route("/process/summerising", methods=["POST"])
+def start_summerising():
     """
-    curl -X POST http://127.0.0.1:8080/process -H "Content-Type: application/json" -d '{
-    "target_vars": ["reading_fee_paid", "Number_of_Months", "Coupon_Discount", "num_books", "magazine_fee_paid", "Renewal_Amount", "amount_paid"],
-    "target_var": "amount_paid",
+    curl -X POST http://127.0.0.1:8080/process/summerising -H "Content-Type: application/json" -d '{
     "level": 3,
     "path": [1, 2, 1]
     }'
     """
     request_data_json = request.get_json()
+    level = int(request_data_json.get("level"))
+    path = request_data_json.get("path")
+    project_id = os.path.basename(request_data_json.get("project_id"))
+    del request_data_json
+    # total paths should be equal to level
+    if int(level) != len(path):
+        return jsonify({"error": "Level and Path don't match"}), 400
+
+    directory_project = directory_project_path_full(project_id, path)
+    clusters = list_sub_directories(directory_project)
+
+    for cluster in clusters:
+        data_raw = os.path.join(directory_project, cluster, filename_raw_data_csv())
+        json_file = os.path.join(
+            directory_project, cluster, feature_descriptions_json()
+        )
+        csv_file = os.path.join(directory_project, cluster, feature_descriptions_csv())
+        summerise_cluster(data_raw, json_file, csv_file)
+
+    return (
+        jsonify(
+            {
+                "message": "File encoding has started",
+                "Project_id": project_id,
+                "project_dir": os.path.join(
+                    directory_project, filename_label_encoded_data_csv()
+                ),
+            }
+        ),
+        202,
+    )
+
+
+@app.route("/process/cluster", methods=["POST"])
+def start_sub_clustering():
+    """
+    curl -X POST http://127.0.0.1:8080/process -H "Content-Type: application/json" -d '{
+    "target_var": "amount_paid",
+    "level": 3,
+    "path": [1, 2, 1]
+    }'
+    """
+    # TODO add target varibale
+    request_data_json = request.get_json()
     project_id = os.path.basename(request_data_json.get("project_id"))
     list_path = request_data_json.get("path")
+    level = int(request_data_json.get("level"))
+    path = request_data_json.get("path")
+    if int(level) != len(path):
+        return jsonify({"error": "Level and Path don't match"}), 400
+
     directory_project_base = directory_project_path_full(project_id, [])
     directory_project_cluster = directory_project_path_full(project_id, list_path)
     input_file_path_feature_rank_pkl = os.path.join(
@@ -271,16 +218,15 @@ def start_sub_clustering():
             404,
         )
 
-    result = async_optimised_clustering(
+    result = async_optimised_clustering.delay(
         directory_project_cluster, input_file_path_feature_rank_pkl
     )
-    print(type(result))
 
     return (
         jsonify(
             {
-                "message": "File encoding has started",
-                "task_id": result,
+                "message": "Clustering has started",
+                "task_id": result.id,
                 "Project_id": project_id,
                 "project_dir": directory_project_cluster,
             }

@@ -6,7 +6,7 @@ from flask_cors import CORS
 # TODO spilt the routes
 from config import Config, DevelopmentConfig, ProductionConfig, TestingConfig
 
-from .celery_utils import make_celery
+from app.celery_utils import make_celery
 
 # Initialize the app and set up CORS
 app = Flask(__name__)
@@ -20,9 +20,9 @@ elif Config.ENV == "production":
     # TODO remove old routes
     # TODO add main route
     # TODO Refactor this file
-    from .routes.demo_api_routes import demo_api_routes
-    from .routes.old_routes import old_routes
-    from .routes.user_routes import user_routes
+    from app.routes.demo_api_routes import demo_api_routes
+    from app.routes.old_routes import old_routes
+    from app.routes.user_routes import user_routes
 
     app.register_blueprint(user_routes, url_prefix="/user")
     app.register_blueprint(old_routes, url_prefix="/old")

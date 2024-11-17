@@ -30,8 +30,20 @@ def filename_pre_one_hot_encoded_data_csv() -> str:
     return "data_pre_one_hot_encode.csv"
 
 
+def filename_main_data_csv():
+    return "data_main_cleaned.csv"
+
+
 def filename_label_mapping_data_csv() -> str:
     return "data_label_mapping.csv"
+
+
+def filename_rev_label_encoded_dict_pkl() -> str:
+    return "dict_rev_label_encode_data.pkl"
+
+
+def filename_rev_one_hot_encoded_dict_pkl() -> str:
+    return "dict_rev_one_hot_encode_data.pkl"
 
 
 def directory_cluster_format(cluster_num: str | int) -> str:
@@ -40,6 +52,15 @@ def directory_cluster_format(cluster_num: str | int) -> str:
 
 def filename_cluster_format_csv(cluster_num: str | int) -> str:
     return f"cluster_{cluster_num}.csv"
+
+
+# summerising algo
+def feature_descriptions_csv() -> str:
+    return "feature_descriptions.csv"
+
+
+def feature_descriptions_json():
+    return "feature_descriptions.json"
 
 
 # feature ranking algo
@@ -53,7 +74,3 @@ def filename_feature_rank_list_pkl() -> str:
 
 def filename_feature_rank_result_txt(target_var: str):
     return f"results_{re.sub(r'[^A-Za-z0-9_]', '', target_var)}.txt"
-
-
-def filename_rev_label_encoded_dict_pkl() -> str:
-    return f"dict_rev_label_encode_data.pkl"
