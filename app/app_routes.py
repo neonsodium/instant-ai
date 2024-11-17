@@ -212,7 +212,7 @@ def start_time_series():
             directory_project, cluster, feature_descriptions_json()
         )
         csv_file = os.path.join(directory_project, cluster, feature_descriptions_csv())
-        summerise_cluster(data_raw, json_file, csv_file)
+        summerise_cluster(data_raw, csv_file, json_file)
 
     return (
         jsonify(
