@@ -186,6 +186,48 @@ def start_summerising():
     )
 
 
+@app.route("/process/time_series", methods=["POST"])
+def start_time_series():
+    """
+    curl -X POST http://127.0.0.1:8080/process/summerising -H "Content-Type: application/json" -d '{
+    "level": 3,
+    "path": [1, 2, 1]
+    }'
+    """
+    request_data_json = request.get_json()
+    level = int(request_data_json.get("level"))
+    path = request_data_json.get("path")
+    project_id = os.path.basename(request_data_json.get("project_id"))
+    del request_data_json
+    # total paths should be equal to level
+    if int(level) != len(path):
+        return jsonify({"error": "Level and Path don't match"}), 400
+
+    directory_project = directory_project_path_full(project_id, path)
+    clusters = list_sub_directories(directory_project)
+
+    for cluster in clusters:
+        data_raw = os.path.join(directory_project, cluster, filename_raw_data_csv())
+        json_file = os.path.join(
+            directory_project, cluster, feature_descriptions_json()
+        )
+        csv_file = os.path.join(directory_project, cluster, feature_descriptions_csv())
+        summerise_cluster(data_raw, json_file, csv_file)
+
+    return (
+        jsonify(
+            {
+                "message": "File encoding has started",
+                "Project_id": project_id,
+                "project_dir": os.path.join(
+                    directory_project, filename_label_encoded_data_csv()
+                ),
+            }
+        ),
+        202,
+    )
+
+
 @app.route("/process/cluster", methods=["POST"])
 def start_sub_clustering():
     """

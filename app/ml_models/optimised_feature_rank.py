@@ -9,12 +9,16 @@ from app.filename_utils import (
     filename_feature_rank_result_txt,
     filename_feature_rank_score_df,
 )
-from app.ml_models.extra_trees import extra_trees
-from app.ml_models.f_test_anova import f_test_anova
-from app.ml_models.mutual_info import mutual_info
-from app.ml_models.permutation_importance_svr import permutation_importance_svr
-from app.ml_models.random_forest import random_forest
-from app.ml_models.seq_feature_selector import perform_feature_selection
+from app.ml_models.feature_ranking_ulits.extra_trees import extra_trees
+from app.ml_models.feature_ranking_ulits.f_test_anova import f_test_anova
+from app.ml_models.feature_ranking_ulits.mutual_info import mutual_info
+from app.ml_models.feature_ranking_ulits.permutation_importance_svr import (
+    permutation_importance_svr,
+)
+from app.ml_models.feature_ranking_ulits.random_forest import random_forest
+from app.ml_models.feature_ranking_ulits.seq_feature_selector import (
+    perform_feature_selection,
+)
 
 
 def run_algorithm(algorithm, X, Y, feature_vars):
