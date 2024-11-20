@@ -13,18 +13,19 @@ CORS(app)
 if Config.ENV == "development":
     from app.routes.demo_api_routes import demo_api_routes
     from app.routes.old_routes import old_routes
-    from app.routes.user_routes import user_routes
 
-    app.register_blueprint(user_routes, url_prefix="/user")
+    # from app.routes.user_routes import user_routes
+    # app.register_blueprint(user_routes, url_prefix="/user")
+    app.register_blueprint(main_routes, url_prefix="/")
     app.register_blueprint(old_routes, url_prefix="/old")
     app.register_blueprint(demo_api_routes, url_prefix="/api/demo")
     app.config.from_object(DevelopmentConfig)
 elif Config.ENV == "production":
+    from app.app_routes import main_routes
     from app.routes.demo_api_routes import demo_api_routes
     from app.routes.old_routes import old_routes
 
-    # from app.routes.user_routes import test_route
-    # app.register_blueprint(test_route, url_prefix="/test")
+    app.register_blueprint(main_routes, url_prefix="/")
     app.register_blueprint(old_routes, url_prefix="/old")
     app.register_blueprint(demo_api_routes, url_prefix="/api/demo")
     app.config.from_object(ProductionConfig)
@@ -49,4 +50,4 @@ app.json.sort_keys = False
 # first import config and then call make_celery
 celery = make_celery(app)
 # TODO move it
-from app import app_routes
+from app.app_routes import main_routes
