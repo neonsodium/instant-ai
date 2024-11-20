@@ -9,7 +9,7 @@ from flask import Blueprint, abort, jsonify, request, send_file
 demo_api_routes = Blueprint("demo_api_routes", __name__)
 
 # ---------------------------------DEMO---API--------------------------------------- #
-CLUSTER_FILES_DIR = "files_cluster"
+CLUSTER_FILES_DIR = "static/files_cluster"
 
 
 @demo_api_routes.route("/download_cluster/<int:cluster_number>", methods=["GET"])
@@ -115,12 +115,12 @@ def post_cluster_files():
 
 
 def load_cluster_data():
-    with open("json/cluster_data.json", "r") as file:
+    with open("static/json/cluster_data.json", "r") as file:
         return json.load(file)
 
 
 def load_sub_cluster_data():
-    with open("json/sub_cluster.json", "r") as file:
+    with open("static/json/sub_cluster.json", "r") as file:
         return json.load(file)
 
 

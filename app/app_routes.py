@@ -1,6 +1,6 @@
 import os
 
-from flask import jsonify, request
+from flask import jsonify, request, abort, send_file
 
 from app.filename_utils import *
 from app.os_utils import *
@@ -142,6 +142,43 @@ def start_feature_ranking():
         ),
         202,
     )
+
+
+@app.route("/list-files", methods=["GET"])
+def list_files():
+    """
+    Lists all files in the root directory and its subdirectories.
+    """
+    directory_project = all_project_dir_path()
+    file_list = []
+    for root, _, files in os.walk(directory_project):
+        for file in files:
+            full_path = os.path.join(root, file)
+            # Make paths relative to the root directory
+            relative_path = os.path.relpath(full_path, directory_project)
+            file_list.append(relative_path)
+    return jsonify({"files": file_list})
+
+
+@app.route("/download", methods=["GET"])
+def download_file():
+    """
+    Downloads a file if the path is provided and valid.
+    """
+    directory_project = all_project_dir_path()
+    relative_path = request.args.get("path", None)
+    if not relative_path:
+        return abort(400, description="The 'path' query parameter is required.")
+
+    # Ensure the path is within the ROOT_DIRECTORY
+    absolute_path = os.path.abspath(os.path.join(directory_project, relative_path))
+    if not absolute_path.startswith(os.path.abspath(directory_project)):
+        return abort(403, description="Access to the file is forbidden.")
+
+    if not os.path.exists(absolute_path) or not os.path.isfile(absolute_path):
+        return abort(404, description="File not found.")
+
+    return send_file(absolute_path, as_attachment=True)
 
 
 @app.route("/process/summerising", methods=["POST"])
