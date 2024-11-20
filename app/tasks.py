@@ -25,7 +25,9 @@ def async_data_processer(directory_project: str):
         directory_project, filename_dropeed_column_data_csv()
     )
     output_pre_label = os.path.join(directory_project, filename_pre_label_data_csv())
-    output_label = os.path.join(directory_project, filename_label_encoded_data_csv())
+    output_label_csv = os.path.join(
+        directory_project, filename_label_encoded_data_csv()
+    )
     output_pre_one_hot = os.path.join(
         directory_project, filename_pre_one_hot_encoded_data_csv()
     )
@@ -46,7 +48,10 @@ def async_data_processer(directory_project: str):
     preprocess_label_encoded_data(output_drop_tables, output_pre_label)
     preprocess_one_hot_data(output_drop_tables, output_pre_one_hot)
     label_encode_data(
-        output_pre_label, output_label, output_rev_label_dict, output_rev_label_mapping
+        output_pre_label,
+        output_label_csv,
+        output_rev_label_dict,
+        output_rev_label_mapping,
     )
     one_hot_encode_data(output_pre_one_hot, output_rev_one_hot_dict, output_one_hot)
     return {"status": "Label encoding completed"}

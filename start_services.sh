@@ -17,7 +17,7 @@ REDIS_PID=$!
 
 # Start Celery worker
 echo "Starting Celery..."
-celery -A celery_worker.celery worker --loglevel=info &  # Start in the background
+celery -A celery_worker.celery worker --loglevel=INFO &  # Start in the background
 CELERY_PID=$!
 
 # Start Flask app using python3

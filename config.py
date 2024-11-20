@@ -12,19 +12,19 @@ class Config:
     PROJECTS_DIR = "projects"
     PROJECTS_DIR_VAR_NAME = "PROJECTS_DIR"
 
-    # Using Redis as broker
-    # TODO RabbitMQ
     CELERY_BROKER_URL = "redis://localhost:6379/0"
     CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
 
     if (
         platform.system() == "Darwin" or platform.system() == "Windows"
-    ):  # macOS cox i work on
+    ):  # MacOS coz i work on
         ENV = "development"
-    elif platform.system() == "Linux":  # Linux
+    elif platform.system() == "Linux":
         ENV = "production"
     else:
         ENV = "testing"
+
+    ENV = "production"
 
 
 class DevelopmentConfig(Config):
@@ -38,7 +38,7 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     DEBUG = False
     LOGIN_REQUIRED = True
-    PORT = 8009  # 8009 to 80 on the internet
+    PORT = 8009  # 8009 to 80 on the internet on prod
     USERNAME = "girish_pvl"
     PASSWORD = "HelloML"
 
