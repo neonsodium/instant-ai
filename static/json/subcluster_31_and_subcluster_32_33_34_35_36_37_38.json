@@ -1,0 +1,150 @@
+{
+  "level": 1,
+  "path": [3], 
+  "clusters": [
+    {
+      "clusterNo": 1,
+      "metrics": {
+        "Coupon Discount (₹)": 7670,
+        "Membership Expiry Date": "2024 (65)",
+        "Number of Months (Top Value)": "3 months (98)",
+        "Reading Fee Paid (₹)": 230816,
+        "Top Branch Type": "Company Owned (98)",
+        "Top Package": "Default Package (102)",
+        "Top Transaction Branch ID": "Branch 810 (89)",
+        "Top Transaction Month": "April (19)",
+        "Top Transaction Type ID": "Signup",
+        "Top Transaction Year": "2023 (65)",
+        "Total Amount Paid (₹)": 298634,
+        "Transaction Count": 123
+      }
+    },
+    {
+      "clusterNo": 2,
+      "metrics": {
+        "Coupon Discount (₹)": 480,
+        "Membership Expiry Date": "2023 (430)",
+        "Number of Months (Top Value)": "3 months (772)",
+        "Reading Fee Paid (₹)": 1000571,
+        "Top Branch Type": "Company Owned (774)",
+        "Top Package": "Online Package (748)",
+        "Top Transaction Branch ID": "Branch 810 (764)",
+        "Top Transaction Month": "April (137)",
+        "Top Transaction Type ID": "Signup",
+        "Top Transaction Year": "2021 (359)",
+        "Total Amount Paid (₹)": 1425901,
+        "Transaction Count": 774
+        
+      }
+    },
+    {
+        "clusterNo": 3,
+        "metrics": {
+            "Coupon Discount (₹)": 118064.8,
+            "Membership Expiry Date": "2022 (321)",
+            "Number of Months (Top Value)": "6 months (452)",
+            "Reading Fee Paid (₹)": 1069844.2,
+            "Top Branch Type": "Company Owned (389)",
+            "Top Package": "Online Package (257)",
+            "Top Transaction Branch ID": "Branch 810 (365)",
+            "Top Transaction Month": "January (69)",
+            "Top Transaction Type ID": "Signup (1.0)",
+            "Top Transaction Year": "2021 (268)",
+            "Total Amount Paid (₹)": 1270904,
+            "Transaction Count": 455
+          
+        }
+      },
+      {
+        "clusterNo": 4,
+        "metrics": {
+            "Coupon Discount (₹)": 0,
+            "Membership Expiry Date": "2025 (98)",
+            "Number of Months (Top Value)": "3 months (1410)",
+            "Reading Fee Paid (₹)": 1848590,
+            "Top Branch Type": "Active User Branch (654)",
+            "Top Package": "Default Package (1410)",
+            "Top Transaction Branch ID": "Branch 126 (195)",
+            "Top Transaction Month": "March (236)",
+            "Top Transaction Type ID": "Signup",
+            "Top Transaction Year": "2021 (557)",
+            "Total Amount Paid (₹)": 2645061,
+            "Transaction Count": 1410
+          
+        }
+      },
+      {
+        "clusterNo": 5,
+        "metrics": {
+            "Coupon Discount (₹)": 124785.32,
+            "Membership Expiry Date": "2024 (58)",
+            "Number of Months (Top Value)": "3 months (49)",
+            "Reading Fee Paid (₹)": 89532,
+            "Top Branch Type": "Company Owned (60)",
+            "Top Package": "Online Package (51)",
+            "Top Transaction Branch ID": "Branch 810 (60)",
+            "Top Transaction Month": "September (14)",
+            "Top Transaction Type ID": "Signup",
+            "Top Transaction Year": "2022 (50)",
+            "Total Amount Paid (₹)": 1965,
+            "Transaction Count": 60
+          
+        }
+      },
+      {
+        "clusterNo": 6,
+        "metrics": {
+            "Coupon Discount (₹)": 0,
+            "Membership Expiry Date": "2021 (40)",
+            "Number of Months (Top Value)": "0 months (80)",
+            "Reading Fee Paid (₹)": 0,
+            "Top Branch Type": "Company Owned (60)",
+            "Top Package": "Default Package (64)",
+            "Top Transaction Branch ID": "Branch 810 (53)",
+            "Top Transaction Month": "April (14)",
+            "Top Transaction Type ID": "Reopen (7.0) (80 transactions)",
+            "Top Transaction Year": "2021 (30)",
+            "Total Amount Paid (₹)": 19858,
+            "Transaction Count": 80
+          
+        }
+      },
+      {
+        "clusterNo": 7,
+        "metrics": {
+            "Coupon Discount (₹)": 0,
+            "Membership Expiry Date": "2022 (250)",
+            "Number of Months (Top Value)": "3 months (736)",
+            "Reading Fee Paid (₹)": 929136,
+            "Top Branch Type": "Active User Branch (298)",
+            "Top Package": "Online Package (736)",
+            "Top Transaction Branch ID": "Branch 26 (110)",
+            "Top Transaction Month": "April (132)",
+            "Top Transaction Type ID": "Signup",
+            "Top Transaction Year": "2021 (298)",
+            "Total Amount Paid (₹)": 1331223,
+            "Transaction Count": 736
+          
+        }
+      },
+      {
+        "clusterNo": 8,
+        "metrics": {
+            "Coupon Discount (₹)": 68926.68,
+            "Membership Expiry Date": "2025 (12)",
+            "Number of Months (Top Value)": "12 months (12)",
+            "Reading Fee Paid (₹)": 48000,
+            "Top Branch Type": "Company Owned (12)",
+            "Top Package": "Online Package (8)",
+            "Top Transaction Branch ID": "Branch 810 (12)",
+            "Top Transaction Month": "April (12)",
+            "Top Transaction Type ID": "Signup",
+            "Top Transaction Year": "2022 (12)",
+            "Total Amount Paid (₹)": 49,
+            "Transaction Count": 12
+          
+        }
+      }
+  ]
+}
+
