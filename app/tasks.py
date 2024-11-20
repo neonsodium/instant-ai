@@ -3,10 +3,12 @@ import os
 from app.data_preparation_ulits.drop_columns import drop_columns_df
 from app.data_preparation_ulits.label_encode_data import label_encode_data
 from app.data_preparation_ulits.one_hot_encode import one_hot_encode_data
-from app.data_preparation_ulits.preprocess_test_label_encoded_data import \
-    preprocess_label_encoded_data
-from app.data_preparation_ulits.preprocess_test_one_hot_encoded import \
-    preprocess_one_hot_data
+from app.data_preparation_ulits.preprocess_test_label_encoded_data import (
+    preprocess_label_encoded_data,
+)
+from app.data_preparation_ulits.preprocess_test_one_hot_encoded import (
+    preprocess_one_hot_data,
+)
 from app.filename_utils import *
 from app.ml_models.optimised_clustering import optimised_clustering
 from app.ml_models.optimised_feature_rank import optimised_feature_rank
@@ -44,14 +46,14 @@ def async_data_processer(directory_project: str):
 
     drop_columns_df(input_file, output_drop_tables)
     preprocess_label_encoded_data(output_drop_tables, output_pre_label)
-    preprocess_one_hot_data(output_drop_tables, output_pre_one_hot)
+    # preprocess_one_hot_data(output_drop_tables, output_pre_one_hot)
     label_encode_data(
         output_pre_label,
         output_label_csv,
         output_rev_label_dict,
         output_rev_label_mapping,
     )
-    one_hot_encode_data(output_pre_one_hot, output_rev_one_hot_dict, output_one_hot)
+    # one_hot_encode_data(output_pre_one_hot, output_rev_one_hot_dict, output_one_hot)
     return {"status": "Label encoding completed"}
 
 

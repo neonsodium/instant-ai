@@ -1,21 +1,16 @@
 import os
 
-from flask import abort, jsonify, request, send_file
+from flask import Blueprint, abort, jsonify, request, send_file
 
 from app.filename_utils import *
 from app.ml_models.summarising import summerise_cluster
 from app.os_utils import *
 from app.tasks import *
 
-from . import \
-    app  # TODO Change it to current app -> from flask import current_app
-
-# TODO add main route
-# split main route
-# main_routes = Blueprint('main_routes', __name__)
+main_routes = Blueprint("main_routes", __name__)
 
 
-@app.route("/get_all_projects", methods=["GET", "POST"])
+@main_routes.route("/get_all_projects", methods=["GET", "POST"])
 def list_tasks():
 
     if not os.path.exists(all_project_dir_path()):
@@ -35,14 +30,14 @@ def list_tasks():
     return jsonify({"projects": projects}), 200
 
 
-@app.route("/create_new_project", methods=["GET", "POST"])
+@main_routes.route("/create_new_project", methods=["GET", "POST"])
 def create_new_project():
     new_project_id = create_project_uuid()
     result = create_directory(all_project_dir_path(), new_project_id)
     return jsonify({"project_id": new_project_id, **result})
 
 
-@app.route("/upload", methods=["POST"])
+@main_routes.route("/upload", methods=["POST"])
 def upload_file():
     project_id = os.path.basename(request.form.get("project_id"))
     project_dir = directory_project_path_full(project_id, [])
@@ -65,13 +60,13 @@ def upload_file():
         return jsonify({"error": "Invalid file type"}), 400
 
 
-@app.route("/check-task/<task_id>", methods=["GET"])
+@main_routes.route("/check-task/<task_id>", methods=["GET"])
 def check_task(task_id):
     result = celery.AsyncResult(task_id)
     return jsonify({"status": result.status})
 
 
-@app.route("/get_clusters", methods=["POST"])
+@main_routes.route("/get_clusters", methods=["POST"])
 def display_cluster():
     """
     curl -X POST http://localhost:8080/get_clusters \
@@ -94,13 +89,12 @@ def display_cluster():
     full_path = directory_project_path_full(project_id, path)
     clusters = list_sub_directories(full_path)
 
-    # Return the generated path as a JSON response
     return jsonify(
         {"full_path": full_path, "project_id": project_id, "clusters": clusters}
     )
 
 
-@app.route("/process/feature_ranking", methods=["POST"])
+@main_routes.route("/process/feature_ranking", methods=["POST"])
 def start_feature_ranking():
     """
     curl -X POST http://127.0.0.1:8080/process/feature_ranking -H "Content-Type: application/json" -d '{
@@ -145,7 +139,7 @@ def start_feature_ranking():
     )
 
 
-@app.route("/list-files", methods=["GET"])
+@main_routes.route("/list-files", methods=["GET"])
 def list_files():
     """
     Lists all files in the root directory and its subdirectories.
@@ -161,7 +155,7 @@ def list_files():
     return jsonify({"files": file_list})
 
 
-@app.route("/download", methods=["GET"])
+@main_routes.route("/download", methods=["GET"])
 def download_file():
     """
     Downloads a file if the path is provided and valid.
@@ -182,7 +176,7 @@ def download_file():
     return send_file(absolute_path, as_attachment=True)
 
 
-@app.route("/process/summerising", methods=["POST"])
+@main_routes.route("/process/summerising", methods=["POST"])
 def start_summerising():
     """
     curl -X POST http://127.0.0.1:8080/process/summerising -H "Content-Type: application/json" -d '{
@@ -224,7 +218,7 @@ def start_summerising():
     )
 
 
-@app.route("/process/time_series", methods=["POST"])
+@main_routes.route("/process/time_series", methods=["POST"])
 def start_time_series():
     """
     curl -X POST http://127.0.0.1:8080/process/summerising -H "Content-Type: application/json" -d '{
@@ -266,7 +260,7 @@ def start_time_series():
     )
 
 
-@app.route("/process/cluster", methods=["POST"])
+@main_routes.route("/process/cluster", methods=["POST"])
 def start_sub_clustering():
     """
     curl -X POST http://127.0.0.1:8080/process -H "Content-Type: application/json" -d '{

@@ -7,3 +7,16 @@ app/__pycache__/
 projects/test
 projects/*
 dump.rdb
+app/test_data/time_series_Data.csv
+app/test_data/rev_label_mapping.csv
+app/test_data/pre_one_hot.csv
+app/test_data/pre_label.csv
+app/test_data/one_hot.csv
+app/test_data/labels.pkl
+app/test_data/labels.csv
+app/test_data/label_encoded_mapping.csv
+app/test_data/drop_tables.csv
+app/test_data/sales_data.csv
+app/ml_models/Time_series_new.ipynb
+Complete_code.ipynb
+venv
