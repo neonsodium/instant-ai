@@ -1,9 +1,10 @@
 import os
+
 from flask import Flask
 from flask_cors import CORS
-from config import Config, DevelopmentConfig, ProductionConfig, TestingConfig
 
 from app.celery_utils import make_celery
+from config import Config, DevelopmentConfig, ProductionConfig, TestingConfig
 
 app = Flask(__name__)
 CORS(app)
@@ -23,7 +24,6 @@ elif Config.ENV == "production":
     from app.routes.old_routes import old_routes
 
     # from app.routes.user_routes import test_route
-
     # app.register_blueprint(test_route, url_prefix="/test")
     app.register_blueprint(old_routes, url_prefix="/old")
     app.register_blueprint(demo_api_routes, url_prefix="/api/demo")

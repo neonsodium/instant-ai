@@ -8,12 +8,10 @@ from sklearn.mixture import GaussianMixture
 from sklearn.preprocessing import StandardScaler
 
 from app.data_preparation_ulits.label_encode_data import reverse_label_encoding
-from app.filename_utils import (
-    directory_cluster_format,
-    filename_label_encoded_data_csv,
-    filename_raw_data_csv,
-    filename_rev_label_encoded_dict_pkl,
-)
+from app.filename_utils import (directory_cluster_format,
+                                filename_label_encoded_data_csv,
+                                filename_raw_data_csv,
+                                filename_rev_label_encoded_dict_pkl)
 
 
 def optimised_clustering(

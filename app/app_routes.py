@@ -1,13 +1,14 @@
 import os
 
-from flask import jsonify, request, abort, send_file
+from flask import abort, jsonify, request, send_file
 
 from app.filename_utils import *
+from app.ml_models.summarising import summerise_cluster
 from app.os_utils import *
 from app.tasks import *
-from app.ml_models.summarising import summerise_cluster
 
-from . import app  # TODO Change it to current app -> from flask import current_app
+from . import \
+    app  # TODO Change it to current app -> from flask import current_app
 
 # TODO add main route
 # split main route

@@ -1,13 +1,12 @@
 from data_preparation_ulits.drop_columns import drop_columns_df
 from data_preparation_ulits.label_encode_data import label_encode_data
 from data_preparation_ulits.one_hot_encode import one_hot_encode_data
-from data_preparation_ulits.preprocess_test_label_encoded_data import (
-    preprocess_label_encoded_data,
-)
-from data_preparation_ulits.preprocess_test_one_hot_encoded import (
-    preprocess_one_hot_data,
-)
-from data_preparation_ulits.reverse_label_encode import reverse_label_encode_data
+from data_preparation_ulits.preprocess_test_label_encoded_data import \
+    preprocess_label_encoded_data
+from data_preparation_ulits.preprocess_test_one_hot_encoded import \
+    preprocess_one_hot_data
+from data_preparation_ulits.reverse_label_encode import \
+    reverse_label_encode_data
 
 input_file = "test_data/jb_sales.csv"
 output_drop_tables = "test_data/drop_tables.csv"
