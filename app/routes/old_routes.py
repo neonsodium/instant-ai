@@ -21,6 +21,8 @@ from app.dynamic_time_series_utils import (
 )
 
 old_routes = Blueprint("old_routes", __name__)
+json_section_file = "static/json/section.json"
+# static/pickle_files/
 
 models = [
     {
@@ -94,40 +96,42 @@ def get_regressors(target_y, models):
     return None
 
 
-with open("json/section.json") as f:
+with open(json_section_file) as f:
     data = json.load(f)
 
 
 def build_dynamic_time_series_dict() -> dict:
     return {
-        section["endpoint"]: url_for("dynamic_time_series", target=section["endpoint"])
+        section["endpoint"]: url_for(
+            "old_routes.dynamic_time_series", target=section["endpoint"]
+        )
         for section in data["sections"]
     }
 
 
 def is_logged_in():
     if session.get("username"):
-        return redirect(url_for("index"))
+        return redirect(url_for("old_routes.index"))
     else:
-        return redirect(url_for("login"))
+        return redirect(url_for("old_routes.login"))
 
 
 # @app.before_request
 def login_check():
     if session.get("username"):
-        return redirect(url_for("index"))
+        return redirect(url_for("old_routes.index"))
     else:
-        return redirect(url_for("login"))
+        return redirect(url_for("old_routes.login"))
 
 
 # Login Page
-@old_routes.route("/")
+@old_routes.route("/login")
 def login():
     """Renders the login page."""
     if not current_app.config.get("LOGIN_REQUIRED", True):
-        return redirect(url_for("index"))
+        return redirect(url_for("old_routes.index"))
     if session.get("username"):
-        return redirect(url_for("index"))
+        return redirect(url_for("old_routes.index"))
     return render_template("login.html")
 
 
@@ -155,15 +159,15 @@ def auth():
         "password"
     ] and current_app.config.get("USERNAME"):
         session["username"] = request.form["username"]
-        return redirect(url_for("index"))
+        return redirect(url_for("old_routes.index"))
     else:
         flash("Invalid username or password", "error")
-        return redirect(url_for("login"))
+        return redirect(url_for("old_routes.login"))
 
 
 def read_rank_data(target):
     # Define the file name based on the target variable
-    pickle_file_name = f"pickle_files/rank_data_{target}.pkl"
+    pickle_file_name = f"static/pickle_files/rank_data_{target}.pkl"
 
     # Open the pickle file and load the DataFrame
     with open(pickle_file_name, "rb") as pickle_file:
@@ -171,7 +175,7 @@ def read_rank_data(target):
 
 
 def model_pickle_file(target):
-    return f"pickle_files/{target}_prophet_model_and_data.pkl"
+    return f"static/pickle_files/{target}_prophet_model_and_data.pkl"
 
 
 def load_model_and_data(pickle_file):
@@ -227,7 +231,7 @@ def cluster_data_downlaod(target):
     ]
     if target not in catagories:
         return
-    with open(f"pickle_files/cluster_model_{target}.pkl", "rb") as file:
+    with open(f"static/pickle_files/cluster_model_{target}.pkl", "rb") as file:
         loaded_data = pickle.load(file)
     output = io.StringIO()
     loaded_data.to_csv(output, index=False)

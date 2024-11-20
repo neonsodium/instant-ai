@@ -1,10 +1,9 @@
 from flask import Blueprint, jsonify, request
 
-user_routes = Blueprint("user_routes", __name__)
+test_route = Blueprint("test_route", __name__)
 
 
-@user_routes.route("/predict", methods=["POST"])
+@test_route.route("/", methods=["POST"])
 def user_predict():
     data = request.get_json()
-    # prediction = predict(data)  # Assuming `predict` is a function you've defined
-    return jsonify({"prediction": data})
+    return jsonify({data})
