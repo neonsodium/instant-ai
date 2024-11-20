@@ -3,12 +3,10 @@ import os
 from app.data_preparation_ulits.drop_columns import drop_columns_df
 from app.data_preparation_ulits.label_encode_data import label_encode_data
 from app.data_preparation_ulits.one_hot_encode import one_hot_encode_data
-from app.data_preparation_ulits.preprocess_test_label_encoded_data import (
-    preprocess_label_encoded_data,
-)
-from app.data_preparation_ulits.preprocess_test_one_hot_encoded import (
-    preprocess_one_hot_data,
-)
+from app.data_preparation_ulits.preprocess_test_label_encoded_data import \
+    preprocess_label_encoded_data
+from app.data_preparation_ulits.preprocess_test_one_hot_encoded import \
+    preprocess_one_hot_data
 from app.filename_utils import *
 from app.ml_models.optimised_clustering import optimised_clustering
 from app.ml_models.optimised_feature_rank import optimised_feature_rank

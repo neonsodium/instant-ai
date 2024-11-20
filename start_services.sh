@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Function to clean up processes
+
 cleanup() {
     echo "Cleaning up processes..."
     kill $REDIS_PID $CELERY_PID $FLASK_PID
@@ -10,19 +10,18 @@ cleanup() {
 # Trap to handle script termination
 trap cleanup SIGINT SIGTERM
 
-# Start Redis server
+
 echo "Starting Redis..."
-redis-server &  # Start in the background
+redis-server &
 REDIS_PID=$!
 
-# Start Celery worker
+
 echo "Starting Celery..."
-celery -A celery_worker.celery worker --loglevel=INFO &  # Start in the background
+celery -A celery_worker.celery worker --loglevel=INFO &  
 CELERY_PID=$!
 
-# Start Flask app using python3
 echo "Starting Flask app..."
-python3 run.py &  # Start in the background
+python3 run.py &  
 FLASK_PID=$!
 
 # Wait for all processes to complete
