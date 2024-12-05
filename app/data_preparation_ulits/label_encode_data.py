@@ -12,14 +12,14 @@ def label_encode_data(
     output_label_encoded_mapping_path: str,
 ):
     df = pd.read_csv(input_csv_file_path)
-    df_encoded, label_encoders, label_encoded_mapping = apply_label_encoding(df)
+    df_encoded, label_encoders_dict, label_encoded_mapping = apply_label_encoding(df)
     df_encoded.to_csv(output_label_encoded_path, index=False)
     with open(output_labels_path, "wb") as file:
-        pickle.dump(label_encoders, file)
+        pickle.dump(label_encoders_dict, file)
     label_encoded_mapping.to_csv(output_label_encoded_mapping_path, index=False)
 
 
-def apply_label_encoding(df):
+def apply_label_encoding(df: DataFrame):
     """
     Apply label encoding
         encoded_df, encoders = apply_label_encoding(df)
@@ -40,13 +40,13 @@ def apply_label_encoding(df):
     return df, label_encoders, label_encoded_mapping
 
 
-def reverse_label_encoding(df, label_encoders) -> DataFrame:
+def reverse_label_encoding(df: DataFrame, label_encoders: dict) -> DataFrame:
     """
     Reverse label encoding:
         decoded_df = reverse_label_encoding(encoded_df, label_encoders)
     """
     for col, mapping in label_encoders.items():
-        reverse_mapping = {v: k for k, v in mapping.items()}
+        reverse_mapping = {v: k for k, v in mapping.items()}  # Reverse the mapping
         df[col] = df[col].map(reverse_mapping)
 
     return df
