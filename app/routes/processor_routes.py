@@ -31,10 +31,7 @@ def upload_file():
     if file:
         result = async_save_file.delay(directory_project, file.read())
 
-        return (
-            jsonify({"message": "File processing has started", "task_id": result.id}),
-            202,
-        )
+        return (jsonify({"message": "File processing has started", "task_id": result.id}), 202)
     else:
         return jsonify({"error": "Invalid file type"}), 400
 
@@ -62,19 +59,13 @@ def drop_column():
     if not drop_column_list:
         return jsonify({"error": "Invaild column"}), 400
 
-    drop_column_file = os.path.join(
-        directory_project, filename_dropeed_column_data_csv()
-    )
+    drop_column_file = os.path.join(directory_project, filename_dropeed_column_data_csv())
     if os.path.isfile(drop_column_file):
         df = pd.read_csv(drop_column_file)
     else:
         df = pd.read_csv(raw_data_file)
 
-    df.drop(
-        drop_column_list,
-        axis=1,
-        inplace=True,
-    )
+    df.drop(drop_column_list, axis=1, inplace=True)
     df.to_csv(drop_column_file, index=False)
     return jsonify({"message": "Column removal process successfully."}), 200
 
@@ -95,12 +86,7 @@ def start_pre_processing():
 
     if os.path.isfile(os.path.join(directory_project, filename_raw_data_csv())):
         result = async_data_processer.delay(directory_project)
-        return (
-            jsonify(
-                {"message": "File pre-processing has started", "task_id": result.id}
-            ),
-            202,
-        )
+        return (jsonify({"message": "File pre-processing has started", "task_id": result.id}), 202)
     else:
         return jsonify({"message": "Data set not uploaded"}), 400
 
@@ -129,18 +115,14 @@ def start_feature_ranking():
     # target_var = "amount_paid"
 
     directory_project = directory_project_path_full(project_id, [])
-    result = async_optimised_feature_rank.delay(
-        target_var, target_vars_list, directory_project
-    )
+    result = async_optimised_feature_rank.delay(target_var, target_vars_list, directory_project)
     return (
         jsonify(
             {
                 "message": "Feature Ranking has started",
                 "task_id": str(result.id),
                 "Project_id": project_id,
-                "project_dir": os.path.join(
-                    directory_project, filename_label_encoded_data_csv()
-                ),
+                "project_dir": os.path.join(directory_project, filename_label_encoded_data_csv()),
             }
         ),
         202,
@@ -169,9 +151,7 @@ def start_time_series():
 
     for cluster in clusters:
         data_raw = os.path.join(directory_project, cluster, filename_raw_data_csv())
-        json_file = os.path.join(
-            directory_project, cluster, feature_descriptions_json()
-        )
+        json_file = os.path.join(directory_project, cluster, feature_descriptions_json())
         csv_file = os.path.join(directory_project, cluster, feature_descriptions_csv())
         # summerise_cluster(data_raw, csv_file, json_file)
 
@@ -180,9 +160,7 @@ def start_time_series():
             {
                 "message": "File encoding has started",
                 "Project_id": project_id,
-                "project_dir": os.path.join(
-                    directory_project, filename_label_encoded_data_csv()
-                ),
+                "project_dir": os.path.join(directory_project, filename_label_encoded_data_csv()),
             }
         ),
         202,
@@ -214,12 +192,7 @@ def start_sub_clustering():
     )
 
     if not os.path.exists(input_file_path_feature_rank_pkl):
-        return (
-            jsonify(
-                {"error": "Feature ranking file not found", "project_id": project_id}
-            ),
-            404,
-        )
+        return (jsonify({"error": "Feature ranking file not found", "project_id": project_id}), 404)
 
     result = async_optimised_clustering.delay(
         directory_project_cluster, input_file_path_feature_rank_pkl

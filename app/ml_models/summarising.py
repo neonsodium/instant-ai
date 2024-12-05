@@ -3,9 +3,7 @@ import pandas as pd
 
 
 def summerise_cluster(
-    file_path: str,
-    filename_feature_descriptions_csv: str,
-    filename_feature_descriptions_json: str,
+    file_path: str, filename_feature_descriptions_csv: str, filename_feature_descriptions_json: str
 ):
     df = pd.read_csv(file_path)
 

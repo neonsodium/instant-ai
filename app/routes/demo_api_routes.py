@@ -42,10 +42,7 @@ def get_cluster_files(cluster_number):
 def post_cluster_files():
     data = request.get_json()
     if not data or "cluster_number" not in data or "level" not in data:
-        abort(
-            400,
-            description="Invalid request: 'cluster_number' and 'level' are required",
-        )
+        abort(400, description="Invalid request: 'cluster_number' and 'level' are required")
 
     cluster_number = data["cluster_number"]
     level = data["level"]

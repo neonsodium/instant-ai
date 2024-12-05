@@ -3,9 +3,7 @@ import pandas as pd
 
 
 def process_and_describe_features(
-    file_path,
-    csv_output="feature_descriptions.csv",
-    json_output="feature_descriptions.json",
+    file_path, csv_output="feature_descriptions.csv", json_output="feature_descriptions.json"
 ):
     """
     Processes a dataset to describe categorical and numerical features, including their value counts and statistics.

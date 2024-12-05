@@ -11,9 +11,7 @@ def perform_feature_selection(X, Y, k_features=10):
 
     regressor = LinearRegression()
 
-    selector = SFS(
-        regressor, k_features=k_features, scoring="neg_mean_squared_error", cv=5
-    )
+    selector = SFS(regressor, k_features=k_features, scoring="neg_mean_squared_error", cv=5)
 
     selector.fit(X_scaled, Y)
 

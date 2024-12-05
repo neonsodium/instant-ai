@@ -15,17 +15,13 @@ def calculate_daily_averages_2(df, month, year, regressors):
 
     def weighted_average_for_day(day, regressor):
         day_values = [
-            df[
-                (df["ds"].dt.month == month)
-                & (df["ds"].dt.year == y)
-                & (df["ds"].dt.day == day)
-            ][regressor].mean()
+            df[(df["ds"].dt.month == month) & (df["ds"].dt.year == y) & (df["ds"].dt.day == day)][
+                regressor
+            ].mean()
             * weight
             for y, weight in weights.items()
             if not df[
-                (df["ds"].dt.month == month)
-                & (df["ds"].dt.year == y)
-                & (df["ds"].dt.day == day)
+                (df["ds"].dt.month == month) & (df["ds"].dt.year == y) & (df["ds"].dt.day == day)
             ].empty
         ]
         return np.nan if not day_values else np.sum(day_values) / sum(weights.values())
@@ -67,9 +63,7 @@ def calculate_daily_averages(df, month, year, regressors):
                 total_weight = sum(weights.values())
                 weighted_average = np.sum(day_values) / total_weight
             else:
-                weighted_average = (
-                    np.nan
-                )  # Handle cases where there is no data for that day
+                weighted_average = np.nan  # Handle cases where there is no data for that day
             daily_values.append(weighted_average)
 
         daily_averages[regressor] = daily_values
@@ -88,9 +82,7 @@ def create_future_df(start_date, end_date, historical_data, regressors):
         )
         month_mask = future_df["ds"].dt.month == current_month
         for regressor in regressors:
-            future_df.loc[month_mask, regressor] = daily_averages[regressor][
-                : sum(month_mask)
-            ]
+            future_df.loc[month_mask, regressor] = daily_averages[regressor][: sum(month_mask)]
 
     return future_df
 

@@ -17,9 +17,7 @@ def os_path_join_secure(base_dir: str, *sub_dirs: str) -> str:
 
 def directory_project_path_full(project_id: str, path: list) -> str:
     sub_dirs = [directory_cluster_format(cluster_num) for cluster_num in path]
-    return os_path_join_secure(
-        os_path_join_secure(all_project_dir_path(), project_id), *sub_dirs
-    )
+    return os_path_join_secure(os_path_join_secure(all_project_dir_path(), project_id), *sub_dirs)
 
 
 def create_directory(base_dir: str, *sub_dirs: str) -> dict:
@@ -41,10 +39,7 @@ def create_directory(base_dir: str, *sub_dirs: str) -> dict:
 
     try:
         os.makedirs(directory_path, exist_ok=True)
-        return {
-            "status": "success",
-            "message": f"Directory created at {directory_path}",
-        }
+        return {"status": "success", "message": f"Directory created at {directory_path}"}
     except OSError as e:
         return {"status": "error", "message": f"Failed to create directory: {e}"}
 

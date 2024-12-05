@@ -20,10 +20,7 @@ elif Config.ENV == "testing":
 # projects folder exists
 try:
     app.config[Config.PROJECTS_DIR_VAR_NAME] = Config.PROJECTS_DIR
-    os.makedirs(
-        os.path.join(os.getcwd(), app.config[Config.PROJECTS_DIR_VAR_NAME]),
-        exist_ok=True,
-    )
+    os.makedirs(os.path.join(os.getcwd(), app.config[Config.PROJECTS_DIR_VAR_NAME]), exist_ok=True)
 except OSError:
     print(OSError)
 

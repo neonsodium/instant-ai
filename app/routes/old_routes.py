@@ -14,8 +14,11 @@ import plotly.graph_objs as go
 from flask import Blueprint, render_template, request, send_file
 from prophet import Prophet  # Dont remove
 
-from app.dynamic_time_series_utils import (adjust_for_weekend_effect,
-                                           create_future_df, generate_forecast)
+from app.dynamic_time_series_utils import (
+    adjust_for_weekend_effect,
+    create_future_df,
+    generate_forecast,
+)
 
 old_routes = Blueprint("old_routes", __name__)
 json_section_file = "static/json/section.json"
@@ -99,9 +102,7 @@ with open(json_section_file) as f:
 
 def build_dynamic_time_series_dict() -> dict:
     return {
-        section["endpoint"]: url_for(
-            "old_routes.dynamic_time_series", target=section["endpoint"]
-        )
+        section["endpoint"]: url_for("old_routes.dynamic_time_series", target=section["endpoint"])
         for section in data["sections"]
     }
 
@@ -134,11 +135,7 @@ def login():
 
 def generate_section_urls(data):
     return [
-        {
-            "url": section["endpoint"],
-            "title": section["title"],
-            "subtitle": section["subtitle"],
-        }
+        {"url": section["endpoint"], "title": section["title"], "subtitle": section["subtitle"]}
         for section in data["sections"]
     ]
 
@@ -152,9 +149,9 @@ def index():
 # Auth API
 @old_routes.route("/auth", methods=["POST"])
 def auth():
-    if current_app.config.get("PASSWORD") == request.form[
-        "password"
-    ] and current_app.config.get("USERNAME"):
+    if current_app.config.get("PASSWORD") == request.form["password"] and current_app.config.get(
+        "USERNAME"
+    ):
         session["username"] = request.form["username"]
         return redirect(url_for("old_routes.index"))
     else:
@@ -181,9 +178,7 @@ def load_model_and_data(pickle_file):
             data = pickle.load(file)
             return data["model"], data["historical_data"]
     except Exception as e:
-        print(
-            f"Pickle file for target variable '{pickle_file}' not found.", f"Error: {e}"
-        )
+        print(f"Pickle file for target variable '{pickle_file}' not found.", f"Error: {e}")
 
 
 def get_top_15_features(df, target):
@@ -249,9 +244,7 @@ def rank_data(target):
                 "rank_data_revenue.html",
                 target=target,
                 rank_data=get_top_15_features(read_rank_data(target), target),
-                dynamic_time_series_endpoint=build_dynamic_time_series_dict().get(
-                    target
-                ),
+                dynamic_time_series_endpoint=build_dynamic_time_series_dict().get(target),
             )
         return render_template(
             "rank_data.html",
@@ -262,8 +255,7 @@ def rank_data(target):
     except FileNotFoundError:
         print(f"Pickle file for target variable '{target}' not found.")
         return render_template(
-            "rank_data.html",
-            error=f"Pickle file for target variable '{target}' not found.",
+            "rank_data.html", error=f"Pickle file for target variable '{target}' not found."
         )
 
 
@@ -358,12 +350,8 @@ def plot_png():
         return "Target parameter is missing", 400
     model, historical_data = load_model_and_data(model_pickle_file(target))
     try:
-        start_date = datetime.strptime(
-            request.args.get("start_date", "2024-01-15"), "%Y-%m-%d"
-        )
-        end_date = datetime.strptime(
-            request.args.get("end_date", "2024-12-31"), "%Y-%m-%d"
-        )
+        start_date = datetime.strptime(request.args.get("start_date", "2024-01-15"), "%Y-%m-%d")
+        end_date = datetime.strptime(request.args.get("end_date", "2024-12-31"), "%Y-%m-%d")
     except ValueError:
         return "Invalid date format. Use YYYY-MM-DD.", 400
 
