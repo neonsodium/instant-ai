@@ -14,11 +14,8 @@ import plotly.graph_objs as go
 from flask import Blueprint, render_template, request, send_file
 from prophet import Prophet  # Dont remove
 
-from app.dynamic_time_series_utils import (
-    adjust_for_weekend_effect,
-    create_future_df,
-    generate_forecast,
-)
+from app.dynamic_time_series_utils import (adjust_for_weekend_effect,
+                                           create_future_df, generate_forecast)
 
 old_routes = Blueprint("old_routes", __name__)
 json_section_file = "static/json/section.json"

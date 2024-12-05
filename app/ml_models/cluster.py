@@ -2,17 +2,12 @@ import os
 import pickle
 
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import AgglomerativeClustering
+from sklearn.preprocessing import StandardScaler
 
 from app.data_preparation_ulits.label_encode_data import (
-    reverse_label_encoding,
-    apply_label_encoding,
-)
-from app.filename_utils import (
-    directory_cluster_format,
-    filename_raw_data_csv,
-)
+    apply_label_encoding, reverse_label_encoding)
+from app.filename_utils import directory_cluster_format, filename_raw_data_csv
 
 
 def optimised_clustering(
