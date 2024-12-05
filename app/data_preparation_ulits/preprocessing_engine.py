@@ -69,9 +69,7 @@ def validate_dataset(df):
                         f"  - Data type '{dtype}' occurs {count} times at rows: {rows_with_dtype}"
                     )
                 else:
-                    print(
-                        f"  - Data type '{dtype}' occurs {count} times ({percentage:.2f}%)"
-                    )
+                    print(f"  - Data type '{dtype}' occurs {count} times ({percentage:.2f}%)")
     else:
         print("\nNo columns with mixed data types found.")
 

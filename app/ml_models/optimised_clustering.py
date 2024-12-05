@@ -8,15 +8,15 @@ from sklearn.mixture import GaussianMixture
 from sklearn.preprocessing import StandardScaler
 
 from app.data_preparation_ulits.label_encode_data import reverse_label_encoding
-from app.filename_utils import (directory_cluster_format,
-                                filename_label_encoded_data_csv,
-                                filename_raw_data_csv)
+from app.filename_utils import (
+    directory_cluster_format,
+    filename_label_encoded_data_csv,
+    filename_raw_data_csv,
+)
 
 
 def optimised_clustering(
-    directory_project,
-    input_file_path_label_encoded_csv,
-    input_file_path_feature_rank_pkl,
+    directory_project, input_file_path_label_encoded_csv, input_file_path_feature_rank_pkl
 ):
     cluster_range = range(2, 11)
     features = []
@@ -48,7 +48,7 @@ def optimised_clustering(
     optimal_clusters_aic = cluster_range[np.argmin(aic_scores)]
 
     # Select the optimal cluster count (you can choose BIC or AIC)
-    best_cluster_count = optimal_clusters_bic  # Here we use BIC; change to optimal_clusters_aic if preferred
+    best_cluster_count = optimal_clusters_bic
 
     # Refit the GMM model with the best cluster count
     best_gmm = GaussianMixture(n_components=best_cluster_count, random_state=0)
@@ -57,13 +57,9 @@ def optimised_clustering(
     # Save each cluster as a separate file
     for cluster in df["cluster_label"].unique():
         cluster_df = df[df["cluster_label"] == cluster]
-        cluster_directory = os.path.join(
-            directory_project, directory_cluster_format(cluster)
-        )
+        cluster_directory = os.path.join(directory_project, directory_cluster_format(cluster))
         os.makedirs(cluster_directory, exist_ok=True)
-        cluster_filename_raw_data_path = os.path.join(
-            cluster_directory, filename_raw_data_csv()
-        )
+        cluster_filename_raw_data_path = os.path.join(cluster_directory, filename_raw_data_csv())
         cluster_filename_label_encoded_path = os.path.join(
             cluster_directory, filename_label_encoded_data_csv()
         )

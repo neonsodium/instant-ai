@@ -4,17 +4,19 @@ import pickle
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 
-from app.filename_utils import (filename_feature_rank_list_pkl,
-                                filename_feature_rank_result_txt,
-                                filename_feature_rank_score_df)
+from app.filename_utils import (
+    filename_feature_rank_list_pkl,
+    filename_feature_rank_result_txt,
+    filename_feature_rank_score_df,
+)
 from app.ml_models.feature_ranking_ulits.extra_trees import extra_trees
 from app.ml_models.feature_ranking_ulits.f_test_anova import f_test_anova
 from app.ml_models.feature_ranking_ulits.mutual_info import mutual_info
-from app.ml_models.feature_ranking_ulits.permutation_importance_svr import \
-    permutation_importance_svr
+from app.ml_models.feature_ranking_ulits.permutation_importance_svr import (
+    permutation_importance_svr,
+)
 from app.ml_models.feature_ranking_ulits.random_forest import random_forest
-from app.ml_models.feature_ranking_ulits.seq_feature_selector import \
-    perform_feature_selection
+from app.ml_models.feature_ranking_ulits.seq_feature_selector import perform_feature_selection
 
 
 def run_algorithm(algorithm, X, Y, feature_vars):
@@ -33,9 +35,7 @@ def run_algorithm(algorithm, X, Y, feature_vars):
         )
     elif algorithm == "seq_feature_selector":
         k_features = 10
-        selected_features, X_scaled, selector = perform_feature_selection(
-            X, Y, k_features
-        )
+        selected_features, X_scaled, selector = perform_feature_selection(X, Y, k_features)
 
         regressor = LinearRegression()
         X_selected = X_scaled[:, list(selector.k_feature_idx_)]
@@ -54,10 +54,7 @@ def run_algorithm(algorithm, X, Y, feature_vars):
         ]
 
         importance_df = pd.DataFrame(
-            {
-                "Feature": selected_features_filtered,
-                "Importance": feature_importances_filtered,
-            }
+            {"Feature": selected_features_filtered, "Importance": feature_importances_filtered}
         ).sort_values(by="Importance", ascending=False)
 
         return importance_df
@@ -85,10 +82,7 @@ def run_algorithm(algorithm, X, Y, feature_vars):
 
 
 def optimised_feature_rank(
-    target_var,
-    target_vars_list: list,
-    file_path_label_encoded_csv: str,
-    directory_project: str,
+    target_var, target_vars_list: list, file_path_label_encoded_csv: str, directory_project: str
 ):
     df = pd.read_csv(file_path_label_encoded_csv)
     df = df.drop(columns=["# created_date"])
@@ -119,8 +113,7 @@ def optimised_feature_rank(
     impact_data = pd.DataFrame(columns=["Feature"])
 
     with open(
-        os.path.join(directory_project, filename_feature_rank_result_txt(target_var)),
-        "w",
+        os.path.join(directory_project, filename_feature_rank_result_txt(target_var)), "w"
     ) as file:
         for algorithm in algorithms:
             # print(f"Running {algorithm} on target variable '{target_var}'")
@@ -143,9 +136,7 @@ def optimised_feature_rank(
                     ascending=False, method="dense"
                 )
                 result["Weighted_Rank_Score"] = 1 / result["Rank"]  # Inverse rank score
-                result["Weighted_Rank_Score"] *= weights[
-                    algorithm
-                ]  # Apply algorithm weight
+                result["Weighted_Rank_Score"] *= weights[algorithm]  # Apply algorithm weight
 
                 # Merge the weighted rank score into the impact data
                 impact_data = pd.merge(
@@ -157,18 +148,16 @@ def optimised_feature_rank(
                 )
 
         # Calculate the final impact score as the weighted average of the rank scores
-        impact_data["Impact_Score"] = impact_data.filter(
-            like="Weighted_Rank_Score"
-        ).sum(axis=1)
+        impact_data["Impact_Score"] = impact_data.filter(like="Weighted_Rank_Score").sum(axis=1)
         # Normalize the final impact score between 0 and 1
         impact_data["Impact_Score"] = (
             impact_data["Impact_Score"] - impact_data["Impact_Score"].min()
         ) / (impact_data["Impact_Score"].max() - impact_data["Impact_Score"].min())
 
         # Sort the DataFrame by Impact_Score
-        impact_data = impact_data.sort_values(
-            "Impact_Score", ascending=False
-        ).reset_index(drop=True)
+        impact_data = impact_data.sort_values("Impact_Score", ascending=False).reset_index(
+            drop=True
+        )
 
         # Get the top 10 and bottom 10 features
         top_10 = impact_data.head(20)
@@ -184,7 +173,5 @@ def optimised_feature_rank(
         )
         # print(final_output[['Feature', 'Impact_Score']])
         feature_list = final_output["Feature"].to_list()
-        with open(
-            os.path.join(directory_project, filename_feature_rank_list_pkl()), "wb"
-        ) as file:
+        with open(os.path.join(directory_project, filename_feature_rank_list_pkl()), "wb") as file:
             pickle.dump(feature_list, file)

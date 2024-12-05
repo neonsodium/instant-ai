@@ -22,9 +22,7 @@ def list_tasks():
 
     except OSError as e:
         return (
-            jsonify(
-                {"error": f"An error occurred while accessing the directory: {str(e)}"}
-            ),
+            jsonify({"error": f"An error occurred while accessing the directory: {str(e)}"}),
             500,
         )
 
@@ -63,11 +61,7 @@ def display_cluster():
     clusters = list_sub_directories(directory_cluster)
 
     return jsonify(
-        {
-            "Cluster Path": directory_cluster,
-            "project_id": project_id,
-            "clusters": clusters,
-        }
+        {"Cluster Path": directory_cluster, "project_id": project_id, "clusters": clusters}
     )
 
 
@@ -93,9 +87,7 @@ def start_summerising():
 
     for cluster in clusters:
         data_raw = os.path.join(directory_project, cluster, filename_raw_data_csv())
-        json_file = os.path.join(
-            directory_project, cluster, feature_descriptions_json()
-        )
+        json_file = os.path.join(directory_project, cluster, feature_descriptions_json())
         csv_file = os.path.join(directory_project, cluster, feature_descriptions_csv())
         summerise_cluster(data_raw, json_file, csv_file)
 
@@ -104,9 +96,7 @@ def start_summerising():
             {
                 "message": "File encoding has started",
                 "Project_id": project_id,
-                "project_dir": os.path.join(
-                    directory_project, filename_label_encoded_data_csv()
-                ),
+                "project_dir": os.path.join(directory_project, filename_label_encoded_data_csv()),
             }
         ),
         202,
@@ -156,9 +146,7 @@ def list_column():
     if not os.path.isfile(raw_data_file):
         return jsonify({"message": "Data set not uploaded"}), 400
 
-    drop_column_file = os.path.join(
-        directory_project, filename_dropeed_column_data_csv()
-    )
+    drop_column_file = os.path.join(directory_project, filename_dropeed_column_data_csv())
     if os.path.isfile(drop_column_file):
         df = pd.read_csv(drop_column_file)
     else:
@@ -226,9 +214,7 @@ def start_time_series():
 
     for cluster in clusters:
         data_raw = os.path.join(directory_project, cluster, filename_raw_data_csv())
-        json_file = os.path.join(
-            directory_project, cluster, feature_descriptions_json()
-        )
+        json_file = os.path.join(directory_project, cluster, feature_descriptions_json())
         csv_file = os.path.join(directory_project, cluster, feature_descriptions_csv())
         summerise_cluster(data_raw, csv_file, json_file)
 
@@ -237,9 +223,7 @@ def start_time_series():
             {
                 "message": "File encoding has started",
                 "Project_id": project_id,
-                "project_dir": os.path.join(
-                    directory_project, filename_label_encoded_data_csv()
-                ),
+                "project_dir": os.path.join(directory_project, filename_label_encoded_data_csv()),
             }
         ),
         202,
