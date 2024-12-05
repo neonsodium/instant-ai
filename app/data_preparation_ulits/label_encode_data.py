@@ -37,7 +37,7 @@ def apply_label_encoding(df: DataFrame):
         columns={"index": "Original"}
     )
 
-    return df, label_encoders, label_encoded_mapping
+    return df, label_encoders
 
 
 def reverse_label_encoding(df: DataFrame, label_encoders: dict) -> DataFrame:

@@ -28,13 +28,12 @@ except OSError:
     print(OSError)
 
 
-# Configure JSON sorting for Demo API only ig? IDK, Ask the front end guy
+# Configure JSON sorting for Demo API only ig? IDK, Ask the frontend guy lol
 app.config["JSON_SORT_KEYS"] = False
 app.json.sort_keys = False
-
 celery = make_celery(app)
-# TODO move it
-from app.routes.app_routes import main_routes
+
+from app.routes.main_routes import main_routes
 from app.routes.processor_routes import processor_routes
 
 app.register_blueprint(main_routes, url_prefix="/")
