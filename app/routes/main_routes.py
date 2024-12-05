@@ -115,7 +115,7 @@ def start_summerising():
 @main_routes.route("/validator", methods=["POST"])
 def validate_data():
     """
-    curl -X POST http://127.0.0.1:8080/process/validator -H "Content-Type: application/json" -d '{
+    curl -X POST http://127.0.0.1:8080/validator -H "Content-Type: application/json" -d '{
     "project_id": "ID"
     }'
     """
@@ -140,7 +140,7 @@ def validate_data():
 @main_routes.route("/list-column", methods=["POST"])
 def list_column():
     """
-    curl -X POST http://127.0.0.1:8080/process/list-column -H "Content-Type: application/json" -d '{
+    curl -X POST http://127.0.0.1:8080/list-column -H "Content-Type: application/json" -d '{
     "project_id": "ID",
     }'
     """
@@ -164,31 +164,6 @@ def list_column():
         df = pd.read_csv(raw_data_file)
 
     return jsonify({"columns": list(df.columns)}), 200
-
-
-@main_routes.route("/process/validator", methods=["POST"])
-def validate_data():
-    """
-    curl -X POST http://127.0.0.1:8080/process/validator -H "Content-Type: application/json" -d '{
-    "project_id": "ID"
-    }'
-    """
-    request_data_json = request.get_json()
-    project_id = os.path.basename(request_data_json.get("project_id"))
-    directory_project = directory_project_path_full(project_id, [])
-
-    if not os.path.isdir(directory_project):
-        return jsonify({"error": "Invalid Project ID"}), 400
-
-    raw_data_file = os.path.join(directory_project, filename_raw_data_csv())
-    if not os.path.isfile(raw_data_file):
-        return jsonify({"message": "Data set not uploaded"}), 400
-
-    df = pd.read_csv(raw_data_file)
-    result = validate_dataset(df)
-    print(result)
-
-    return jsonify({"message": result}), 200
 
 
 @main_routes.route("/list-files", methods=["GET"])
@@ -228,49 +203,7 @@ def download_file():
     return send_file(absolute_path, as_attachment=True)
 
 
-@main_routes.route("/summerising", methods=["POST"])
-def start_summerising():
-    """
-    curl -X POST http://127.0.0.1:8080/process/summerising -H "Content-Type: application/json" -d '{
-    "level": 3,
-    "path": [1, 2, 1]
-    }'
-    """
-    request_data_json = request.get_json()
-    level = int(request_data_json.get("level"))
-    path = request_data_json.get("path")
-    project_id = os.path.basename(request_data_json.get("project_id"))
-    del request_data_json
-    # total paths should be equal to level
-    if int(level) != len(path):
-        return jsonify({"error": "Level and Path don't match"}), 400
-
-    directory_project = directory_project_path_full(project_id, path)
-    clusters = list_sub_directories(directory_project)
-
-    for cluster in clusters:
-        data_raw = os.path.join(directory_project, cluster, filename_raw_data_csv())
-        json_file = os.path.join(
-            directory_project, cluster, feature_descriptions_json()
-        )
-        csv_file = os.path.join(directory_project, cluster, feature_descriptions_csv())
-        summerise_cluster(data_raw, json_file, csv_file)
-
-    return (
-        jsonify(
-            {
-                "message": "File encoding has started",
-                "Project_id": project_id,
-                "project_dir": os.path.join(
-                    directory_project, filename_label_encoded_data_csv()
-                ),
-            }
-        ),
-        202,
-    )
-
-
-@main_routes.route("/process/time-series", methods=["POST"])
+@main_routes.route("/time-series", methods=["POST"])
 def start_time_series():
     """
     curl -X POST http://127.0.0.1:8080/process/summerising -H "Content-Type: application/json" -d '{

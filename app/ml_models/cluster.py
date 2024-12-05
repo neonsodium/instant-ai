@@ -11,7 +11,6 @@ from app.data_preparation_ulits.label_encode_data import (
 )
 from app.filename_utils import (
     directory_cluster_format,
-    filename_dropeed_column_data_csv,
     filename_raw_data_csv,
 )
 
@@ -58,6 +57,12 @@ def hierarchical_clustering(df, features, n_clusters):
 
 def hierarchical_clustering_to_csv(data, directory_project):
     # Save each cluster to a separate CSV file
+    # for cluster_id in range(n_clusters):
+    #     cluster_data = data[data["hierarchical_cluster"] == cluster_id].drop(columns=["hierarchical_cluster"])
+    #     cluster_file_name = f"cluster_{cluster_id}.csv"
+    #     cluster_data.to_csv(cluster_file_name, index=False)
+    #     print(f"Cluster {cluster_id} saved to {cluster_file_name}")
+
     for cluster in data["hierarchical_cluster"].unique():
         cluster_df = data[data["hierarchical_cluster"] == cluster].drop(
             columns=["hierarchical_cluster"]
@@ -65,6 +70,7 @@ def hierarchical_clustering_to_csv(data, directory_project):
         cluster_directory = os.path.join(
             directory_project, directory_cluster_format(cluster)
         )
+        os.makedirs(cluster_directory, exist_ok=True)
         cluster_filename_raw_data_path = os.path.join(
             cluster_directory, filename_raw_data_csv()
         )
