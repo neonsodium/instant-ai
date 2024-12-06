@@ -19,7 +19,7 @@ def label_encode_data(
     label_encoded_mapping.to_csv(output_label_encoded_mapping_path, index=False)
 
 
-def apply_label_encoding(df: DataFrame):
+def depricated_apply_label_encoding(df: DataFrame):
     """
     Apply label encoding
         encoded_df, encoders = apply_label_encoding(df)
@@ -40,7 +40,25 @@ def apply_label_encoding(df: DataFrame):
     return df, label_encoders
 
 
-def reverse_label_encoding(df: DataFrame, label_encoders: dict) -> DataFrame:
+def apply_label_encoding(df):
+    object_columns = df.select_dtypes(include=["object"]).columns
+    label_encoders = {}
+
+    for col in object_columns:
+        le = LabelEncoder()
+        df[col] = le.fit_transform(df[col].astype(str))
+        label_encoders[col] = dict(zip(le.classes_, le.transform(le.classes_)))  # Store mappings
+
+    # Save the mappings to a DataFrame and export to CSV
+    label_encoded_mapping = pd.DataFrame.from_dict(label_encoders, orient="index").T
+    label_encoded_mapping = label_encoded_mapping.reset_index().rename(
+        columns={"index": "Original"}
+    )
+
+    return df, label_encoders
+
+
+def reverse_label_encoding(df: DataFrame, label_encoders) -> DataFrame:
     """
     Reverse label encoding:
         decoded_df = reverse_label_encoding(encoded_df, label_encoders)

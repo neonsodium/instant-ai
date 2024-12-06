@@ -28,8 +28,13 @@ def optimised_clustering(
 
     MAX_NUM_CLUSTERS = 4
     df, label_encoders = apply_label_encoding(df)
+    df.to_csv("label_encode.csv")
+    with open("label_encoders.pkl", "wb") as file:
+        pickle.dump(label_encoders, file)
     df = hierarchical_clustering(df, features, MAX_NUM_CLUSTERS)
+    df.to_csv("hierarchical_clustering.csv")
     df = reverse_label_encoding(df, label_encoders)
+    df.to_csv("reverse_label_encoding.csv")
     hierarchical_clustering_to_csv(df, directory_project)
 
 
@@ -53,12 +58,6 @@ def hierarchical_clustering(df, features, n_clusters):
 
 
 def hierarchical_clustering_to_csv(data, directory_project):
-    # Save each cluster to a separate CSV file
-    # for cluster_id in range(n_clusters):
-    #     cluster_data = data[data["hierarchical_cluster"] == cluster_id].drop(columns=["hierarchical_cluster"])
-    #     cluster_file_name = f"cluster_{cluster_id}.csv"
-    #     cluster_data.to_csv(cluster_file_name, index=False)
-    #     print(f"Cluster {cluster_id} saved to {cluster_file_name}")
 
     for cluster in data["hierarchical_cluster"].unique():
         cluster_df = data[data["hierarchical_cluster"] == cluster].drop(
@@ -67,26 +66,5 @@ def hierarchical_clustering_to_csv(data, directory_project):
         cluster_directory = os.path.join(directory_project, directory_cluster_format(cluster))
         os.makedirs(cluster_directory, exist_ok=True)
         cluster_filename_raw_data_path = os.path.join(cluster_directory, filename_raw_data_csv())
-        # cluster_filename_label_encoded_path = os.path.join(
-        #     cluster_directory, filename_label_encoded_data_csv()
-        # )
+
         cluster_df.to_csv(cluster_filename_raw_data_path, index=False)
-
-
-# def hierarchical_clustering_to_csv(data, n_clusters):
-#     # Save each cluster to a separate CSV file
-#     for cluster_id in range(n_clusters):
-#         cluster_data = data[data["hierarchical_cluster"] == cluster_id].drop(
-#             columns=["hierarchical_cluster"]
-#         )
-#         cluster_file_name = f"cluster_{cluster_id}.csv"
-#         cluster_data.to_csv(cluster_file_name, index=False)
-#         print(f"Cluster {cluster_id} saved to {cluster_file_name}")
-
-
-# data, labels = apply_label_encoding(data)
-# data = hierarchical_clustering(data, features, 4)
-# print(data.head())
-# data = reverse_label_encoding(data, labels)
-# hierarchical_clustering_to_csv(data, 4)
-# summary_cluster("cluster_1.csv")
