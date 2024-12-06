@@ -28,13 +28,8 @@ def optimised_clustering(
 
     MAX_NUM_CLUSTERS = 4
     df, label_encoders = apply_label_encoding(df)
-    df.to_csv("label_encode.csv")
-    with open("label_encoders.pkl", "wb") as file:
-        pickle.dump(label_encoders, file)
     df = hierarchical_clustering(df, features, MAX_NUM_CLUSTERS)
-    df.to_csv("hierarchical_clustering.csv")
     df = reverse_label_encoding(df, label_encoders)
-    df.to_csv("reverse_label_encoding.csv")
     hierarchical_clustering_to_csv(df, directory_project)
 
 
