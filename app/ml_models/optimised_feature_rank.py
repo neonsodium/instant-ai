@@ -85,7 +85,7 @@ def optimised_feature_rank(
     target_var, target_vars_list: list, file_path_label_encoded_csv: str, directory_project: str
 ):
     df = pd.read_csv(file_path_label_encoded_csv)
-    df = df.drop(columns=["# created_date"])
+    # df = df.drop(columns=["# created_date"])
     feature_vars = [col for col in df.columns if col not in target_vars_list]
     # target = input(f"Please enter a target variable from the list {target_vars}: ")
 

@@ -12,8 +12,18 @@ from . import celery
 # TODO add error handling for all the async calls F++ ;_;
 @celery.task
 def async_data_processer(directory_project: str):
-    output_drop_tables = os.path.join(directory_project, filename_dropeed_column_data_csv())
-    output_label_csv = os.path.join(directory_project, filename_label_encoded_data_csv())
+    # TODO
+
+    input_file_path_drop_column_csv = os.path.join(
+        directory_project, filename_dropeed_column_data_csv()
+    )
+    input_file_path_raw_data_csv = os.path.join(directory_project, filename_raw_data_csv())
+    if os.path.isfile(input_file_path_drop_column_csv):
+        input_file_path_csv = input_file_path_drop_column_csv
+    else:
+        input_file_path_csv = input_file_path_raw_data_csv
+
+    output_label_encoded_path = os.path.join(directory_project, filename_label_encoded_data_csv())
     output_one_hot = os.path.join(directory_project, filename_one_hot_encoded_data_csv())
     output_rev_label_mapping = os.path.join(directory_project, filename_label_mapping_data_csv())
     output_rev_one_hot_dict = os.path.join(
@@ -22,7 +32,10 @@ def async_data_processer(directory_project: str):
     output_rev_label_dict = os.path.join(directory_project, filename_rev_label_encoded_dict_pkl())
 
     label_encode_data(
-        output_drop_tables, output_label_csv, output_rev_label_dict, output_rev_label_mapping
+        input_file_path_csv,
+        output_label_encoded_path,
+        output_rev_label_dict,
+        output_rev_label_mapping,
     )
     # one_hot_encode_data(output_drop_tables, output_rev_one_hot_dict, output_one_hot)
     return {"status": "Label encoding completed"}
