@@ -1,0 +1,7 @@
+# Cluster Algo: input from feature ranking and the user for features
+# update summeriser
+
+# upload -> validtor -> dropping of Columns ->  Label Encoding -> Feature Ranking + User Input -> Cluster -> Summeriszing
+
+
+# Labeled_data -> Clustering -> Labeled_data[+cluster_no] -> Rev_label (Labeled_data) ->  Save Cluster
