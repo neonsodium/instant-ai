@@ -1,6 +1,5 @@
 import os
 
-import pandas as pd
 from flask import Blueprint, jsonify, request
 
 from app.filename_utils import *

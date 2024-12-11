@@ -1,6 +1,9 @@
-import pandas as pd
 import os
-from app.filename_utils import filename_dropeed_column_data_csv, filename_raw_data_csv
+
+import pandas as pd
+
+from app.filename_utils import (filename_dropeed_column_data_csv,
+                                filename_raw_data_csv)
 
 
 def drop_columns(directory_project: str, drop_column_list):
