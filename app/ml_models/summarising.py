@@ -35,6 +35,7 @@ def summerise_cluster(
                     "Value": value,
                     "Count": count,
                     "Mean": np.nan,
+                    "Sum": np.nan,
                 }
             )
 
@@ -48,6 +49,7 @@ def summerise_cluster(
                     "Value": value_counts.index[-1],
                     "Count": lowest_value,
                     "Mean": np.nan,
+                    "Sum": np.nan,
                 }
             )
 
@@ -57,7 +59,9 @@ def summerise_cluster(
         if unique_count > 25:
 
             mean_value = df[num].mean()
+            sum_value = df[num].sum()
             mean_count = df[num].count()
+
             output_data.append(
                 {
                     "Feature": num,
@@ -66,10 +70,21 @@ def summerise_cluster(
                     "Value": "",
                     "Count": mean_count,
                     "Mean": mean_value,
+                    "Sum": np.nan,
+                }
+            )
+            output_data.append(
+                {
+                    "Feature": num,
+                    "Type": "Numerical (>25 unique)",
+                    "Statistic": "Sum",
+                    "Value": "",
+                    "Count": mean_count,
+                    "Mean": np.nan,
+                    "Sum": sum_value,
                 }
             )
         else:
-
             value_counts = df[num].value_counts()
             top_values = value_counts.head(3)
 
@@ -82,6 +97,7 @@ def summerise_cluster(
                         "Value": value,
                         "Count": count,
                         "Mean": np.nan,
+                        "Sum": np.nan,
                     }
                 )
 
@@ -95,6 +111,7 @@ def summerise_cluster(
                         "Value": value_counts.index[-1],
                         "Count": lowest_value,
                         "Mean": np.nan,
+                        "Sum": np.nan,
                     }
                 )
 
