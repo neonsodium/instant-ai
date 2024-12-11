@@ -9,9 +9,7 @@ from sklearn.mixture import GaussianMixture
 from sklearn.preprocessing import StandardScaler
 
 from app.data_preparation_ulits.label_encode_data import (
-    apply_label_encoding,
-    reverse_label_encoding,
-)
+    apply_label_encoding, reverse_label_encoding)
 from app.filename_utils import directory_cluster_format, filename_raw_data_csv
 
 
