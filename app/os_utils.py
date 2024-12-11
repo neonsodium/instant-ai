@@ -9,6 +9,10 @@ from config import Config
 
 def os_path_join_secure(base_dir: str, *sub_dirs: str) -> str:
     full_path = os.path.abspath(os.path.join(base_dir, *sub_dirs))
+    print(full_path)
+    print(base_dir)
+    print(*sub_dirs)
+    print(os.path.abspath(base_dir))
     if not full_path.startswith(os.path.abspath(base_dir)):
         raise ValueError("Unsafe path detected.")
 
@@ -17,7 +21,8 @@ def os_path_join_secure(base_dir: str, *sub_dirs: str) -> str:
 
 def directory_project_path_full(project_id: str, path: list) -> str:
     sub_dirs = [directory_cluster_format(cluster_num) for cluster_num in path]
-    return os_path_join_secure(os_path_join_secure(all_project_dir_path(), project_id), *sub_dirs)
+    a = os_path_join_secure(all_project_dir_path(), project_id)
+    return os_path_join_secure(a, *sub_dirs)
 
 
 def create_directory(base_dir: str, *sub_dirs: str) -> dict:

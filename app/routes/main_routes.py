@@ -50,18 +50,21 @@ def display_cluster():
 
     request_data_json = request.get_json()
     level = int(request_data_json.get("level"))
-    path = request_data_json.get("path")
+    list_path = request_data_json.get("path")
     project_id = os.path.basename(request_data_json.get("project_id"))
     del request_data_json
-    # total paths should be equal to level
-    if int(level) != len(path):
+
+    if int(level) != len(list_path):
         return jsonify({"error": "Level and Path don't match"}), 400
 
-    directory_cluster = directory_project_path_full(project_id, path)
-    clusters = list_sub_directories(directory_cluster)
+    directory_project_cluster = directory_project_path_full(project_id, list_path)
+    if not os.path.exists(directory_project_cluster):
+        return (jsonify({"error": "Cluster Does not exists.", "project_id": project_id}), 404)
+
+    clusters = list_sub_directories(directory_project_cluster)
 
     return jsonify(
-        {"Cluster Path": directory_cluster, "project_id": project_id, "clusters": clusters}
+        {"Cluster Path": directory_project_cluster, "project_id": project_id, "clusters": clusters}
     )
 
 
@@ -75,32 +78,25 @@ def start_summerising():
     """
     request_data_json = request.get_json()
     level = int(request_data_json.get("level"))
-    path = request_data_json.get("path")
+    list_path = request_data_json.get("path")
     project_id = os.path.basename(request_data_json.get("project_id"))
     del request_data_json
-    # total paths should be equal to level
-    if int(level) != len(path):
+
+    if int(level) != len(list_path):
         return jsonify({"error": "Level and Path don't match"}), 400
 
-    directory_project = directory_project_path_full(project_id, path)
-    clusters = list_sub_directories(directory_project)
+    directory_project_cluster = directory_project_path_full(project_id, list_path)
+    if not os.path.exists(directory_project_cluster):
+        return (jsonify({"error": "Cluster Does not exists.", "project_id": project_id}), 404)
+    clusters = list_sub_directories(directory_project_cluster)
 
     for cluster in clusters:
-        data_raw = os.path.join(directory_project, cluster, filename_raw_data_csv())
-        json_file = os.path.join(directory_project, cluster, feature_descriptions_json())
-        csv_file = os.path.join(directory_project, cluster, feature_descriptions_csv())
+        data_raw = os.path.join(directory_project_cluster, cluster, filename_raw_data_csv())
+        json_file = os.path.join(directory_project_cluster, cluster, feature_descriptions_json())
+        csv_file = os.path.join(directory_project_cluster, cluster, feature_descriptions_csv())
         summerise_cluster(data_raw, csv_file, json_file)
 
-    return (
-        jsonify(
-            {
-                "message": "File encoding has started",
-                "Project_id": project_id,
-                "project_dir": os.path.join(directory_project, filename_label_encoded_data_csv()),
-            }
-        ),
-        202,
-    )
+    return (jsonify({"message": "File encoding has started", "Project_id": project_id}), 202)
 
 
 @main_routes.route("/validator", methods=["POST"])
