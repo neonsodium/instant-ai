@@ -59,17 +59,17 @@ def feature_descriptions_csv() -> str:
     return "feature_descriptions.csv"
 
 
-def feature_descriptions_json():
+def feature_descriptions_json() -> str:
     return "feature_descriptions.json"
 
 
 # feature ranking algo
-def filename_feature_rank_score_df() -> str:
-    return "df_feature_ranking_scores.pkl"
+def filename_feature_rank_score_df(target_var: str) -> str:
+    return f"df_feature_ranking_scores_{re.sub(r'[^A-Za-z0-9_]', '', target_var)}.pkl"
 
 
-def filename_feature_rank_list_pkl() -> str:
-    return "list_feature_ranking.pkl"
+def filename_feature_rank_list_pkl(target_var: str) -> str:
+    return f"list_feature_ranking_{re.sub(r'[^A-Za-z0-9_]', '', target_var)}.pkl"
 
 
 def filename_feature_rank_result_txt(target_var: str):
