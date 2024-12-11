@@ -4,7 +4,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler
 
 
-def perform_feature_selection(X, Y, k_features=10):
+def perform_feature_selection(X, Y, k_features):
 
     scaler = StandardScaler().fit(X)
     X_scaled = scaler.transform(X)

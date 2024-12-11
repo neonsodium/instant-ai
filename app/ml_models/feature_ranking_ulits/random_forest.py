@@ -4,7 +4,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.preprocessing import StandardScaler
 
 
-def random_forest(X, Y, k_features=10):
+def random_forest(X, Y, k_features):
 
     scaler = StandardScaler().fit(X)
     X_scaled = scaler.transform(X)

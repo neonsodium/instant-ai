@@ -20,21 +20,21 @@ from app.ml_models.feature_ranking_ulits.seq_feature_selector import perform_fea
 
 
 def run_algorithm(algorithm, X, Y, feature_vars):
+    k_features = len(feature_vars)
     if algorithm == "f_test_anova":
-        result = f_test_anova(X, Y)
+        result = f_test_anova(X, Y, k_features)
         result = result.rename(columns={"Score": "Importance"})
         return result
     elif algorithm == "mutual_info":
-        return mutual_info(X, Y).rename(columns={"Score": "Importance"})
+        return mutual_info(X, Y, k_features).rename(columns={"Score": "Importance"})
     elif algorithm == "extra_trees":
         return extra_trees(X, Y).rename(columns={"Score": "Importance"})
     elif algorithm == "permutation_importance_svr":
         feature_names = X.columns
-        return permutation_importance_svr(X, Y, feature_names).rename(
+        return permutation_importance_svr(X, Y, k_features, feature_names).rename(
             columns={"Score": "Importance"}
         )
     elif algorithm == "seq_feature_selector":
-        k_features = 10
         selected_features, X_scaled, selector = perform_feature_selection(X, Y, k_features)
 
         regressor = LinearRegression()
@@ -59,7 +59,7 @@ def run_algorithm(algorithm, X, Y, feature_vars):
 
         return importance_df
     elif algorithm == "random_forest":
-        k_features = 10
+        k_features = len(feature_vars)
         selected_features, X_scaled, rf_regressor = random_forest(X, Y, k_features)
 
         importances = rf_regressor.feature_importances_
@@ -77,7 +77,6 @@ def run_algorithm(algorithm, X, Y, feature_vars):
 
         return importance_df
     else:
-        # print("Algorithm not recognized.")
         return None
 
 
@@ -87,10 +86,7 @@ def optimised_feature_rank(
     df = pd.read_csv(file_path_label_encoded_csv)
     # df = df.drop(columns=["# created_date"])
     feature_vars = [col for col in df.columns if col not in target_vars_list]
-    # target = input(f"Please enter a target variable from the list {target_vars}: ")
-
-    # if target not in target_vars:
-    #     print(f"Invalid target variable. Please choose from {target_vars}."
+    print(feature_vars)
     X = df[feature_vars]
     Y = df[target_var]
 
@@ -116,13 +112,11 @@ def optimised_feature_rank(
         os.path.join(directory_project, filename_feature_rank_result_txt(target_var)), "w"
     ) as file:
         for algorithm in algorithms:
-            # print(f"Running {algorithm} on target variable '{target_var}'")
             file.write(f"Running {algorithm} on target variable '{target_var}'\n")
             result = run_algorithm(algorithm, X, Y, feature_vars)
 
             if result is not None:
-                # print(result.head(10))
-                file.write(result.head(10).to_string())
+                file.write(result.head(1000).to_string())
                 file.write("\n\n")
                 results[algorithm] = result
 
@@ -154,24 +148,28 @@ def optimised_feature_rank(
             impact_data["Impact_Score"] - impact_data["Impact_Score"].min()
         ) / (impact_data["Impact_Score"].max() - impact_data["Impact_Score"].min())
 
-        # Sort the DataFrame by Impact_Score
+        # Sort by Impact_Score
         impact_data = impact_data.sort_values("Impact_Score", ascending=False).reset_index(
             drop=True
         )
 
         # Get the top 10 and bottom 10 features
-        top_10 = impact_data.head(20)
+        TOTAL_NUMBER_FEATURES = 20
+        top_features = impact_data.head(TOTAL_NUMBER_FEATURES)
+        print(top_features)
 
         # Concatenate top and bottom features
-        final_output = pd.concat([top_10], ignore_index=True)
+        final_output = pd.concat([top_features], ignore_index=True)
         feature_list = final_output["Feature"].to_list()
 
         # final ranking data saved in the project dir
         # TODO improve logic
         final_output[["Feature", "Impact_Score"]].to_pickle(
-            os.path.join(directory_project, filename_feature_rank_score_df())
+            os.path.join(directory_project, filename_feature_rank_score_df(target_var))
         )
         # print(final_output[['Feature', 'Impact_Score']])
         feature_list = final_output["Feature"].to_list()
-        with open(os.path.join(directory_project, filename_feature_rank_list_pkl()), "wb") as file:
+        with open(
+            os.path.join(directory_project, filename_feature_rank_list_pkl(target_var)), "wb"
+        ) as file:
             pickle.dump(feature_list, file)

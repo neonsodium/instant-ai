@@ -2,9 +2,10 @@ import os
 
 from app.data_preparation_ulits.label_encode_data import label_encode_data
 from app.data_preparation_ulits.one_hot_encode import one_hot_encode_data
+from app.data_preparation_ulits.drop_columns import drop_columns
 from app.filename_utils import *
 from app.ml_models.cluster import optimised_clustering
-from app.ml_models.optimised_feature_rank import optimised_feature_rank
+from app.ml_models.feature_rank import optimised_feature_rank
 
 from . import celery
 
@@ -42,8 +43,9 @@ def async_data_processer(directory_project: str):
 
 
 @celery.task
-def async_drop_columns(directory_project: str):
-    pass
+def async_drop_columns(directory_project: str, drop_column_list):
+    drop_columns(directory_project, drop_column_list)
+    return {"status": "Column removal process successfully."}
 
 
 @celery.task
@@ -51,9 +53,7 @@ def async_save_file(project_dir, file_content):
     filepath_raw_data = os.path.join(project_dir, filename_raw_data_csv())
     with open(filepath_raw_data, "wb") as f:
         f.write(file_content)
-
     # async_data_processer(project_dir)
-
     return {"status": "File saved and processing started"}
 
 
@@ -72,10 +72,18 @@ def async_one_hot_encode_data(input_csv_file_path, output_one_hot_encoded_path):
 
 
 @celery.task
-def async_optimised_feature_rank(target_var, target_vars_list, directory_project):
-    file_path_label_encoded_csv = os.path.join(directory_project, filename_label_encoded_data_csv())
+def async_optimised_feature_rank(
+    target_var, target_vars_list, user_added_vars_list, directory_project
+):
+    drop_column_file = os.path.join(directory_project, filename_dropeed_column_data_csv())
+    raw_data_file = os.path.join(directory_project, filename_raw_data_csv())
     optimised_feature_rank(
-        target_var, target_vars_list, file_path_label_encoded_csv, directory_project
+        target_var,
+        target_vars_list,
+        user_added_vars_list,
+        directory_project,
+        raw_data_file,
+        drop_column_file,
     )
     return {"status": "Feature ranking completed"}
 
