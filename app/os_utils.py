@@ -9,10 +9,6 @@ from config import Config
 
 def os_path_join_secure(base_dir: str, *sub_dirs: str) -> str:
     full_path = os.path.abspath(os.path.join(base_dir, *sub_dirs))
-    print(full_path)
-    print(base_dir)
-    print(*sub_dirs)
-    print(os.path.abspath(base_dir))
     if not full_path.startswith(os.path.abspath(base_dir)):
         raise ValueError("Unsafe path detected.")
 

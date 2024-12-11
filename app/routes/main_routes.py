@@ -68,10 +68,10 @@ def display_cluster():
     )
 
 
-@main_routes.route("/summerising", methods=["POST"])
+@main_routes.route("/summerise", methods=["POST"])
 def start_summerising():
     """
-    curl -X POST http://127.0.0.1:8080/process/summerising -H "Content-Type: application/json" -d '{
+    curl -X POST http://127.0.0.1:8080/process/summerise -H "Content-Type: application/json" -d '{
     "level": 3,
     "path": [1, 2, 1]
     }'
@@ -80,23 +80,25 @@ def start_summerising():
     level = int(request_data_json.get("level"))
     list_path = request_data_json.get("path")
     project_id = os.path.basename(request_data_json.get("project_id"))
-    del request_data_json
-
-    if int(level) != len(list_path):
-        return jsonify({"error": "Level and Path don't match"}), 400
 
     directory_project_cluster = directory_project_path_full(project_id, list_path)
     if not os.path.exists(directory_project_cluster):
         return (jsonify({"error": "Cluster Does not exists.", "project_id": project_id}), 404)
+
+    if int(level) != len(list_path):
+        return jsonify({"error": "Level and Path don't match"}), 400
+
     clusters = list_sub_directories(directory_project_cluster)
+    all_clusters_summary = []
 
     for cluster in clusters:
         data_raw = os.path.join(directory_project_cluster, cluster, filename_raw_data_csv())
         json_file = os.path.join(directory_project_cluster, cluster, feature_descriptions_json())
         csv_file = os.path.join(directory_project_cluster, cluster, feature_descriptions_csv())
-        summerise_cluster(data_raw, csv_file, json_file)
+        json_data = summerise_cluster(data_raw, csv_file, json_file)
+        all_clusters_summary.append({cluster: json_data})
 
-    return (jsonify({"message": "File encoding has started", "Project_id": project_id}), 202)
+        return (jsonify(all_clusters_summary), 200)
 
 
 @main_routes.route("/validator", methods=["POST"])
