@@ -96,15 +96,22 @@ def start_feature_ranking():
     curl -X POST http://127.0.0.1:8080/process/feature-ranking -H "Content-Type: application/json" -d '{
     "target_vars_list": ["reading_fee_paid", "Number_of_Months", "Coupon_Discount", "num_books", "magazine_fee_paid", "Renewal_Amount", "amount_paid"],
     "target_var": "amount_paid",
+    "user_added_vars_list": []
     }'
     """
     request_data_json = request.get_json()
     project_id = os.path.basename(request_data_json.get("project_id"))
     target_vars_list = request_data_json.get("target_vars_list", [])
+    user_added_vars_list = request_data_json.get("user_added_vars_list", [])
     target_var = request_data_json.get("target_var", None)
 
     directory_project = directory_project_path_full(project_id, [])
-    result = async_optimised_feature_rank.delay(target_var, target_vars_list, directory_project)
+    if not os.path.isdir(directory_project):
+        return jsonify({"error": "Invalid Project ID"}), 400
+
+    result = async_optimised_feature_rank.delay(
+        target_var, target_vars_list, user_added_vars_list, directory_project
+    )
     return (
         jsonify(
             {
@@ -120,7 +127,7 @@ def start_feature_ranking():
 @processor_routes.route("/time-series", methods=["POST"])
 def start_time_series():
     """
-    curl -X POST http://127.0.0.1:8080/process/summerising -H "Content-Type: application/json" -d '{
+    curl -X POST http://127.0.0.1:8080/process/time-series -H "Content-Type: application/json" -d '{
     "level": 3,
     "path": [1, 2, 1]
     }'
