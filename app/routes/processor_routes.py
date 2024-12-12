@@ -9,14 +9,14 @@ from app.tasks import *
 processor_routes = Blueprint("processor_routes", __name__)
 
 
-@processor_routes.route("/check-task/<task_id>", methods=["GET"])
-def check_task(task_id):
+@processor_routes.route("/tasks/<task_id>/status", methods=["GET"])
+def get_task_status(task_id):
     result = celery.AsyncResult(task_id)
     return jsonify({"status": result.status})
 
 
 @processor_routes.route("/upload", methods=["POST"])
-def upload_file():
+def upload_project_file():
     """
     curl -X POST http://127.0.0.1:8080/process/upload -H "Content-Type: application/json" -d '{
     "project_id": "ID",
@@ -42,7 +42,7 @@ def upload_file():
 
 
 @processor_routes.route("/drop-column", methods=["POST"])
-def drop_column():
+def remove_project_columns():
     """
     curl -X POST http://127.0.0.1:8080/process/drop-column -H "Content-Type: application/json" -d '{
     "project_id": "ID",
@@ -70,7 +70,7 @@ def drop_column():
 
 
 @processor_routes.route("/pre-process", methods=["POST"])
-def start_pre_processing():
+def initiate_data_preprocessing():
     """
     curl -X POST http://127.0.0.1:8080/process/pre-process -H "Content-Type: application/json" -d '{
     "project_id": "ID"
@@ -91,7 +91,7 @@ def start_pre_processing():
 
 
 @processor_routes.route("/feature-ranking", methods=["POST"])
-def start_feature_ranking():
+def initiate_feature_ranking():
     """
     curl -X POST http://127.0.0.1:8080/process/feature-ranking -H "Content-Type: application/json" -d '{
     "target_vars_list": ["reading_fee_paid", "Number_of_Months", "Coupon_Discount", "num_books", "magazine_fee_paid", "Renewal_Amount", "amount_paid"],
@@ -125,7 +125,7 @@ def start_feature_ranking():
 
 
 @processor_routes.route("/time-series", methods=["POST"])
-def start_time_series():
+def generate_time_series_encoding():
     """
     curl -X POST http://127.0.0.1:8080/process/time-series -H "Content-Type: application/json" -d '{
     "level": 3,
@@ -134,13 +134,13 @@ def start_time_series():
     """
     request_data_json = request.get_json()
     level = int(request_data_json.get("level"))
-    path = request_data_json.get("path")
+    list_path = request_data_json.get("path")
     project_id = os.path.basename(request_data_json.get("project_id"))
     del request_data_json
-    if int(level) != len(path):
+    if int(level) != len(list_path):
         return jsonify({"error": "Level and Path don't match"}), 400
 
-    directory_project = directory_project_path_full(project_id, path)
+    directory_project = directory_project_path_full(project_id, list_path)
     clusters = list_sub_directories(directory_project)
 
     return (
@@ -156,7 +156,7 @@ def start_time_series():
 
 
 @processor_routes.route("/cluster", methods=["POST"])
-def start_sub_clustering():
+def initiate_subclustering():
     """
     curl -X POST http://127.0.0.1:8080/process -H "Content-Type: application/json" -d '{
     "target_var": "amount_paid",

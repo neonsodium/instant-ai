@@ -11,7 +11,7 @@ from app.os_utils import *
 main_routes = Blueprint("main_routes", __name__)
 
 
-@main_routes.route("/get-projects", methods=["GET", "POST"])
+@main_routes.route("/list-projects", methods=["GET", "POST"])
 def list_tasks():
 
     if not os.path.exists(all_project_dir_path()):
@@ -52,7 +52,10 @@ def display_cluster():
     level = int(request_data_json.get("level"))
     list_path = request_data_json.get("path")
     project_id = os.path.basename(request_data_json.get("project_id"))
-    del request_data_json
+
+    directory_project_base = directory_project_path_full(project_id, [])
+    if not os.path.isdir(directory_project_base):
+        return jsonify({"error": "Invalid Project ID"}), 404
 
     if int(level) != len(list_path):
         return jsonify({"error": "Level and Path don't match"}), 400
@@ -66,6 +69,42 @@ def display_cluster():
     return jsonify(
         {"Cluster Path": directory_project_cluster, "project_id": project_id, "clusters": clusters}
     )
+
+
+@main_routes.route("/download", methods=["POST"])
+def download_cluster():
+    """
+    curl -X POST http://localhost:8080/download \
+    -H "Content-Type: application/json" \
+    -d '{
+            "level": 3,
+            "path": [1, 2, 1],
+            "cluster": 1,
+            "project_id": "ID"
+        }'
+    """
+
+    request_data_json = request.get_json()
+    level = int(request_data_json.get("level"))
+    list_path: list = request_data_json.get("path")
+    cluster_no = int(request_data_json.get("cluster"))
+    project_id = os.path.basename(request_data_json.get("project_id"))
+
+    directory_project_base = directory_project_path_full(project_id, [])
+    if not os.path.isdir(directory_project_base):
+        return jsonify({"error": "Invalid Project ID"}), 404
+
+    if int(level) != len(list_path):
+        return jsonify({"error": "Level and Path don't match"}), 400
+
+    list_path.append(cluster_no)
+    directory_project_cluster = directory_project_path_full(project_id, list_path)
+    if not os.path.exists(directory_project_cluster):
+        return (jsonify({"error": "Cluster Does not exists.", "project_id": project_id}), 404)
+
+    absolute_file_path = os.path.join(directory_project_cluster, filename_raw_data_csv())
+
+    return send_file(absolute_file_path, as_attachment=True)
 
 
 @main_routes.route("/summerise", methods=["POST"])
@@ -169,7 +208,7 @@ def list_files():
     return jsonify({"files": file_list})
 
 
-@main_routes.route("/download", methods=["GET"])
+@main_routes.route("/project/download", methods=["GET"])
 def download_file():
     """
     Downloads a file if the path is provided and valid.
@@ -180,49 +219,11 @@ def download_file():
         return abort(400, description="The 'path' query parameter is required.")
 
     # Ensure the path is within the ROOT_DIRECTORY
-    absolute_path = os.path.abspath(os.path.join(directory_project, relative_path))
-    if not absolute_path.startswith(os.path.abspath(directory_project)):
+    absolute_file_path = os.path.abspath(os.path.join(directory_project, relative_path))
+    if not absolute_file_path.startswith(os.path.abspath(directory_project)):
         return abort(403, description="Access to the file is forbidden.")
 
-    if not os.path.exists(absolute_path) or not os.path.isfile(absolute_path):
+    if not os.path.exists(absolute_file_path) or not os.path.isfile(absolute_file_path):
         return abort(404, description="File not found.")
 
-    return send_file(absolute_path, as_attachment=True)
-
-
-@main_routes.route("/time-series", methods=["POST"])
-def start_time_series():
-    """
-    curl -X POST http://127.0.0.1:8080/process/summerising -H "Content-Type: application/json" -d '{
-    "level": 3,
-    "path": [1, 2, 1]
-    }'
-    """
-    request_data_json = request.get_json()
-    level = int(request_data_json.get("level"))
-    path = request_data_json.get("path")
-    project_id = os.path.basename(request_data_json.get("project_id"))
-    del request_data_json
-    # total paths should be equal to level
-    if int(level) != len(path):
-        return jsonify({"error": "Level and Path don't match"}), 400
-
-    directory_project = directory_project_path_full(project_id, path)
-    clusters = list_sub_directories(directory_project)
-
-    for cluster in clusters:
-        data_raw = os.path.join(directory_project, cluster, filename_raw_data_csv())
-        json_file = os.path.join(directory_project, cluster, feature_descriptions_json())
-        csv_file = os.path.join(directory_project, cluster, feature_descriptions_csv())
-        summerise_cluster(data_raw, csv_file, json_file)
-
-    return (
-        jsonify(
-            {
-                "message": "File encoding has started",
-                "Project_id": project_id,
-                "project_dir": os.path.join(directory_project, filename_label_encoded_data_csv()),
-            }
-        ),
-        202,
-    )
+    return send_file(absolute_file_path, as_attachment=True)
