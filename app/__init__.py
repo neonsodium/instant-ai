@@ -30,13 +30,9 @@ app.config["JSON_SORT_KEYS"] = False
 app.json.sort_keys = False
 celery = make_celery(app)
 
-from app.routes.main_routes import main_routes
+
 from app.routes.processor_routes import processor_routes
+from app.routes.project_routes import project_routes
 
-app.register_blueprint(main_routes, url_prefix="/")
+app.register_blueprint(project_routes, url_prefix="/projects")
 app.register_blueprint(processor_routes, url_prefix="/process")
-
-# from app.routes.demo_api_routes import demo_api_routes
-# from app.routes.old_routes import old_routes
-# app.register_blueprint(old_routes, url_prefix="/old")
-# app.register_blueprint(demo_api_routes, url_prefix="/api/demo")

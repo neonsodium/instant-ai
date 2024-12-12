@@ -4,18 +4,29 @@
 
 ---
 
-## **1. Create a New Project**
+## **Create a New Project**
 
-- **Endpoint:** `/create-project`
-- **Method:** `GET/POST`
+- **Endpoint:** `/projects/`
+- **Method:** `POST`
 - **Description:** Creates a new project and returns the project ID.
 - **Example:**
 
   ```bash
-  curl http://127.0.0.1:8009/create-project
+  curl -X POST http://127.0.0.1:8009/projects/
   ```
 
-## **2. Process Uploaded File**
+## **List all Projects**
+
+- **Endpoint:** `/projects/`
+- **Method:** `GET`
+- **Description:** List all projects and returns the project IDs.
+- **Example:**
+
+  ```bash
+  curl http://127.0.0.1:8009/projects/
+  ```
+
+## **Process Uploaded File**
 
 - **Endpoint:** `/process/upload`
 - **Method:** `POST`
@@ -31,22 +42,22 @@
 
 ---
 
-## **3. Check Task Status**
+## **Check Task Status**
 
-- **Endpoint:** `/process/check-task/<task_id>`
+- **Endpoint:** `/process/tasks/<task_id>/status`
 - **Method:** `GET`
 - **Description:** Checks the status of a task by task ID.
 - **Example:**
 
   ```bash
-  curl http://127.0.0.1:8009/process/check-task/TASK_ID
+  curl http://127.0.0.1:8009/process/tasks/TASK_ID/status
   ```
 
 ---
 
-## **4. Validate Dataset**
+## **Validate Dataset**
 
-- **Endpoint:** `/validator`
+- **Endpoint:** `/projects/validate`
 - **Method:** `POST`
 - **Description:** Validates the uploaded dataset for a given project.
 - **Parameters:**
@@ -54,14 +65,14 @@
 - **Example:**
 
   ```bash
-  curl http://127.0.0.1:8009/validator -H "Content-Type: application/json" -d '{ "project_id": "PROJECT_ID" }'
+  curl http://127.0.0.1:8009/projects/validate -H "Content-Type: application/json" -d '{ "project_id": "PROJECT_ID" }'
   ```
 
 ---
 
-## **5. List Columns**
+## **List Columns**
 
-- **Endpoint:** `/list-column`
+- **Endpoint:** `/projects/columns`
 - **Method:** `POST`
 - **Description:** Lists the columns in the dataset for the specified project.
 - **Parameters:**
@@ -69,12 +80,12 @@
 - **Example:**
 
   ```bash
-  curl http://127.0.0.1:8009/list-column -H "Content-Type: application/json" -d '{ "project_id": "PROJECT_ID" }'
+  curl http://127.0.0.1:8009/projects/columns -H "Content-Type: application/json" -d '{ "project_id": "PROJECT_ID" }'
   ```
 
 ---
 
-## **6. Drop Columns**
+## **Drop Columns**
 
 - **Endpoint:** `/process/drop-column`
 - **Method:** `POST`
@@ -90,7 +101,7 @@
 
 ---
 
-## **7. Pre-process Dataset** \[deprecated\]
+## **Pre-process Dataset** \[deprecated\]
 
 - **Endpoint:** `/process/pre-process`
 - **Method:** `POST`
@@ -105,7 +116,7 @@
 
 ---
 
-## **8. Feature Ranking**
+## **Feature Ranking**
 
 - **Endpoint:** `/process/feature-ranking`
 - **Method:** `POST`
@@ -122,7 +133,7 @@
 
 ---
 
-## **9. Clustering**
+## **Clustering**
 
 - **Endpoint:** `/process/cluster`
 - **Method:** `POST`
@@ -140,9 +151,9 @@
 
 ---
 
-## **10. Summarize Clusters**
+## **Summarize Clusters**
 
-- **Endpoint:** `/summerising`
+- **Endpoint:** `/projects/clusters/summarize`
 - **Method:** `POST`
 - **Description:** Summarizes the clustering results.
 - **Parameters:**
@@ -152,7 +163,7 @@
 - **Example:**
 
   ```bash
-  curl http://127.0.0.1:8009/summerising -H "Content-Type: application/json" -d '{ "project_id": "PROJECT_ID", "level": 0, "path": [] }'
+  curl http://127.0.0.1:8009/projects/clusters/summarize -H "Content-Type: application/json" -d '{ "project_id": "PROJECT_ID", "level": 0, "path": [] }'
   ```
 
 ---

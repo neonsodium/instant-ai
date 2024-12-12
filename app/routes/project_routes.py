@@ -8,11 +8,11 @@ from app.filename_utils import *
 from app.ml_models.summarising import summerise_cluster
 from app.os_utils import *
 
-main_routes = Blueprint("main_routes", __name__)
+project_routes = Blueprint("project_routes", __name__)
 
 
-@main_routes.route("/list-projects", methods=["GET", "POST"])
-def list_tasks():
+@project_routes.route("/", methods=["GET"])
+def get_projects():
 
     if not os.path.exists(all_project_dir_path()):
         return jsonify({"error": "Project directory not configured"}), 404
@@ -29,15 +29,15 @@ def list_tasks():
     return jsonify({"projects": projects}), 200
 
 
-@main_routes.route("/create-project", methods=["GET", "POST"])
-def create_new_project():
+@project_routes.route("/", methods=["POST"])
+def create_project():
     new_project_id = create_project_uuid()
     result = create_directory(all_project_dir_path(), new_project_id)
     return jsonify({"project_id": new_project_id, **result})
 
 
-@main_routes.route("/cluster-info", methods=["POST"])
-def display_cluster():
+@project_routes.route("//clusters", methods=["POST"])
+def get_cluster_info():
     """
     curl -X POST http://localhost:8080/get_clusters \
     -H "Content-Type: application/json" \
@@ -71,8 +71,8 @@ def display_cluster():
     )
 
 
-@main_routes.route("/download", methods=["POST"])
-def download_cluster():
+@project_routes.route("/clusters/download", methods=["POST"])
+def download_cluster_data():
     """
     curl -X POST http://localhost:8080/download \
     -H "Content-Type: application/json" \
@@ -107,10 +107,10 @@ def download_cluster():
     return send_file(absolute_file_path, as_attachment=True)
 
 
-@main_routes.route("/summerise", methods=["POST"])
-def start_summerising():
+@project_routes.route("/clusters/summarize", methods=["POST"])
+def summarize_clusters():
     """
-    curl -X POST http://127.0.0.1:8080/process/summerise -H "Content-Type: application/json" -d '{
+    curl -X POST http://127.0.0.1:8080/projects/clusters/summarize -H "Content-Type: application/json" -d '{
     "level": 3,
     "path": [1, 2, 1]
     }'
@@ -140,8 +140,8 @@ def start_summerising():
         return (jsonify(all_clusters_summary), 200)
 
 
-@main_routes.route("/validator", methods=["POST"])
-def validate_data():
+@project_routes.route("/validate", methods=["POST"])
+def validate_dataset():
     """
     curl -X POST http://127.0.0.1:8080/validator -H "Content-Type: application/json" -d '{
     "project_id": "ID"
@@ -149,8 +149,8 @@ def validate_data():
     """
     request_data_json = request.get_json()
     project_id = os.path.basename(request_data_json.get("project_id"))
-    directory_project = directory_project_path_full(project_id, [])
 
+    directory_project = directory_project_path_full(project_id, [])
     if not os.path.isdir(directory_project):
         return jsonify({"error": "Invalid Project ID"}), 400
 
@@ -160,13 +160,12 @@ def validate_data():
 
     df = pd.read_csv(raw_data_file)
     result = validate_dataset(df)
-    print(result)
 
     return jsonify({"message": result}), 200
 
 
-@main_routes.route("/list-column", methods=["POST"])
-def list_column():
+@project_routes.route("/columns", methods=["POST"])
+def list_dataset_columns():
     """
     curl -X POST http://127.0.0.1:8080/list-column -H "Content-Type: application/json" -d '{
     "project_id": "ID",
@@ -192,8 +191,8 @@ def list_column():
     return jsonify({"columns": list(df.columns)}), 200
 
 
-@main_routes.route("/list-files", methods=["GET"])
-def list_files():
+@project_routes.route("/files", methods=["GET"])
+def list_all_files():
     """
     Lists all files in the root directory and its subdirectories.
     """
@@ -208,7 +207,7 @@ def list_files():
     return jsonify({"files": file_list})
 
 
-@main_routes.route("/project/download", methods=["GET"])
+@project_routes.route("/files/download", methods=["GET"])
 def download_file():
     """
     Downloads a file if the path is provided and valid.
@@ -218,7 +217,6 @@ def download_file():
     if not relative_path:
         return abort(400, description="The 'path' query parameter is required.")
 
-    # Ensure the path is within the ROOT_DIRECTORY
     absolute_file_path = os.path.abspath(os.path.join(directory_project, relative_path))
     if not absolute_file_path.startswith(os.path.abspath(directory_project)):
         return abort(403, description="Access to the file is forbidden.")
