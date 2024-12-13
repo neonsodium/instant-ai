@@ -37,7 +37,7 @@
 - **Example:**
 
   ```bash
-  curl http://127.0.0.1:8009/process/upload -F '{ "project_id": "PROJECT_ID" } -F "file=@data.csv"
+  curl http://127.0.0.1:8009/process/upload -F 'project_id=PROJECT_ID' -F "file=@data.csv"
   ```
 
 ---
