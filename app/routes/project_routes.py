@@ -3,15 +3,15 @@ import os
 import pandas as pd
 from flask import Blueprint, abort, jsonify, request, send_file
 
-from app.data_preparation_ulits.preprocessing_engine import validate_dataset
+from app.data_preparation_ulits.preprocessing_engine import validate_df
 from app.filename_utils import *
 from app.ml_models.summarising import summerise_cluster
 from app.os_utils import *
 
-project_routes = Blueprint("project_routes", __name__)
+main_routes = Blueprint("main_routes", __name__)
 
 
-@project_routes.route("/", methods=["GET"])
+@main_routes.route("/", methods=["GET"])
 def get_projects():
 
     if not os.path.exists(all_project_dir_path()):
@@ -29,29 +29,19 @@ def get_projects():
     return jsonify({"projects": projects}), 200
 
 
-@project_routes.route("/", methods=["POST"])
+@main_routes.route("/", methods=["POST"])
 def create_project():
     new_project_id = create_project_uuid()
     result = create_directory(all_project_dir_path(), new_project_id)
     return jsonify({"project_id": new_project_id, **result})
 
 
-@project_routes.route("/clusters", methods=["POST"])
-def get_cluster_info():
-    """
-    curl -X POST http://localhost:8080/get_clusters \
-    -H "Content-Type: application/json" \
-    -d '{
-            "level": 3,
-            "path": [1, 2, 1],
-            "project_id": "ID"
-        }'
-    """
+@main_routes.route("/<project_id>/clusters", methods=["POST"])
+def get_cluster_info(project_id):
 
     request_data_json = request.get_json()
     level = int(request_data_json.get("level"))
     list_path = request_data_json.get("path")
-    project_id = os.path.basename(request_data_json.get("project_id"))
 
     directory_project_base = directory_project_path_full(project_id, [])
     if not os.path.isdir(directory_project_base):
@@ -71,24 +61,13 @@ def get_cluster_info():
     )
 
 
-@project_routes.route("/clusters/download", methods=["POST"])
-def download_cluster_data():
-    """
-    curl -X POST http://localhost:8080/download \
-    -H "Content-Type: application/json" \
-    -d '{
-            "level": 3,
-            "path": [1, 2, 1],
-            "cluster": 1,
-            "project_id": "ID"
-        }'
-    """
+@main_routes.route("/<project_id>/clusters/download", methods=["POST"])
+def download_cluster_data(project_id):
 
     request_data_json = request.get_json()
     level = int(request_data_json.get("level"))
     list_path: list = request_data_json.get("path")
     cluster_no = int(request_data_json.get("cluster"))
-    project_id = os.path.basename(request_data_json.get("project_id"))
 
     directory_project_base = directory_project_path_full(project_id, [])
     if not os.path.isdir(directory_project_base):
@@ -107,18 +86,11 @@ def download_cluster_data():
     return send_file(absolute_file_path, as_attachment=True)
 
 
-@project_routes.route("/clusters/summarize", methods=["POST"])
-def summarize_clusters():
-    """
-    curl -X POST http://127.0.0.1:8080/projects/clusters/summarize -H "Content-Type: application/json" -d '{
-    "level": 3,
-    "path": [1, 2, 1]
-    }'
-    """
+@main_routes.route("/<project_id>/clusters/summarize", methods=["POST"])
+def summarize_cluster_info(project_id):
     request_data_json = request.get_json()
     level = int(request_data_json.get("level"))
     list_path = request_data_json.get("path")
-    project_id = os.path.basename(request_data_json.get("project_id"))
 
     directory_project_cluster = directory_project_path_full(project_id, list_path)
     if not os.path.exists(directory_project_cluster):
@@ -140,15 +112,13 @@ def summarize_clusters():
         return (jsonify(all_clusters_summary), 200)
 
 
-@project_routes.route("/validate", methods=["POST"])
-def validate_dataset_api():
+@main_routes.route("/<project_id>/dataset/validate", methods=["GET", "POST"])
+def validate_dataset(project_id):
     """
     curl -X POST http://127.0.0.1:8080/validator -H "Content-Type: application/json" -d '{
     "project_id": "ID"
     }'
     """
-    request_data_json = request.get_json()
-    project_id = os.path.basename(request_data_json.get("project_id"))
 
     directory_project = directory_project_path_full(project_id, [])
     if not os.path.isdir(directory_project):
@@ -159,20 +129,14 @@ def validate_dataset_api():
         return jsonify({"message": "Data set not uploaded"}), 400
 
     df = pd.read_csv(raw_data_file)
-    result = validate_dataset(df)
+    result = validate_df(df)
 
     return jsonify({"message": result}), 200
 
 
-@project_routes.route("/columns", methods=["POST"])
-def list_dataset_columns():
-    """
-    curl -X POST http://127.0.0.1:8080/list-column -H "Content-Type: application/json" -d '{
-    "project_id": "ID",
-    }'
-    """
-    request_data_json = request.get_json()
-    project_id = os.path.basename(request_data_json.get("project_id"))
+@main_routes.route("/<project_id>/dataset/columns", methods=["GET", "POST"])
+def list_dataset_columns(project_id):
+
     directory_project = directory_project_path_full(project_id, [])
 
     if not os.path.isdir(directory_project):
@@ -191,8 +155,8 @@ def list_dataset_columns():
     return jsonify({"columns": list(df.columns)}), 200
 
 
-@project_routes.route("/files", methods=["GET"])
-def list_all_files():
+@main_routes.route("/files", methods=["GET"])
+def list_all_files_in_projects():
     """
     Lists all files in the root directory and its subdirectories.
     """
@@ -207,8 +171,8 @@ def list_all_files():
     return jsonify({"files": file_list})
 
 
-@project_routes.route("/files/download", methods=["GET"])
-def download_file():
+@main_routes.route("/files/download", methods=["GET"])
+def download_project_file():
     """
     Downloads a file if the path is provided and valid.
     """

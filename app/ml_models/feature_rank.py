@@ -17,7 +17,7 @@ from app.ml_models.feature_ranking_ulits.seq_feature_selector import \
     perform_feature_selection
 
 
-def optimised_feature_rank(
+def generate_optimized_feature_rankings(
     target_var,
     target_vars_list: list,
     user_added_vars_list: list,
@@ -33,7 +33,15 @@ def optimised_feature_rank(
 
     df, label_encoders = apply_label_encoding(df)
     del label_encoders
+    top_features = compute_feature_rankings(df, target_var, target_vars_list)
 
+    final_output = pd.concat([top_features], ignore_index=True)
+    save_results(final_output, directory_project, target_var, user_added_vars_list)
+
+    return final_output["Feature"].to_list()
+
+
+def compute_feature_rankings(df, target_var, target_vars_list):
     if target_var not in target_vars_list:
         target_vars_list.append(target_var)
 
@@ -56,21 +64,17 @@ def optimised_feature_rank(
         "random_forest": 1.0,
     }
 
-    impact_data = run_algorithms(algorithms, X, Y, feature_vars, weights)
+    impact_data = run_all_ranking_algorithms(algorithms, X, Y, feature_vars, weights)
     impact_data = compute_impact_score(impact_data)
 
     impact_data = impact_data.sort_values("Impact_Score", ascending=False).reset_index(drop=True)
 
     TOTAL_NUMBER_FEATURES = 20
     top_features = impact_data.head(TOTAL_NUMBER_FEATURES)
-
-    final_output = pd.concat([top_features], ignore_index=True)
-    save_results(final_output, directory_project, target_var, user_added_vars_list)
-
-    return final_output["Feature"].to_list()
+    return top_features
 
 
-def run_algorithm(algorithm, X, Y, feature_vars):
+def execute_feature_ranking_algorithm(algorithm, X, Y, feature_vars):
     k_features = len(feature_vars)
     if algorithm == "f_test_anova":
         result = f_test_anova(X, Y, k_features)
@@ -131,12 +135,12 @@ def run_algorithm(algorithm, X, Y, feature_vars):
         return None
 
 
-def run_algorithms(algorithms, X, Y, feature_vars, weights):
+def run_all_ranking_algorithms(algorithms, X, Y, feature_vars, weights):
     results = {}
     impact_data = pd.DataFrame(columns=["Feature"])
 
     for algorithm in algorithms:
-        result = run_algorithm(algorithm, X, Y, feature_vars)
+        result = execute_feature_ranking_algorithm(algorithm, X, Y, feature_vars)
 
         if result is not None:
             results[algorithm] = result
@@ -192,5 +196,5 @@ def save_results(final_output, directory_project, target_var, user_added_vars_li
         pickle.dump(union_list, feature_list_pkl_file)
 
 
-def get_feature_vars(df, target_vars_list):
+def extract_feature_variables(df, target_vars_list):
     return [col for col in df.columns if col not in target_vars_list]

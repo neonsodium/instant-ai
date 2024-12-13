@@ -28,7 +28,7 @@
 
 ## **Process Uploaded File**
 
-- **Endpoint:** `/process/upload`
+- **Endpoint:** `/projects/<project_id>/files/upload`
 - **Method:** `POST`
 - **Description:** Processes the uploaded file for the given project.
 - **Parameters:**
@@ -37,57 +37,57 @@
 - **Example:**
 
   ```bash
-  curl http://127.0.0.1:8009/process/upload -F 'project_id=PROJECT_ID' -F "file=@data.csv"
+  curl http://127.0.0.1:8009/projects/PROJECT_ID/files/upload -F "file=@data.csv"
   ```
 
 ---
 
 ## **Check Task Status**
 
-- **Endpoint:** `/process/tasks/<task_id>/status`
-- **Method:** `GET`
+- **Endpoint:** `/projects/tasks/<task_id>/status`
+- **Method:** `GET/POST`
 - **Description:** Checks the status of a task by task ID.
 - **Example:**
 
   ```bash
-  curl http://127.0.0.1:8009/process/tasks/TASK_ID/status
+  curl http://127.0.0.1:8009/projects/tasks/TASK_ID/status
   ```
 
 ---
 
 ## **Validate Dataset**
 
-- **Endpoint:** `/projects/validate`
-- **Method:** `POST`
+- **Endpoint:** `/projects/<project_id>/dataset/validate`
+- **Method:** `GET/POST`
 - **Description:** Validates the uploaded dataset for a given project.
 - **Parameters:**
   - `project_id` (string): ID of the project.
 - **Example:**
 
   ```bash
-  curl http://127.0.0.1:8009/projects/validate -H "Content-Type: application/json" -d '{ "project_id": "PROJECT_ID" }'
+  curl http://127.0.0.1:8009/projects/PROJECT_ID/dataset/validate
   ```
 
 ---
 
 ## **List Columns**
 
-- **Endpoint:** `/projects/columns`
-- **Method:** `POST`
+- **Endpoint:** `/projects/<project_id>/dataset/columns`
+- **Method:** `GET/POST`
 - **Description:** Lists the columns in the dataset for the specified project.
 - **Parameters:**
   - `project_id` (string): ID of the project.
 - **Example:**
 
   ```bash
-  curl http://127.0.0.1:8009/projects/columns -H "Content-Type: application/json" -d '{ "project_id": "PROJECT_ID" }'
+  curl http://127.0.0.1:8009/projects/PROJECT_ID/dataset/columns
   ```
 
 ---
 
 ## **Drop Columns**
 
-- **Endpoint:** `/process/drop-column`
+- **Endpoint:** `/projects/<project_id>/dataset/columns/drop`
 - **Method:** `POST`
 - **Description:** Drops specified columns from the dataset for the given project.
 - **Parameters:**
@@ -96,29 +96,14 @@
 - **Example:**
 
   ```bash
-  curl http://127.0.0.1:8009/process/drop-column -H "Content-Type: application/json" -d '{ "project_id": "PROJECT_ID", "column": ["col1", "col2"] }'
-  ```
-
----
-
-## **Pre-process Dataset** \[deprecated\]
-
-- **Endpoint:** `/process/pre-process`
-- **Method:** `POST`
-- **Description:** Initiates pre-processing for the uploaded dataset.
-- **Parameters:**
-  - `project_id` (string): ID of the project.
-- **Example:**
-
-  ```bash
-  curl http://127.0.0.1:8009/process/pre-process -H "Content-Type: application/json" -d '{ "project_id": "PROJECT_ID" }'
+  curl http://127.0.0.1:8009/projects/PROJECT_ID/dataset/columns/drop -H "Content-Type: application/json" -d '{ "column": ["col1", "col2"] }'
   ```
 
 ---
 
 ## **Feature Ranking**
 
-- **Endpoint:** `/process/feature-ranking`
+- **Endpoint:** `/projects/<project_id>/features/ranking`
 - **Method:** `POST`
 - **Description:** Ranks features based on their importance.
 - **Parameters:**
@@ -128,14 +113,14 @@
 - **Example:**
 
   ```bash
-  curl http://127.0.0.1:8009/process/feature-ranking -H "Content-Type: application/json" -d '{ "project_id": "PROJECT_ID", "target_vars_list": ["var1", "var2"], "target_var": "target_var" }'
+  curl http://127.0.0.1:8009/projects/PROJECT_ID/features/ranking -H "Content-Type: application/json" -d '{ "target_vars_list": ["var1", "var2"], "target_var": "target_var" }'
   ```
 
 ---
 
 ## **Clustering**
 
-- **Endpoint:** `/process/cluster`
+- **Endpoint:** `/projects/<project_id>/clusters/subcluster`
 - **Method:** `POST`
 - **Description:** Performs clustering on the dataset.
 - **Parameters:**
@@ -146,14 +131,14 @@
 - **Example:**
 
   ```bash
-  curl http://127.0.0.1:8009/process/cluster -H "Content-Type: application/json" -d '{ "project_id": "PROJECT_ID", "target_var": "target_var", "level": 0, "path": [] }'
+  curl http://127.0.0.1:8009/projects/PROJECT_ID/clusters/subcluster -H "Content-Type: application/json" -d '{ "target_var": "target_var", "level": 0, "path": [] }'
   ```
 
 ---
 
 ## **Summarize Clusters**
 
-- **Endpoint:** `/projects/clusters/summarize`
+- **Endpoint:** `/projects/<project_id>/clusters/summarize`
 - **Method:** `POST`
 - **Description:** Summarizes the clustering results.
 - **Parameters:**
@@ -163,7 +148,24 @@
 - **Example:**
 
   ```bash
-  curl http://127.0.0.1:8009/projects/clusters/summarize -H "Content-Type: application/json" -d '{ "project_id": "PROJECT_ID", "level": 0, "path": [] }'
+  curl http://127.0.0.1:8009/projects/PROJECT_ID/clusters/summarize -H "Content-Type: application/json" -d '{ "level": 0, "path": [] }'
+  ```
+
+---
+
+## **Download Cluster Data**
+
+- **Endpoint:** `/projects/<project_id>/clusters/download`
+- **Method:** `POST`
+- **Description:** Download the sub clustering results.
+- **Parameters:**
+  - `project_id` (string): ID of the project.
+  - `level` (int): Clustering level.
+  - `path` (array): Path of the clustering hierarchy.
+- **Example:**
+
+  ```bash
+  curl http://127.0.0.1:8009/projects/<project_id>/clusters/download -H "Content-Type: application/json" -d '{ "level": 0, "path": [] }'
   ```
 
 ---

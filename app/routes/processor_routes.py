@@ -9,20 +9,14 @@ from app.tasks import *
 processor_routes = Blueprint("processor_routes", __name__)
 
 
-@processor_routes.route("/tasks/<task_id>/status", methods=["GET"])
-def get_task_status(task_id):
+@processor_routes.route("/tasks/<task_id>/status", methods=["GET", "POST"])
+def get_task_status_by_id(task_id):
     result = celery.AsyncResult(task_id)
     return jsonify({"status": result.status})
 
 
-@processor_routes.route("/upload", methods=["POST"])
-def upload_project_file():
-    """
-    curl -X POST http://127.0.0.1:8080/process/upload -d '{
-    "project_id": "ID",
-    }'
-    """
-    project_id = request.form.get("project_id")
+@processor_routes.route("/<project_id>/files/upload", methods=["POST"])
+def upload_project_file(project_id):
 
     directory_project_base = directory_project_path_full(project_id, [])
     if not os.path.isdir(directory_project_base):
@@ -40,16 +34,10 @@ def upload_project_file():
         return jsonify({"error": "Invalid file type"}), 400
 
 
-@processor_routes.route("/drop-column", methods=["POST"])
-def remove_project_columns():
-    """
-    curl -X POST http://127.0.0.1:8080/process/drop-column -H "Content-Type: application/json" -d '{
-    "project_id": "ID",
-    "column": ["COL1", "COL2", "COL3"]
-    }'
-    """
+@processor_routes.route("/<project_id>/dataset/columns/drop", methods=["POST"])
+def drop_columns_from_dataset(project_id):
     request_data_json = request.get_json()
-    project_id = os.path.basename(request_data_json.get("project_id"))
+
     directory_project = directory_project_path_full(project_id, [])
     drop_column_list = request_data_json.get("column", [])
 
@@ -68,15 +56,13 @@ def remove_project_columns():
     return (jsonify({"message": "Column droppping has started", "task_id": result.id}), 202)
 
 
-@processor_routes.route("/pre-process", methods=["POST"])
-def initiate_data_preprocessing():
+@processor_routes.route("/<project_id>/dataset/preprocess", methods=["GET", "POST"])
+def start_data_preprocessing(project_id):
     """
     curl -X POST http://127.0.0.1:8080/process/pre-process -H "Content-Type: application/json" -d '{
     "project_id": "ID"
     }'
     """
-    request_data_json = request.get_json()
-    project_id = os.path.basename(request_data_json.get("project_id"))
     directory_project = directory_project_path_full(project_id, [])
 
     if not os.path.isdir(directory_project):
@@ -89,8 +75,8 @@ def initiate_data_preprocessing():
     return (jsonify({"message": "File pre-processing has started", "task_id": result.id}), 202)
 
 
-@processor_routes.route("/feature-ranking", methods=["POST"])
-def initiate_feature_ranking():
+@processor_routes.route("/<project_id>/features/ranking", methods=["POST"])
+def start_feature_ranking(project_id):
     """
     curl -X POST http://127.0.0.1:8080/process/feature-ranking -H "Content-Type: application/json" -d '{
     "target_vars_list": ["reading_fee_paid", "Number_of_Months", "Coupon_Discount", "num_books", "magazine_fee_paid", "Renewal_Amount", "amount_paid"],
@@ -99,7 +85,6 @@ def initiate_feature_ranking():
     }'
     """
     request_data_json = request.get_json()
-    project_id = os.path.basename(request_data_json.get("project_id"))
     target_vars_list = request_data_json.get("target_vars_list", [])
     user_added_vars_list = request_data_json.get("user_added_vars_list", [])
     target_var = request_data_json.get("target_var", None)
@@ -123,39 +108,8 @@ def initiate_feature_ranking():
     )
 
 
-@processor_routes.route("/time-series", methods=["POST"])
-def generate_time_series_encoding():
-    """
-    curl -X POST http://127.0.0.1:8080/process/time-series -H "Content-Type: application/json" -d '{
-    "level": 3,
-    "path": [1, 2, 1]
-    }'
-    """
-    request_data_json = request.get_json()
-    level = int(request_data_json.get("level"))
-    list_path = request_data_json.get("path")
-    project_id = os.path.basename(request_data_json.get("project_id"))
-    del request_data_json
-    if int(level) != len(list_path):
-        return jsonify({"error": "Level and Path don't match"}), 400
-
-    directory_project = directory_project_path_full(project_id, list_path)
-    clusters = list_sub_directories(directory_project)
-
-    return (
-        jsonify(
-            {
-                "message": "File encoding has started",
-                "Project_id": project_id,
-                "project_dir": os.path.join(directory_project, filename_label_encoded_data_csv()),
-            }
-        ),
-        202,
-    )
-
-
-@processor_routes.route("/cluster", methods=["POST"])
-def initiate_subclustering():
+@processor_routes.route("/<project_id>/clusters/subcluster", methods=["POST"])
+def initiate_subclustering(project_id):
     """
     curl -X POST http://127.0.0.1:8080/process -H "Content-Type: application/json" -d '{
     "target_var": "amount_paid",
@@ -165,7 +119,6 @@ def initiate_subclustering():
     """
     # TODO add target varibale
     request_data_json = request.get_json()
-    project_id = os.path.basename(request_data_json.get("project_id"))
     list_path = request_data_json.get("path")
     level = int(request_data_json.get("level"))
     target_var = request_data_json.get("target_var")

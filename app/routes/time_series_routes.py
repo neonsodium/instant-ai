@@ -1,19 +1,19 @@
 import os
 
-from flask import Blueprint, jsonify, request, render_template
-from app.os_utils import *
-from app.ml_models.time_series import time_series_analysis
-from app.filename_utils import filename_raw_data_csv
-
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.io as pio
+from flask import Blueprint, jsonify, render_template, request
+
+from app.filename_utils import filename_raw_data_csv
+from app.ml_models.time_series import time_series_analysis
+from app.os_utils import *
 
 lazy_routes = Blueprint("lazy_routes", __name__)
 
 
-@lazy_routes.route("/time-series", methods=["POST"])
-def initiate_feature_ranking():
+@lazy_routes.route("/<project_id>/time-series/encode", methods=["POST"])
+def initiate_feature_ranking(project_id):
     request_data_json = request.get_json()
     # project_id = os.path.basename(request_data_json.get("project_id"))
     # user_added_vars_list = request_data_json.get("user_added_vars_list", [])
@@ -21,10 +21,10 @@ def initiate_feature_ranking():
     # list_path = request_data_json.get("path")
     # target_var = request_data_json.get("target_var", None)
 
-    project_id = "b1356c05-7195-497d-91f4-55549fc4ee04"
+    project_id = "712453d3-d511-4935-a9a6-ebc3c57efc3c"
     level = 1
     list_path = [1]
-    target_var = "Revenue"
+    target_var = "amount_paid"
     user_added_vars_list = []
 
     directory_project = directory_project_path_full(project_id, [])

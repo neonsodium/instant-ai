@@ -4,6 +4,7 @@ from prophet import Prophet
 
 from app.data_preparation_ulits.aggregate import aggregate_columns_by_date
 from app.data_preparation_ulits.one_hot_encode import apply_one_hot_encoding
+from app.ml_models.feature_rank import compute_feature_rankings
 
 
 def time_series_analysis(
@@ -17,15 +18,17 @@ def time_series_analysis(
     zero_value_replacement,
 ):
 
-    date_column = "created_date"
+    date_column = "# created_date"
+    print(input_file_path_raw_data_csv)
     df = pd.read_csv(input_file_path_raw_data_csv)
+    print(df.head())
     df[date_column] = pd.to_datetime(df[date_column])
-    forecast_periods = (end_date - df["created_date"].max()).days + 30
+    forecast_periods = (end_date - df[date_column].max()).days + 30
     df = apply_one_hot_encoding(df)
     df = aggregate_columns_by_date(df)
     df_ts = df
     del df
-    regressors = feature_ranking(df_ts, target_var)
+    regressors = compute_feature_rankings(df, target_var, [])["Feature"].to_list()
     df_prophet = prepare_prophet_data(df_ts, date_column, target_var, regressors)
     model = Prophet(
         n_changepoints=100,
@@ -64,10 +67,6 @@ def time_series_analysis(
     )
 
     return fig
-
-
-def feature_ranking(df, target_var):
-    return list([])
 
 
 def prepare_prophet_data(df, date_column, target_column, regressors):
