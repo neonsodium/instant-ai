@@ -18,15 +18,14 @@ def get_task_status(task_id):
 @processor_routes.route("/upload", methods=["POST"])
 def upload_project_file():
     """
-    curl -X POST http://127.0.0.1:8080/process/upload -H "Content-Type: application/json" -d '{
+    curl -X POST http://127.0.0.1:8080/process/upload -d '{
     "project_id": "ID",
     }'
     """
-    request_data_json = request.get_json()
-    project_id = os.path.basename(request_data_json.get("project_id"))
+    project_id = request.form.get("project_id")
 
-    directory_project = directory_project_path_full(project_id, [])
-    if not os.path.isdir(directory_project):
+    directory_project_base = directory_project_path_full(project_id, [])
+    if not os.path.isdir(directory_project_base):
         return jsonify({"error": "Invalid Project ID"}), 400
 
     if "file" not in request.files:
@@ -34,7 +33,7 @@ def upload_project_file():
 
     file = request.files["file"]
     if file:
-        result = async_save_file.delay(directory_project, file.read())
+        result = async_save_file.delay(directory_project_base, file.read())
 
         return (jsonify({"message": "File processing has started", "task_id": result.id}), 202)
     else:
