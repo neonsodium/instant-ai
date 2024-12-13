@@ -5,7 +5,7 @@ from app.data_preparation_ulits.label_encode_data import label_encode_data
 from app.data_preparation_ulits.one_hot_encode import one_hot_encode_data
 from app.filename_utils import *
 from app.ml_models.cluster import optimised_clustering
-from app.ml_models.feature_rank import optimised_feature_rank
+from app.ml_models.feature_rank import generate_optimized_feature_rankings
 
 from . import celery
 
@@ -77,7 +77,7 @@ def async_optimised_feature_rank(
 ):
     drop_column_file = os.path.join(directory_project, filename_dropeed_column_data_csv())
     raw_data_file = os.path.join(directory_project, filename_raw_data_csv())
-    optimised_feature_rank(
+    generate_optimized_feature_rankings(
         target_var,
         target_vars_list,
         user_added_vars_list,

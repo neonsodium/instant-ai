@@ -3,7 +3,7 @@ import os
 import pandas as pd
 from flask import Blueprint, abort, jsonify, request, send_file
 
-from app.data_preparation_ulits.preprocessing_engine import validate_dataset
+from app.data_preparation_ulits.preprocessing_engine import validate_df
 from app.filename_utils import *
 from app.ml_models.summarising import summerise_cluster
 from app.os_utils import *
@@ -159,7 +159,7 @@ def validate_data():
         return jsonify({"message": "Data set not uploaded"}), 400
 
     df = pd.read_csv(raw_data_file)
-    result = validate_dataset(df)
+    result = validate_df(df)
     print(result)
 
     return jsonify({"message": result}), 200

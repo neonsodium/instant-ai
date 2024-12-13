@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 
-def validate_dataset(df):
+def validate_df(df):
     """
     Validates the input DataFrame and reports data quality issues.
     If no issues are found, confirms that the data is clean.
