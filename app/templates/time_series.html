@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plotly Graph</title>
+    <!-- Include Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+
+<body>
+    <h1>Plotly Graph</h1>
+    <div id="plotly-div"></div>
+
+    <script>
+        const plotlyFigure = {{ plotly_figure | safe }};
+
+        Plotly.newPlot('plotly-div', plotlyFigure.data, plotlyFigure.layout);
+    </script>
+</body>
+
+</html>

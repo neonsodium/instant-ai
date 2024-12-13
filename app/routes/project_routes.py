@@ -36,7 +36,7 @@ def create_project():
     return jsonify({"project_id": new_project_id, **result})
 
 
-@project_routes.route("//clusters", methods=["POST"])
+@project_routes.route("/clusters", methods=["POST"])
 def get_cluster_info():
     """
     curl -X POST http://localhost:8080/get_clusters \
@@ -141,7 +141,7 @@ def summarize_clusters():
 
 
 @project_routes.route("/validate", methods=["POST"])
-def validate_dataset():
+def validate_dataset_api():
     """
     curl -X POST http://127.0.0.1:8080/validator -H "Content-Type: application/json" -d '{
     "project_id": "ID"

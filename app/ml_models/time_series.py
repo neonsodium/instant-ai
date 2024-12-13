@@ -1,9 +1,9 @@
 import pandas as pd
-
-from prophet import Prophet
-from app.data_preparation_ulits.one_hot_encode import apply_one_hot_encoding
-from app.data_preparation_ulits.aggregate import aggregate_columns_by_date
 import plotly.graph_objects as go
+from prophet import Prophet
+
+from app.data_preparation_ulits.aggregate import aggregate_columns_by_date
+from app.data_preparation_ulits.one_hot_encode import apply_one_hot_encoding
 
 
 def time_series_analysis(
@@ -13,7 +13,6 @@ def time_series_analysis(
     target_var,
     start_date,
     end_date,
-    forecast_periods,
     increase_factor,
     zero_value_replacement,
 ):
@@ -21,6 +20,7 @@ def time_series_analysis(
     date_column = "created_date"
     df = pd.read_csv(input_file_path_raw_data_csv)
     df[date_column] = pd.to_datetime(df[date_column])
+    forecast_periods = (end_date - df["created_date"].max()).days + 30
     df = apply_one_hot_encoding(df)
     df = aggregate_columns_by_date(df)
     df_ts = df
@@ -64,6 +64,10 @@ def time_series_analysis(
     )
 
     return fig
+
+
+def feature_ranking(df, target_var):
+    return list([])
 
 
 def prepare_prophet_data(df, date_column, target_column, regressors):
