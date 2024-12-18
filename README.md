@@ -105,6 +105,16 @@ redis-server
 
 ![Architecture Diagram](./assets/architecture-diagram.jpeg)
 
+## Cluster Level and Path
+
+```text
+            Root           
+          /  |  \
+         0   1   2         level: 0, path: []
+       /|\    
+      0 1 2                level: 1, path: [0]
+```
+
 ## License
 
 This is proprietary code belonging to PESU Venture Labs. All rights reserved. Unauthorized use, distribution, or modification of this code is strictly prohibited.
