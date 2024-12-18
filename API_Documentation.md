@@ -165,7 +165,7 @@
 - **Example:**
 
   ```bash
-  curl http://127.0.0.1:8009/projects/<project_id>/clusters/download -H "Content-Type: application/json" -d '{ "level": 0, "path": [], cluster: 1 }'
+  curl http://127.0.0.1:8009/projects/<project_id>/clusters/download -H "Content-Type: application/json" -d '{ "level": 2, "path": [1,2] }'
   ```
 
 ---
