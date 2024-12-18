@@ -26,6 +26,17 @@
   curl http://127.0.0.1:8009/projects/
   ```
 
+## **Check Project Status**
+
+- **Endpoint:** `/projects/<project_id>/status`
+- **Method:** `GET`
+- **Description:** Retrieves the current status of a project, including whether data has been uploaded, feature ranking is completed, and clustering has started.
+- **Example:**
+
+  ```bash
+  curl -X GET http://127.0.0.1:8009/projects/PROJECT_ID/status
+  ```
+
 ## **Process Uploaded File**
 
 - **Endpoint:** `/projects/<project_id>/files/upload`
