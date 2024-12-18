@@ -157,7 +157,7 @@
 
 - **Endpoint:** `/projects/<project_id>/clusters/download`
 - **Method:** `POST`
-- **Description:** Download the sub clustering results.
+- **Description:** Download the sub clustering results as a csv file.
 - **Parameters:**
   - `project_id` (string): ID of the project.
   - `level` (int): Clustering level.
@@ -165,7 +165,7 @@
 - **Example:**
 
   ```bash
-  curl http://127.0.0.1:8009/projects/<project_id>/clusters/download -H "Content-Type: application/json" -d '{ "level": 0, "path": [] }'
+  curl http://127.0.0.1:8009/projects/<project_id>/clusters/download -H "Content-Type: application/json" -d '{ "level": 0, "path": [], cluster: 1 }'
   ```
 
 ---
