@@ -67,7 +67,7 @@ def download_cluster_data(project_id):
     request_data_json = request.get_json()
     level = int(request_data_json.get("level"))
     list_path: list = request_data_json.get("path")
-    cluster_no = int(request_data_json.get("cluster"))
+    # cluster_no = int(request_data_json.get("cluster"))
 
     directory_project_base = directory_project_path_full(project_id, [])
     if not os.path.isdir(directory_project_base):
@@ -76,7 +76,7 @@ def download_cluster_data(project_id):
     if int(level) != len(list_path):
         return jsonify({"error": "Level and Path don't match"}), 400
 
-    list_path.append(cluster_no)
+    # list_path.append(cluster_no)
     directory_project_cluster = directory_project_path_full(project_id, list_path)
     if not os.path.exists(directory_project_cluster):
         return (jsonify({"error": "Cluster Does not exists.", "project_id": project_id}), 404)
