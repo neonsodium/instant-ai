@@ -19,16 +19,40 @@ def time_series_analysis(
 ):
 
     date_column = "# created_date"
+    date_column = "created_date"
     print(input_file_path_raw_data_csv)
-    df = pd.read_csv(input_file_path_raw_data_csv)
+    # df = pd.read_csv(input_file_path_raw_data_csv)
+    df = pd.read_csv("/Users/vedanths/Downloads/cluster2.csv")
     print(df.head())
     df[date_column] = pd.to_datetime(df[date_column])
+    df.drop("member_card", axis=1, inplace=True)
+    df.drop("Membership_expiry_date", axis=1, inplace=True)
+
     forecast_periods = (end_date - df[date_column].max()).days + 30
-    df = apply_one_hot_encoding(df)
-    df = aggregate_columns_by_date(df)
+    df, encoder = apply_one_hot_encoding(df)
+    df = aggregate_columns_by_date(df, date_column=date_column)
     df_ts = df
     del df
-    regressors = compute_feature_rankings(df, target_var, [])["Feature"].to_list()
+    # regressors_df = compute_feature_rankings(df_ts, target_var, [])
+    # regressors = regressors_df["Feature"].to_list()
+    regressors = [
+        "Coupon_Discount",
+        "magazine_fee_paid",
+        "reading_fee_paid",
+        "over_due_adjustment_amount",
+        "security_deposit",
+        "reward_points",
+        "num_books",
+        "num_magazine",
+        "primus_amount",
+        "adjustment_amount",
+        "basic_price_for_book",
+        "basic_price_for_magazine",
+        "Renewal_Amount",
+        "taxable_amount",
+        "TAX_AMOUNT",
+    ]
+    print(regressors)
     df_prophet = prepare_prophet_data(df_ts, date_column, target_var, regressors)
     model = Prophet(
         n_changepoints=100,

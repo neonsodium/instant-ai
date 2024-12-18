@@ -77,13 +77,6 @@ def start_data_preprocessing(project_id):
 
 @processor_routes.route("/<project_id>/features/ranking", methods=["POST"])
 def start_feature_ranking(project_id):
-    """
-    curl -X POST http://127.0.0.1:8080/process/feature-ranking -H "Content-Type: application/json" -d '{
-    "target_vars_list": ["reading_fee_paid", "Number_of_Months", "Coupon_Discount", "num_books", "magazine_fee_paid", "Renewal_Amount", "amount_paid"],
-    "target_var": "amount_paid",
-    "user_added_vars_list": []
-    }'
-    """
     request_data_json = request.get_json()
     target_vars_list = request_data_json.get("target_vars_list", [])
     user_added_vars_list = request_data_json.get("user_added_vars_list", [])
