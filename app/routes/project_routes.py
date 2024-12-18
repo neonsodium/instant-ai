@@ -1,7 +1,7 @@
 import os
 
 import pandas as pd
-from flask import Blueprint, abort, jsonify, request, send_file
+from flask import Blueprint, jsonify, request, send_file
 
 from app.data_preparation_ulits.preprocessing_engine import validate_df
 from app.filename_utils import *
@@ -67,7 +67,6 @@ def download_cluster_data(project_id):
     request_data_json = request.get_json()
     level = int(request_data_json.get("level"))
     list_path: list = request_data_json.get("path")
-    # cluster_no = int(request_data_json.get("cluster"))
 
     directory_project_base = directory_project_path_full(project_id, [])
     if not os.path.isdir(directory_project_base):
@@ -76,7 +75,6 @@ def download_cluster_data(project_id):
     if int(level) != len(list_path):
         return jsonify({"error": "Level and Path don't match"}), 400
 
-    # list_path.append(cluster_no)
     directory_project_cluster = directory_project_path_full(project_id, list_path)
     if not os.path.exists(directory_project_cluster):
         return (jsonify({"error": "Cluster Does not exists.", "project_id": project_id}), 404)
@@ -179,13 +177,42 @@ def download_project_file():
     directory_project = all_project_dir_path()
     relative_path = request.args.get("path", None)
     if not relative_path:
-        return abort(400, description="The 'path' query parameter is required.")
+        return jsonify({"error": "The 'path' query parameter is required."}), 400
 
     absolute_file_path = os.path.abspath(os.path.join(directory_project, relative_path))
     if not absolute_file_path.startswith(os.path.abspath(directory_project)):
-        return abort(403, description="Access to the file is forbidden.")
+        # return jsonify({"error": "Access to the file is forbidden."}), 403
+        return jsonify({"error": "File not found."}), 404
 
     if not os.path.exists(absolute_file_path) or not os.path.isfile(absolute_file_path):
-        return abort(404, description="File not found.")
+        return jsonify({"error": "File not found."}), 404
 
     return send_file(absolute_file_path, as_attachment=True)
+
+
+@main_routes.route("/<project_id>/status", methods=["GET"])
+def get_project_status(project_id):
+    directory_project = directory_project_path_full(project_id, [])
+
+    if not os.path.isdir(directory_project):
+        return jsonify({"error": "Invalid Project ID"}), 400
+    raw_data_file = os.path.join(directory_project, filename_raw_data_csv())
+    data_uploaded = os.path.isfile(raw_data_file)
+
+    feature_ranking_completed = is_feature_ranking_file_present(directory_project)
+
+    directory_project_cluster = directory_project_path_full(project_id, [])
+    clusters = list_sub_directories(directory_project_cluster)
+
+    clustering_started = False
+    if os.path.isdir(directory_project_cluster) and any(os.listdir(directory_project_cluster)):
+        clustering_started = True
+
+    # Response
+    status = {
+        "data_uploaded": data_uploaded,
+        "feature_ranking_completed": feature_ranking_completed,
+        "clustering_started": clustering_started,
+    }
+
+    return jsonify({"project_id": project_id, "status": status}), 200

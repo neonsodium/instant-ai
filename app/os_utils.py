@@ -1,5 +1,6 @@
 import json
 import os
+import re
 
 from flask import current_app
 
@@ -67,3 +68,17 @@ def list_sub_directories(base_dir: str) -> list:
             # TODO project_name = load_project_name(project_dir)
             # TODO tasks.append({"project_id": project_id, "project_name": project_name})
     return list_sub_dir
+
+
+def is_feature_ranking_file_present(directory_project: str) -> bool:
+    """
+    Checks if any file in the directory matches the pattern
+    list_feature_ranking_<sanitized_target_var>.pkl
+    """
+    pattern = r"^list_feature_ranking_[A-Za-z0-9_]+\.pkl$"
+
+    for file_name in os.listdir(directory_project):
+        if re.match(pattern, file_name):
+            return True
+
+    return False
