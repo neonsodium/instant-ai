@@ -5,16 +5,15 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 
 from app.data_preparation_ulits.label_encode_data import apply_label_encoding
-from app.filename_utils import (filename_feature_rank_list_pkl,
-                                filename_feature_rank_score_df)
+from app.filename_utils import filename_feature_rank_list_pkl, filename_feature_rank_score_df
 from app.ml_models.feature_ranking_ulits.extra_trees import extra_trees
 from app.ml_models.feature_ranking_ulits.f_test_anova import f_test_anova
 from app.ml_models.feature_ranking_ulits.mutual_info import mutual_info
-from app.ml_models.feature_ranking_ulits.permutation_importance_svr import \
-    permutation_importance_svr
+from app.ml_models.feature_ranking_ulits.permutation_importance_svr import (
+    permutation_importance_svr,
+)
 from app.ml_models.feature_ranking_ulits.random_forest import random_forest
-from app.ml_models.feature_ranking_ulits.seq_feature_selector import \
-    perform_feature_selection
+from app.ml_models.feature_ranking_ulits.seq_feature_selector import perform_feature_selection
 
 
 def generate_optimized_feature_rankings(
@@ -77,9 +76,10 @@ def compute_feature_rankings(df, target_var, target_vars_list):
 def execute_feature_ranking_algorithm(algorithm, X, Y, feature_vars):
     k_features = len(feature_vars)
     if algorithm == "f_test_anova":
-        result = f_test_anova(X, Y, k_features)
-        result = result.rename(columns={"Score": "Importance"})
-        return result
+        # result = f_test_anova(X, Y, k_features)
+        # result = result.rename(columns={"Score": "Importance"})
+        # return result
+        pass
     elif algorithm == "mutual_info":
         return mutual_info(X, Y, k_features).rename(columns={"Score": "Importance"})
     elif algorithm == "extra_trees":
