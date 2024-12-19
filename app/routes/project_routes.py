@@ -107,7 +107,7 @@ def summarize_cluster_info(project_id):
         json_data = summerise_cluster(data_raw, csv_file, json_file)
         all_clusters_summary.append({cluster: json_data})
 
-        return (jsonify(all_clusters_summary), 200)
+    return (jsonify(all_clusters_summary), 200)
 
 
 @main_routes.route("/<project_id>/dataset/validate", methods=["GET", "POST"])
