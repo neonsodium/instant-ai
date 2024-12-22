@@ -78,16 +78,19 @@ def start_data_preprocessing(project_id):
 @processor_routes.route("/<project_id>/features/ranking", methods=["POST"])
 def start_feature_ranking(project_id):
     request_data_json = request.get_json()
-    target_vars_list = request_data_json.get("target_vars_list", [])
-    user_added_vars_list = request_data_json.get("user_added_vars_list", [])
-    target_var = request_data_json.get("target_var", None)
+    kpi_list = request_data_json.get("kpi_list", [])  # i.e drops these columns
+    important_features = request_data_json.get("important_features", [])
+    kpi = request_data_json.get("kpi", None)
 
     directory_project = directory_project_path_full(project_id, [])
     if not os.path.isdir(directory_project):
         return jsonify({"error": "Invalid Project ID"}), 400
 
+    if not kpi:
+        return jsonify({"error": "Missing 'kpi' in request"}), 400
+
     result = async_optimised_feature_rank.delay(
-        target_var, target_vars_list, user_added_vars_list, directory_project
+        kpi, kpi_list, important_features, directory_project
     )
     return (
         jsonify(
@@ -105,7 +108,7 @@ def start_feature_ranking(project_id):
 def initiate_subclustering(project_id):
     """
     curl -X POST http://127.0.0.1:8080/process -H "Content-Type: application/json" -d '{
-    "target_var": "amount_paid",
+    "kpi": "amount_paid",
     "level": 3,
     "path": [1, 2, 1]
     }'
@@ -114,22 +117,22 @@ def initiate_subclustering(project_id):
     request_data_json = request.get_json()
     list_path = request_data_json.get("path")
     level = int(request_data_json.get("level"))
-    target_var = request_data_json.get("target_var")
+    kpi = request_data_json.get("kpi")
 
     directory_project_base = directory_project_path_full(project_id, [])
     if not os.path.isdir(directory_project_base):
         return jsonify({"error": "Invalid Project ID"}), 400
 
+    if not kpi:
+        return jsonify({"error": "Missing 'kpi' in request"}), 400
+
     input_file_path_feature_rank_pkl = os.path.join(
-        directory_project_base, filename_feature_rank_list_pkl(target_var)
+        directory_project_base, filename_feature_rank_list_pkl(kpi)
     )
     if not os.path.exists(input_file_path_feature_rank_pkl):
         return (
             jsonify(
-                {
-                    "error": f"Feature ranking file for {target_var} not found.",
-                    "project_id": project_id,
-                }
+                {"error": f"Feature ranking file for {kpi} not found.", "project_id": project_id}
             ),
             404,
         )

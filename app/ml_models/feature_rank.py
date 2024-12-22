@@ -17,9 +17,9 @@ from app.ml_models.feature_ranking_ulits.seq_feature_selector import perform_fea
 
 
 def generate_optimized_feature_rankings(
-    target_var,
-    target_vars_list: list,
-    user_added_vars_list: list,
+    kpi,
+    kpi_list: list,
+    important_features: list,
     directory_project: str,
     input_file_path_raw_data_csv: str,
     input_file_path_drop_column_csv: str,
@@ -32,21 +32,21 @@ def generate_optimized_feature_rankings(
 
     df, label_encoders = apply_label_encoding(df)
     del label_encoders
-    top_features = compute_feature_rankings(df, target_var, target_vars_list)
+    top_features = compute_feature_rankings(df, kpi, kpi_list)
 
     final_output = pd.concat([top_features], ignore_index=True)
-    save_results(final_output, directory_project, target_var, user_added_vars_list)
+    save_results(final_output, directory_project, kpi, important_features)
 
     return final_output["Feature"].to_list()
 
 
-def compute_feature_rankings(df, target_var, target_vars_list):
-    if target_var not in target_vars_list:
-        target_vars_list.append(target_var)
+def compute_feature_rankings(df, kpi, kpi_list):
+    if kpi not in kpi_list:
+        kpi_list.append(kpi)
 
-    feature_vars = [col for col in df.columns if col not in target_vars_list]
+    feature_vars = [col for col in df.columns if col not in kpi_list]
     X = df[feature_vars]
-    Y = df[target_var]
+    Y = df[kpi]
 
     algorithms = [
         "f_test_anova",
@@ -182,19 +182,19 @@ def compute_impact_score(impact_data):
 
 
 # Helper Function to save the results
-def save_results(final_output, directory_project, target_var, user_added_vars_list):
+def save_results(final_output, directory_project, kpi, kpi_list):
     final_output[["Feature", "Impact_Score"]].to_pickle(
-        os.path.join(directory_project, filename_feature_rank_score_df(target_var))
+        os.path.join(directory_project, filename_feature_rank_score_df(kpi))
     )
 
     feature_list = final_output["Feature"].to_list()
-    union_list = list(set(feature_list).union(user_added_vars_list))
+    union_list = list(set(feature_list).union(kpi_list))
 
     with open(
-        os.path.join(directory_project, filename_feature_rank_list_pkl(target_var)), "wb"
+        os.path.join(directory_project, filename_feature_rank_list_pkl(kpi)), "wb"
     ) as feature_list_pkl_file:
         pickle.dump(union_list, feature_list_pkl_file)
 
 
-def extract_feature_variables(df, target_vars_list):
-    return [col for col in df.columns if col not in target_vars_list]
+def extract_feature_variables(df, kpi_list):
+    return [col for col in df.columns if col not in kpi_list]
