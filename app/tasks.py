@@ -72,18 +72,11 @@ def async_one_hot_encode_data(input_csv_file_path, output_one_hot_encoded_path):
 
 
 @celery.task
-def async_optimised_feature_rank(
-    target_var, target_vars_list, user_added_vars_list, directory_project
-):
+def async_optimised_feature_rank(kpi, kpi_list, important_features, directory_project):
     drop_column_file = os.path.join(directory_project, filename_dropeed_column_data_csv())
     raw_data_file = os.path.join(directory_project, filename_raw_data_csv())
     generate_optimized_feature_rankings(
-        target_var,
-        target_vars_list,
-        user_added_vars_list,
-        directory_project,
-        raw_data_file,
-        drop_column_file,
+        kpi, kpi_list, important_features, directory_project, raw_data_file, drop_column_file
     )
     return {"status": "Feature ranking completed"}
 

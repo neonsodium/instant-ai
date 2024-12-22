@@ -6,6 +6,9 @@ from app.data_preparation_ulits.aggregate import aggregate_columns_by_date
 from app.data_preparation_ulits.one_hot_encode import apply_one_hot_encoding
 from app.ml_models.feature_rank import compute_feature_rankings
 
+kpi = "amount_paid"
+kpi = "Revenue"
+
 
 def time_series_analysis(
     directory_project,
@@ -17,16 +20,16 @@ def time_series_analysis(
     increase_factor,
     zero_value_replacement,
 ):
+    target_var = kpi
 
     date_column = "# created_date"
     date_column = "created_date"
-    print(input_file_path_raw_data_csv)
+    date_column = "Order Date"
     # df = pd.read_csv(input_file_path_raw_data_csv)
-    df = pd.read_csv("/Users/vedanths/Downloads/cluster2.csv")
-    print(df.head())
+    df = pd.read_csv("/Users/vedanths/Downloads/cleaned_apar.csv")
     df[date_column] = pd.to_datetime(df[date_column])
-    df.drop("member_card", axis=1, inplace=True)
-    df.drop("Membership_expiry_date", axis=1, inplace=True)
+    # df.drop("member_card", axis=1, inplace=True)
+    # df.drop("Membership_expiry_date", axis=1, inplace=True)
 
     forecast_periods = (end_date - df[date_column].max()).days + 30
     df, encoder = apply_one_hot_encoding(df)
@@ -35,22 +38,46 @@ def time_series_analysis(
     del df
     # regressors_df = compute_feature_rankings(df_ts, target_var, [])
     # regressors = regressors_df["Feature"].to_list()
+    # regressors = [
+    #     "Coupon_Discount",
+    #     "magazine_fee_paid",
+    #     "reading_fee_paid",
+    #     "over_due_adjustment_amount",
+    #     "security_deposit",
+    #     "reward_points",
+    #     "num_books",
+    #     "num_magazine",
+    #     "primus_amount",
+    #     "adjustment_amount",
+    #     "basic_price_for_book",
+    #     "basic_price_for_magazine",
+    #     "Renewal_Amount",
+    #     "taxable_amount",
+    #     "TAX_AMOUNT",
+    # ]
     regressors = [
-        "Coupon_Discount",
-        "magazine_fee_paid",
-        "reading_fee_paid",
-        "over_due_adjustment_amount",
-        "security_deposit",
-        "reward_points",
-        "num_books",
-        "num_magazine",
-        "primus_amount",
-        "adjustment_amount",
-        "basic_price_for_book",
-        "basic_price_for_magazine",
-        "Renewal_Amount",
-        "taxable_amount",
-        "TAX_AMOUNT",
+        "Qty in Sales Unit",
+        "Sales Qty",
+        "Frieght Charged",
+        "Freight Incurred",
+        "Interest",
+        "Net Value /KL (NET_VAL_KL)",
+        "Packing Cost /KL",
+        "Total Packing Cost",
+        "RM Cost /KL",
+        "Total RM Cost",
+        "Total Variable Cost",
+        "Total Value",
+        "NET_CONT_KL",
+        "DENSITY",
+        "CGST",
+        "SGST",
+        "UGST",
+        "IGST",
+        "Commission_N",
+        "Basic Sale Price",
+        "Credit Days",
+        "Discount",
     ]
     print(regressors)
     df_prophet = prepare_prophet_data(df_ts, date_column, target_var, regressors)
@@ -69,7 +96,7 @@ def time_series_analysis(
     model.fit(df_prophet)
 
     forecasted_regressors_df = forecast_regressors_for_date_range(
-        start_date, end_date, df_ts, regressors, forecast_periods
+        start_date, end_date, df_ts, regressors, date_column, forecast_periods
     )
 
     modified_forecasted_regressors_df = modify_forecast_and_prepare_dataset(
@@ -86,6 +113,8 @@ def time_series_analysis(
         forecasted_values_df=forecasted_regressors_df,
         modified_forecast_df=modified_forecasted_regressors_df,
         model=model,
+        kpi=kpi,
+        date_column=date_column,
         past_months=12,
         forecast_months=12,
     )
@@ -116,7 +145,7 @@ def prepare_prophet_data(df, date_column, target_column, regressors):
 
 
 def forecast_regressors_for_date_range(
-    start_date, end_date, training_data, regressors, forecast_periods=180
+    start_date, end_date, training_data, regressors, date_column, forecast_periods=180
 ):
     """
     date -> user input date
@@ -127,8 +156,8 @@ def forecast_regressors_for_date_range(
     future_regressor_values = {}
 
     for regressor in regressors:
-        df_regressor = training_data[["created_date", regressor]].rename(
-            columns={"created_date": "ds", regressor: "y"}
+        df_regressor = training_data[[date_column, regressor]].rename(
+            columns={date_column: "ds", regressor: "y"}
         )
 
         regressor_model = Prophet(changepoint_prior_scale=0.7)
@@ -191,12 +220,14 @@ def plot_actual_vs_forecast(
     forecasted_values_df,
     modified_forecast_df,
     model,
+    kpi,
+    date_column,
     past_months=12,
     forecast_months=12,
 ):
-    historical_data["created_date"] = pd.to_datetime(historical_data["created_date"])
+    historical_data[date_column] = pd.to_datetime(historical_data[date_column])
     last_actual_data = (
-        historical_data.set_index("created_date").last(f"{past_months}M").resample("M").sum()
+        historical_data.set_index(date_column).last(f"{past_months}M").resample("M").sum()
     )
     forecast_original = model.predict(forecasted_values_df.rename(columns={"ds": "ds"}))
     forecast_original["ds"] = pd.to_datetime(forecast_original["ds"])
@@ -208,7 +239,7 @@ def plot_actual_vs_forecast(
     fig.add_trace(
         go.Scatter(
             x=last_actual_data.index,
-            y=last_actual_data["amount_paid"],
+            y=last_actual_data[kpi],
             mode="lines+markers",
             name=f"Actual Revenue (Last {past_months} Months)",
             line=dict(color="green"),

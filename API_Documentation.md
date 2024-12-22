@@ -119,12 +119,13 @@
 - **Description:** Ranks features based on their importance.
 - **Parameters:**
   - `project_id` (string): ID of the project.
-  - `target_vars_list` (array): List of potential target variables.
-  - `target_var` (string): The target variable for ranking.
+  - `kpi_list` (array): List of potential target variables.
+  - `important_features` (array): List of potential target variables.
+  - `kpi` (string): The target variable for ranking.
 - **Example:**
 
   ```bash
-  curl http://127.0.0.1:8009/projects/PROJECT_ID/features/ranking -H "Content-Type: application/json" -d '{ "target_vars_list": ["var1", "var2"], "target_var": "target_var" }'
+  curl http://127.0.0.1:8009/projects/PROJECT_ID/features/ranking -H "Content-Type: application/json" -d '{ "kpi_list": ["kpi1", "kpi2"] "important_features":["var1", "var2"] "kpi": "kpi" }'
   ```
 
 ---
@@ -136,13 +137,13 @@
 - **Description:** Performs clustering on the dataset.
 - **Parameters:**
   - `project_id` (string): ID of the project.
-  - `target_var` (string): Variable to cluster.
+  - `kpi` (string): Variable to cluster.
   - `level` (int): Clustering level.
   - `path` (array): Path of the clustering hierarchy.
 - **Example:**
 
   ```bash
-  curl http://127.0.0.1:8009/projects/PROJECT_ID/clusters/subcluster -H "Content-Type: application/json" -d '{ "target_var": "target_var", "level": 0, "path": [] }'
+  curl http://127.0.0.1:8009/projects/PROJECT_ID/clusters/subcluster -H "Content-Type: application/json" -d '{ "kpi": "kpi", "level": 0, "path": [] }'
   ```
 
 ---
