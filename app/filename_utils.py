@@ -64,13 +64,13 @@ def feature_descriptions_json() -> str:
 
 
 # feature ranking algo
-def filename_feature_rank_score_df(target_var: str) -> str:
-    return f"df_feature_ranking_scores_{re.sub(r'[^A-Za-z0-9_]', '', target_var)}.pkl"
+def filename_feature_rank_score_df(kpi: str) -> str:
+    return f"df_feature_ranking_scores_{re.sub(r'[^A-Za-z0-9_]', '', kpi)}.pkl"
 
 
-def filename_feature_rank_list_pkl(target_var: str) -> str:
-    return f"list_feature_ranking_{re.sub(r'[^A-Za-z0-9_]', '', target_var)}.pkl"
+def filename_feature_rank_list_pkl(kpi: str) -> str:
+    return f"list_feature_ranking_{re.sub(r'[^A-Za-z0-9_]', '', kpi)}.pkl"
 
 
-def filename_feature_rank_result_txt(target_var: str):
-    return f"results_{re.sub(r'[^A-Za-z0-9_]', '', target_var)}.txt"
+def filename_feature_rank_result_txt(kpi: str):
+    return f"results_{re.sub(r'[^A-Za-z0-9_]', '', kpi)}.txt"

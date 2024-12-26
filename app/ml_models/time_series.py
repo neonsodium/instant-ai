@@ -14,29 +14,28 @@ def time_series_analysis(
     directory_project,
     input_file_path_raw_data_csv,
     modified_regressors,
-    target_var,
+    kpi,
     start_date,
     end_date,
     increase_factor,
     zero_value_replacement,
 ):
-    target_var = kpi
+    kpi = kpi
 
     date_column = "# created_date"
     date_column = "created_date"
     date_column = "Order Date"
-    # df = pd.read_csv(input_file_path_raw_data_csv)
-    df = pd.read_csv("/Users/vedanths/Downloads/cleaned_apar.csv")
+    df = pd.read_csv(input_file_path_raw_data_csv)
+    # df = pd.read_csv("/Users/vedanths/Downloads/cleaned_apar.csv")
     df[date_column] = pd.to_datetime(df[date_column])
-    # df.drop("member_card", axis=1, inplace=True)
-    # df.drop("Membership_expiry_date", axis=1, inplace=True)
 
+    # TODO
     forecast_periods = (end_date - df[date_column].max()).days + 30
     df, encoder = apply_one_hot_encoding(df)
     df = aggregate_columns_by_date(df, date_column=date_column)
     df_ts = df
-    del df
-    # regressors_df = compute_feature_rankings(df_ts, target_var, [])
+    del df, encoder
+    regressors = compute_feature_rankings(df_ts, kpi, [])
     # regressors = regressors_df["Feature"].to_list()
     # regressors = [
     #     "Coupon_Discount",
@@ -55,32 +54,31 @@ def time_series_analysis(
     #     "taxable_amount",
     #     "TAX_AMOUNT",
     # ]
-    regressors = [
-        "Qty in Sales Unit",
-        "Sales Qty",
-        "Frieght Charged",
-        "Freight Incurred",
-        "Interest",
-        "Net Value /KL (NET_VAL_KL)",
-        "Packing Cost /KL",
-        "Total Packing Cost",
-        "RM Cost /KL",
-        "Total RM Cost",
-        "Total Variable Cost",
-        "Total Value",
-        "NET_CONT_KL",
-        "DENSITY",
-        "CGST",
-        "SGST",
-        "UGST",
-        "IGST",
-        "Commission_N",
-        "Basic Sale Price",
-        "Credit Days",
-        "Discount",
-    ]
-    print(regressors)
-    df_prophet = prepare_prophet_data(df_ts, date_column, target_var, regressors)
+    # regressors = [
+    #     "Qty in Sales Unit",
+    #     "Sales Qty",
+    #     "Frieght Charged",
+    #     "Freight Incurred",
+    #     "Interest",
+    #     "Net Value /KL (NET_VAL_KL)",
+    #     "Packing Cost /KL",
+    #     "Total Packing Cost",
+    #     "RM Cost /KL",
+    #     "Total RM Cost",
+    #     "Total Variable Cost",
+    #     "Total Value",
+    #     "NET_CONT_KL",
+    #     "DENSITY",
+    #     "CGST",
+    #     "SGST",
+    #     "UGST",
+    #     "IGST",
+    #     "Commission_N",
+    #     "Basic Sale Price",
+    #     "Credit Days",
+    #     "Discount",
+    # ]
+    df_prophet = prepare_prophet_data(df_ts, date_column, kpi, regressors)
     model = Prophet(
         n_changepoints=100,
         changepoint_prior_scale=0.2,
@@ -105,8 +103,6 @@ def time_series_analysis(
         increase_factor=increase_factor,
         zero_value_replacement=zero_value_replacement,
     )
-
-    future_revenue_modified = modified_forecasted_regressors_df[["ds"]].copy()
 
     fig = plot_actual_vs_forecast(
         historical_data=df_ts,
