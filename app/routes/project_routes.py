@@ -90,12 +90,12 @@ def summarize_cluster_info(project_id):
     level = int(request_data_json.get("level"))
     list_path = request_data_json.get("path")
 
+    if int(level) != len(list_path):
+        return jsonify({"error": "Level and Path don't match"}), 400
+
     directory_project_cluster = directory_project_path_full(project_id, list_path)
     if not os.path.exists(directory_project_cluster):
         return (jsonify({"error": "Cluster Does not exists.", "project_id": project_id}), 404)
-
-    if int(level) != len(list_path):
-        return jsonify({"error": "Level and Path don't match"}), 400
 
     clusters = list_sub_directories(directory_project_cluster)
     all_clusters_summary = []
@@ -216,3 +216,40 @@ def get_project_status(project_id):
     }
 
     return jsonify({"project_id": project_id, "status": status}), 200
+
+
+@main_routes.route("/<project_id>/clusters/status", methods=["POST"])
+def get_cluster_status(project_id):
+    task_name = "clustering"
+    # TODO add target varibale
+    request_data_json = request.get_json()
+    list_path = request_data_json.get("path")
+    level = int(request_data_json.get("level"))
+    kpi = request_data_json.get("kpi")
+
+    directory_project_base = directory_project_path_full(project_id, [])
+    if not os.path.isdir(directory_project_base):
+        return jsonify({"error": "Invalid Project ID"}), 400
+
+    if not kpi:
+        return jsonify({"error": "Missing 'kpi' in request"}), 400
+
+    input_file_path_feature_rank_pkl = os.path.join(
+        directory_project_base, filename_feature_rank_list_pkl(kpi)
+    )
+    if not os.path.exists(input_file_path_feature_rank_pkl):
+        return (
+            jsonify(
+                {"error": f"Feature ranking file for {kpi} not found.", "project_id": project_id}
+            ),
+            404,
+        )
+
+    if int(level) != len(list_path):
+        return jsonify({"error": "Level and Path don't match"}), 400
+
+    directory_project_cluster = directory_project_path_full(project_id, list_path)
+    if not os.path.exists(directory_project_cluster):
+        return (jsonify({"status": False, "project_id": project_id}), 404)
+
+    return (jsonify({"status": True, "project_id": project_id}), 200)

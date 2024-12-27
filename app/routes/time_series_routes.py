@@ -20,16 +20,10 @@ def initiate_feature_ranking(project_id):
     level = int(request_data_json.get("level"))
     list_path = request_data_json.get("path")
     kpi = request_data_json.get("kpi", None)
-    start_date_str = request_data_json.get("start_date")
-    end_date_str = request_data_json.get("end_date")
+    no_of_months = request_data_json.get("no_of_months")
+    date_column = request_data_json.get("date_column")
     increase_factor = request_data_json.get("increase_factor")
     zero_value_replacement = request_data_json.get("zero_value_replacement")
-
-    # project_id = "7a87a0d9-3a7e-4675-8269-660075998b29"
-    # level = 1
-    # list_path = [1]
-    # kpi = "amount_paid"
-    # user_added_vars_list = []
 
     directory_project = directory_project_path_full(project_id, [])
     if not os.path.isdir(directory_project):
@@ -44,19 +38,13 @@ def initiate_feature_ranking(project_id):
 
     raw_data_file = os.path.join(directory_project, filename_raw_data_csv())
 
-    # start_date_str = "2024-09-17"
-    # end_date_str = "2025-09-30"
-    # increase_factor = 4
-    start_date = pd.to_datetime(start_date_str)
-    end_date = pd.to_datetime(end_date_str)
-
     fig = time_series_analysis(
         directory_project_cluster,
         raw_data_file,
         user_added_vars_list,
         kpi,
-        start_date,
-        end_date,
+        no_of_months,
+        date_column,
         increase_factor,
         zero_value_replacement,
     )

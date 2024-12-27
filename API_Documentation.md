@@ -182,6 +182,37 @@
 
 ---
 
+## **Time Series Graph
+
+- **Endpoint:** `/projects/<project_id>/time-series/encode`
+- **Method:** `POST`
+- **Description:** Service site trend graph of the time series
+- **Parameters:**
+  - `project_id` (string): ID of the project.
+  - `level` (int): Clustering level.
+  - `path` (array): Path of the clustering hierarchy.
+  - `user_added_vars_list` (list): User added target variables.
+  - `no_of_months` (int): Number of months to predict.
+  - `date_column` (string): Name of date column in the dataset.
+  - `increase_factor` (int): Name of date column in the dataset.
+  - `zero_value_replacement` (int): Zero value Replacement.
+- **Example:**
+
+  ```bash
+  curl -X POST http://127.0.0.1:8009/projects/<project_id>/time-series/encode -H "Content-Type: application/json" -d '{
+    "user_added_vars_list": ["var1", "var2"],
+    "level": 2,
+    "path": [0, 1],
+    "kpi": "sales",
+    "no_of_months": 6,
+    "date_column": "date",
+    "increase_factor": 1.2,
+    "zero_value_replacement": 0 }'
+    
+    ```
+
+---
+
 ### Notes
 
 - Replace `PROJECT_ID` and `TASK_ID` with appropriate values for your project.

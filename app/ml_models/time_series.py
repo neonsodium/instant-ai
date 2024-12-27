@@ -1,13 +1,11 @@
 import pandas as pd
 import plotly.graph_objects as go
+from dateutil import relativedelta
 from prophet import Prophet
 
 from app.data_preparation_ulits.aggregate import aggregate_columns_by_date
 from app.data_preparation_ulits.one_hot_encode import apply_one_hot_encoding
 from app.ml_models.feature_rank import compute_feature_rankings
-
-kpi = "amount_paid"
-kpi = "Revenue"
 
 
 def time_series_analysis(
@@ -15,69 +13,24 @@ def time_series_analysis(
     input_file_path_raw_data_csv,
     modified_regressors,
     kpi,
-    start_date,
-    end_date,
+    no_of_months,
+    date_column,
     increase_factor,
     zero_value_replacement,
 ):
-    kpi = kpi
-
-    date_column = "# created_date"
-    date_column = "created_date"
-    date_column = "Order Date"
     df = pd.read_csv(input_file_path_raw_data_csv)
-    # df = pd.read_csv("/Users/vedanths/Downloads/cleaned_apar.csv")
+    df = pd.read_csv("/Users/vedanths/Downloads/cleaned_apar.csv")
     df[date_column] = pd.to_datetime(df[date_column])
 
     # TODO
-    forecast_periods = (end_date - df[date_column].max()).days + 30
+    start_date = df[date_column].max()
+    end_date = start_date + relativedelta(months=no_of_months)
+    forecast_periods = (end_date - start_date).days + 30
     df, encoder = apply_one_hot_encoding(df)
     df = aggregate_columns_by_date(df, date_column=date_column)
     df_ts = df
     del df, encoder
     regressors = compute_feature_rankings(df_ts, kpi, [])
-    # regressors = regressors_df["Feature"].to_list()
-    # regressors = [
-    #     "Coupon_Discount",
-    #     "magazine_fee_paid",
-    #     "reading_fee_paid",
-    #     "over_due_adjustment_amount",
-    #     "security_deposit",
-    #     "reward_points",
-    #     "num_books",
-    #     "num_magazine",
-    #     "primus_amount",
-    #     "adjustment_amount",
-    #     "basic_price_for_book",
-    #     "basic_price_for_magazine",
-    #     "Renewal_Amount",
-    #     "taxable_amount",
-    #     "TAX_AMOUNT",
-    # ]
-    # regressors = [
-    #     "Qty in Sales Unit",
-    #     "Sales Qty",
-    #     "Frieght Charged",
-    #     "Freight Incurred",
-    #     "Interest",
-    #     "Net Value /KL (NET_VAL_KL)",
-    #     "Packing Cost /KL",
-    #     "Total Packing Cost",
-    #     "RM Cost /KL",
-    #     "Total RM Cost",
-    #     "Total Variable Cost",
-    #     "Total Value",
-    #     "NET_CONT_KL",
-    #     "DENSITY",
-    #     "CGST",
-    #     "SGST",
-    #     "UGST",
-    #     "IGST",
-    #     "Commission_N",
-    #     "Basic Sale Price",
-    #     "Credit Days",
-    #     "Discount",
-    # ]
     df_prophet = prepare_prophet_data(df_ts, date_column, kpi, regressors)
     model = Prophet(
         n_changepoints=100,
@@ -111,8 +64,8 @@ def time_series_analysis(
         model=model,
         kpi=kpi,
         date_column=date_column,
-        past_months=12,
-        forecast_months=12,
+        past_months=no_of_months,
+        forecast_months=no_of_months,
     )
 
     return fig
