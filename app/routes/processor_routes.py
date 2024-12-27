@@ -7,6 +7,7 @@ from app.os_utils import *
 from app.tasks import *
 
 processor_routes = Blueprint("processor_routes", __name__)
+redis_client = Redis()
 
 
 @processor_routes.route("/tasks/<task_id>/status", methods=["GET", "POST"])
@@ -77,6 +78,7 @@ def start_data_preprocessing(project_id):
 
 @processor_routes.route("/<project_id>/features/ranking", methods=["POST"])
 def start_feature_ranking(project_id):
+    task_name = "feature_ranking"
     request_data_json = request.get_json()
     kpi_list = request_data_json.get("kpi_list", [])  # i.e drops these columns
     important_features = request_data_json.get("important_features", [])
@@ -89,9 +91,27 @@ def start_feature_ranking(project_id):
     if not kpi:
         return jsonify({"error": "Missing 'kpi' in request"}), 400
 
+    task_params = {"project_id": project_id, "kpi": kpi, "task_name": task_name}
+    task_key = generate_task_key(**task_params)
+
+    existing_task_id = redis_client.get(task_key)
+    if existing_task_id:
+        return (
+            jsonify(
+                {
+                    "message": "Task is already running",
+                    "task_id": existing_task_id.decode(),  # Redis returns bytes, decode to string
+                    "project_id": project_id,
+                }
+            ),
+            200,
+        )
+
     result = async_optimised_feature_rank.delay(
         kpi, kpi_list, important_features, directory_project
     )
+    redis_client.setex(f"task:{result.id}", 3600, task_key)  # Key expires in 1 hour
+
     return (
         jsonify(
             {
@@ -106,13 +126,7 @@ def start_feature_ranking(project_id):
 
 @processor_routes.route("/<project_id>/clusters/subcluster", methods=["POST"])
 def initiate_subclustering(project_id):
-    """
-    curl -X POST http://127.0.0.1:8080/process -H "Content-Type: application/json" -d '{
-    "kpi": "amount_paid",
-    "level": 3,
-    "path": [1, 2, 1]
-    }'
-    """
+    task_name = "clustering"
     # TODO add target varibale
     request_data_json = request.get_json()
     list_path = request_data_json.get("path")
@@ -147,13 +161,36 @@ def initiate_subclustering(project_id):
     if not os.path.exists(directory_project_cluster):
         return (jsonify({"error": "Cluster Does not exists.", "project_id": project_id}), 404)
 
+    task_params = {
+        "project_id": project_id,
+        "kpi": kpi,
+        "level": level,
+        "list_path": list_path,
+        "task_name": task_name,
+    }
+    task_key = generate_task_key(**task_params)
+    existing_task_id = redis_client.get(task_key)
+    if existing_task_id:
+        return (
+            jsonify(
+                {
+                    "message": "Task is already running",
+                    "task_id": existing_task_id.decode(),  # Redis returns bytes, decode to string
+                    "project_id": project_id,
+                }
+            ),
+            200,
+        )
+
     result = async_optimised_clustering.delay(
         directory_project_cluster, input_file_path_feature_rank_pkl
     )
 
+    redis_client.setex(f"task:{result.id}", 3600, task_key)  # Key expires in 1 hour
+
     return (
         jsonify(
-            {"message": "Clustering has started", "task_id": result.id, "Project_id": project_id}
+            {"message": "Clustering has started", "task_id": result.id, "project_id": project_id}
         ),
         202,
     )

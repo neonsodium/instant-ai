@@ -1,4 +1,8 @@
+import json
 import os
+from hashlib import sha256
+
+from redis import Redis
 
 from app.data_preparation_ulits.drop_columns import drop_columns
 from app.data_preparation_ulits.label_encode_data import label_encode_data
@@ -8,6 +12,8 @@ from app.ml_models.cluster import optimised_clustering
 from app.ml_models.feature_rank import generate_optimized_feature_rankings
 
 from . import celery
+
+redis_client = Redis()
 
 
 # TODO add error handling for all the async calls F++ ;_;
@@ -71,21 +77,50 @@ def async_one_hot_encode_data(input_csv_file_path, output_one_hot_encoded_path):
     return {"status": "One hot encoding completed"}
 
 
-@celery.task
-def async_optimised_feature_rank(kpi, kpi_list, important_features, directory_project):
-    drop_column_file = os.path.join(directory_project, filename_dropeed_column_data_csv())
-    raw_data_file = os.path.join(directory_project, filename_raw_data_csv())
-    generate_optimized_feature_rankings(
-        kpi, kpi_list, important_features, directory_project, raw_data_file, drop_column_file
-    )
-    return {"status": "Feature ranking completed"}
+@celery.task(bind=True)
+def async_optimised_feature_rank(self, kpi, kpi_list, important_features, directory_project):
+    task_key = redis_client.get(f"task:{self.request.id}")  # Retrieve the associated task key
+    try:
+        drop_column_file = os.path.join(directory_project, filename_dropeed_column_data_csv())
+        raw_data_file = os.path.join(directory_project, filename_raw_data_csv())
+        generate_optimized_feature_rankings(
+            kpi, kpi_list, important_features, directory_project, raw_data_file, drop_column_file
+        )
+        return {"status": "Feature ranking completed"}
+    finally:
+        if task_key:
+            redis_client.delete(task_key)
+        else:
+            print(f"Warning: Task key not found for task_id {self.request.id}")
 
 
-@celery.task
-def async_optimised_clustering(directory_project, input_file_path_feature_rank_pkl):
-    drop_column_file = os.path.join(directory_project, filename_dropeed_column_data_csv())
-    raw_data_file = os.path.join(directory_project, filename_raw_data_csv())
-    optimised_clustering(
-        directory_project, drop_column_file, raw_data_file, input_file_path_feature_rank_pkl
-    )
-    return {"status": "Clustering completed"}
+@celery.task(bind=True)
+def async_optimised_clustering(self, directory_project, input_file_path_feature_rank_pkl):
+    task_key = redis_client.get(f"task:{self.request.id}")  # Retrieve the associated task key
+    try:
+        drop_column_file = os.path.join(directory_project, filename_dropeed_column_data_csv())
+        raw_data_file = os.path.join(directory_project, filename_raw_data_csv())
+        optimised_clustering(
+            directory_project, drop_column_file, raw_data_file, input_file_path_feature_rank_pkl
+        )
+        return {"status": "Clustering completed"}
+    finally:
+        if task_key:
+            redis_client.delete(task_key)
+        else:
+            print(f"Warning: Task key not found for task_id {self.request.id}")
+
+
+def generate_task_key(**kwargs):
+    """
+    Generate a unique hash key based on arbitrary input parameters.
+
+    Args:
+        **kwargs: Key-value pairs representing task parameters.
+
+    Returns:
+        str: A SHA256 hash representing the task key.
+    """
+    # Sort the dictionary to ensure consistent hashing
+    sorted_data = json.dumps(kwargs, sort_keys=True)
+    return sha256(sorted_data.encode()).hexdigest()
