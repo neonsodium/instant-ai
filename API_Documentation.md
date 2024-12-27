@@ -119,9 +119,9 @@
 - **Description:** Ranks features based on their importance.
 - **Parameters:**
   - `project_id` (string): ID of the project.
-  - `kpi_list` (array): List of potential target variables.
-  - `important_features` (array): List of potential target variables.
-  - `kpi` (string): The target variable for ranking.
+  - `kpi_list` (array): List of other KPIs variables.
+  - `important_features` (array): List of user added features.
+  - `kpi` (string): The target KPI for feature ranking.
 - **Example:**
 
   ```bash
@@ -177,7 +177,7 @@
 - **Example:**
 
   ```bash
-  curl http://127.0.0.1:8009/projects/<project_id>/clusters/download -H "Content-Type: application/json" -d '{ "level": 2, "path": [1,2] }'
+  curl http://127.0.0.1:8009/projects/PROJECT_ID/clusters/download -H "Content-Type: application/json" -d '{ "level": 2, "path": [1,2] }'
   ```
 
 ---
@@ -199,7 +199,7 @@
 - **Example:**
 
   ```bash
-  curl -X POST http://127.0.0.1:8009/projects/<project_id>/time-series/encode -H "Content-Type: application/json" -d '{
+  curl -X POST http://127.0.0.1:8009/projects/PROJECT_ID/time-series/encode -H "Content-Type: application/json" -d '{
     "user_added_vars_list": ["var1", "var2"],
     "level": 2,
     "path": [0, 1],
