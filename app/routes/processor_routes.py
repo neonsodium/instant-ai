@@ -59,11 +59,7 @@ def drop_columns_from_dataset(project_id):
 
 @processor_routes.route("/<project_id>/dataset/preprocess", methods=["GET", "POST"])
 def start_data_preprocessing(project_id):
-    """
-    curl -X POST http://127.0.0.1:8080/process/pre-process -H "Content-Type: application/json" -d '{
-    "project_id": "ID"
-    }'
-    """
+
     directory_project = directory_project_path_full(project_id, [])
 
     if not os.path.isdir(directory_project):
