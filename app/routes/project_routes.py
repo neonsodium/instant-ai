@@ -32,12 +32,25 @@ def get_projects():
 @main_routes.route("/", methods=["POST"])
 def create_project():
     request_data_json = request.get_json()
-    project_name = request_data_json.get("name")
-    project_description = request_data_json.get("description")
+
+    project_name = request_data_json.get("name", "").strip()
+    if not project_name:
+        return jsonify({"error": "Project name is required"}), 400
+    if len(project_name) > 100:
+        return jsonify({"error": "Project name must not exceed 100 characters"}), 400
+
+    project_description = request_data_json.get("description", "").strip()
+    if not project_description:
+        return jsonify({"error": "Project description is required"}), 400
+    if len(project_description) > 500:
+        return jsonify({"error": "Project description must not exceed 500 characters"}), 400
+
     new_project_id = create_project_uuid()
     result = create_directory(all_project_dir_path(), new_project_id)
+
     save_project_info(result["path"], filename_project_name_txt(), project_name)
     save_project_info(result["path"], filename_project_description_txt(), project_description)
+
     result.pop("path")
     return jsonify({"project_id": new_project_id, **result})
 
