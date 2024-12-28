@@ -18,7 +18,7 @@ def get_projects():
         return jsonify({"error": "Project directory not configured"}), 404
 
     try:
-        projects: list = list_sub_directories(all_project_dir_path())
+        projects: list = list_projects(all_project_dir_path())
 
     except OSError as e:
         return (
@@ -126,10 +126,7 @@ def validate_dataset(project_id):
     if not os.path.isfile(raw_data_file):
         return jsonify({"message": "Data set not uploaded"}), 400
 
-    df = pd.read_csv(raw_data_file)
-    result = validate_df(df)
-
-    return jsonify({"message": result}), 200
+    return jsonify({"message": validate_df(pd.read_csv(raw_data_file))}), 200
 
 
 @main_routes.route("/<project_id>/dataset/columns", methods=["GET", "POST"])
