@@ -74,3 +74,11 @@ def filename_feature_rank_list_pkl(kpi: str) -> str:
 
 def filename_feature_rank_result_txt(kpi: str):
     return f"results_{re.sub(r'[^A-Za-z0-9_]', '', kpi)}.txt"
+
+
+def filename_project_name_txt():
+    return "project_name.txt"
+
+
+def filename_project_description_txt():
+    return "project_description.txt"
