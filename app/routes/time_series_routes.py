@@ -36,6 +36,9 @@ def initiate_feature_ranking(project_id):
     if not os.path.exists(directory_project_cluster):
         return (jsonify({"error": "Cluster Does not exists.", "project_id": project_id}), 404)
 
+    if not os.path.isfile(os.path.join(directory_project_cluster, filename_raw_data_csv())):
+        return jsonify({"message": "Data set not found"}), 400
+
     raw_data_file = os.path.join(directory_project, filename_raw_data_csv())
 
     fig = time_series_analysis(

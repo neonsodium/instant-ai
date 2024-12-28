@@ -88,6 +88,9 @@ def start_feature_ranking(project_id):
     if not os.path.isdir(directory_project):
         return jsonify({"error": "Invalid Project ID"}), 400
 
+    if not os.path.isfile(os.path.join(directory_project, filename_raw_data_csv())):
+        return jsonify({"message": "Data set not uploaded"}), 400
+
     if not kpi:
         return jsonify({"error": "Missing 'kpi' in request"}), 400
 
@@ -136,6 +139,9 @@ def initiate_subclustering(project_id):
     directory_project_base = directory_project_path_full(project_id, [])
     if not os.path.isdir(directory_project_base):
         return jsonify({"error": "Invalid Project ID"}), 400
+
+    if not os.path.isfile(os.path.join(directory_project_base, filename_raw_data_csv())):
+        return jsonify({"message": "Data set not uploaded"}), 400
 
     if not kpi:
         return jsonify({"error": "Missing 'kpi' in request"}), 400

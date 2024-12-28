@@ -1,6 +1,7 @@
 import json
 import os
 import re
+from datetime import datetime
 
 from flask import current_app
 
@@ -68,6 +69,30 @@ def list_sub_directories(base_dir: str) -> list:
             # TODO project_name = load_project_name(project_dir)
             # TODO tasks.append({"project_id": project_id, "project_name": project_name})
     return list_sub_dir
+
+
+def list_projects(base_dir: str) -> list:
+    """List all projects with their IDs, names*, and creation dates."""
+    projects = []
+
+    for project_id in os.listdir(base_dir):
+        project_dir = os.path.join(base_dir, project_id)
+        if os.path.isdir(project_dir):
+            project_name = load_project_name(project_dir)
+
+            creation_time = os.stat(project_dir).st_ctime
+            creation_date = datetime.fromtimestamp(creation_time).strftime("%Y-%m-%d")
+            # creation_date = datetime.fromtimestamp(creation_time).strftime("%Y-%m-%d %H:%M:%S")
+
+            projects.append(
+                {
+                    "project_id": project_id,
+                    # "project_name": project_name,
+                    "creation_date": creation_date,
+                }
+            )
+
+    return projects
 
 
 def is_feature_ranking_file_present(directory_project: str) -> bool:
