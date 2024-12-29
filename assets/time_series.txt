@@ -1,0 +1,19 @@
+Time series
+Rev label encoded -> Onehot encodede -> Aggragator -> time series data 
+
+ time series data(df) -> Feature Ranking algo -> regressors (list) <- user input Feature
+ (user can modify)
+
+ time series data(df)  -> prophet algo -> train model (model) <- input KPI
+
+ time series data(df) -> forcast regressors (func) -> forcast regressors(df) <- input start and end date
+
+forcast regressors(df) -> modified forcast(func) -> modified forcast(df) <- modified factors
+
+plot(func) <- input start and end date
+forcast regressors(df) -> model 
+modified forcast(df) -> model 
+
+
+input: Start date and end date + Variables(Columns) they are interested in + percentage to increase it by
+    -> Time series algo (graph)
