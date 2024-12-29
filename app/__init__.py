@@ -25,7 +25,7 @@ except OSError:
     print(OSError)
 
 
-# Configure JSON sorting for Demo API only ig? IDK, Ask the frontend guy lol
+# Configure JSON sorting for Demo API only ig? IDK, Ask the frontend guy lol <- sexist
 app.config["JSON_SORT_KEYS"] = False
 app.json.sort_keys = False
 celery = make_celery(app)
