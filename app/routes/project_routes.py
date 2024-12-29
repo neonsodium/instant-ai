@@ -34,12 +34,13 @@ def create_project():
     request_data_json = request.get_json()
 
     project_name = request_data_json.get("name", "").strip()
+    project_description = request_data_json.get("description", "").strip()
+
     if not project_name:
         return jsonify({"error": "Project name is required"}), 400
     if len(project_name) > 100:
         return jsonify({"error": "Project name must not exceed 100 characters"}), 400
 
-    project_description = request_data_json.get("description", "").strip()
     if not project_description:
         return jsonify({"error": "Project description is required"}), 400
     if len(project_description) > 500:

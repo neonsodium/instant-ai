@@ -9,10 +9,13 @@
 - **Endpoint:** `/projects/`
 - **Method:** `POST`
 - **Description:** Creates a new project and returns the project ID.
+- **Parameters:**
+  - `name` (string): Name of the Project.
+  - `description` (String): Description of the Project.
 - **Example:**
 
   ```bash
-  curl -X POST http://127.0.0.1:8009/projects/
+  curl -X POST http://127.0.0.1:8009/projects/ -H "Content-Type: Application/json" --data '{"name": "test","description": "test"}'
   ```
 
 ## **List all Projects**
