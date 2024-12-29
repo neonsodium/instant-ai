@@ -11,7 +11,7 @@ fonttools==4.53.1
 holidays==0.55
 importlib_resources==6.4.4
 itsdangerous==2.2.0
-Jinja2==3.1.4
+Jinja2==3.1.5
 joblib==1.4.2
 kiwisolver==1.4.5
 MarkupSafe==2.1.5
