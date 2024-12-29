@@ -109,7 +109,9 @@ def start_feature_ranking(project_id):
     result = async_optimised_feature_rank.delay(
         kpi, kpi_list, important_features, directory_project
     )
-    redis_client.setex(f"task:{result.id}", 3600, task_key)  # Key expires in 1 hour
+    redis_client.setex(
+        f"task:{result.id}", current_app.config.get("REDIS_TIMEOUT_TASK_ID"), task_key
+    )  # Key expires time
 
     return (
         jsonify(
@@ -177,7 +179,7 @@ def initiate_subclustering(project_id):
             jsonify(
                 {
                     "message": "Task is already running",
-                    "task_id": existing_task_id.decode(),  # Redis returns bytes, decode to string
+                    "task_id": existing_task_id.decode(),
                     "project_id": project_id,
                 }
             ),
@@ -188,7 +190,9 @@ def initiate_subclustering(project_id):
         directory_project_cluster, input_file_path_feature_rank_pkl
     )
 
-    redis_client.setex(f"task:{result.id}", 3600, task_key)  # Key expires in 1 hour
+    redis_client.setex(
+        f"task:{result.id}", current_app.config.get("REDIS_TIMEOUT_TASK_ID"), task_key
+    )
 
     return (
         jsonify(
