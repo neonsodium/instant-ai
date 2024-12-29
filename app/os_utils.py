@@ -94,15 +94,15 @@ def list_projects(base_dir: str) -> list:
         creation_time = os.stat(project_dir).st_ctime
         creation_date = datetime.fromtimestamp(creation_time).strftime("%Y-%m-%d")
         # creation_date = datetime.fromtimestamp(creation_time).strftime("%Y-%m-%d %H:%M:%S")
-
-        projects.append(
-            {
-                "project_id": project_id,
-                "name": project_name,
-                "creation_date": creation_date,
-                "description": project_desc,
-            }
-        )
+        if os.path.isdir(project_dir) and any(os.listdir(project_dir)):
+            projects.append(
+                {
+                    "project_id": project_id,
+                    "name": project_name,
+                    "creation_date": creation_date,
+                    "description": project_desc,
+                }
+            )
 
     return projects
 
