@@ -25,3 +25,4 @@ Complete_code.ipynb
 venv
 celery_worker.log
 flask_app.log
+celery_app.log
