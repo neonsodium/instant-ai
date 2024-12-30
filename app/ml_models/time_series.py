@@ -1,6 +1,6 @@
 import pandas as pd
 import plotly.graph_objects as go
-from dateutil import relativedelta
+from dateutil.relativedelta import relativedelta
 from prophet import Prophet
 
 from app.data_preparation_ulits.aggregate import aggregate_columns_by_date
