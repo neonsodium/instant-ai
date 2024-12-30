@@ -29,8 +29,8 @@ def initiate_feature_ranking(project_id):
     if not os.path.isdir(directory_project):
         return jsonify({"error": "Invalid Project ID"}), 400
 
-    if int(level) != len(list_path):
-        return jsonify({"error": "Level and Path don't match"}), 400
+    # if int(level) != len(list_path):
+    #     return jsonify({"error": "Level and Path don't match"}), 400
 
     directory_project_cluster = directory_project_path_full(project_id, list_path)
     if not os.path.exists(directory_project_cluster):
