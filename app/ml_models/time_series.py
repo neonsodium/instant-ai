@@ -19,10 +19,8 @@ def time_series_analysis(
     zero_value_replacement,
 ):
     df = pd.read_csv(input_file_path_raw_data_csv)
-    df = pd.read_csv("/Users/vedanths/Downloads/cleaned_apar.csv")
     df[date_column] = pd.to_datetime(df[date_column])
 
-    # TODO
     start_date = df[date_column].max()
     end_date = start_date + relativedelta(months=no_of_months)
     forecast_periods = (end_date - start_date).days + 30
