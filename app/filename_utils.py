@@ -72,6 +72,18 @@ def filename_feature_rank_list_pkl(kpi: str) -> str:
     return f"list_feature_ranking_{re.sub(r'[^A-Za-z0-9_]', '', kpi)}.pkl"
 
 
+def filename_important_features_list_pkl(kpi: str) -> str:
+    return f"list_important_features_{re.sub(r'[^A-Za-z0-9_]', '', kpi)}.pkl"
+
+
+def filename_all_kpi_list_pkl() -> str:
+    return f"list_all_kpi.pkl"
+
+
+def filename_kpi_list_pkl() -> str:
+    return f"list_kpi.pkl"
+
+
 def filename_feature_rank_result_txt(kpi: str):
     return f"results_{re.sub(r'[^A-Za-z0-9_]', '', kpi)}.txt"
 

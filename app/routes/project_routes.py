@@ -1,4 +1,5 @@
 import os
+import pickle
 
 import pandas as pd
 from flask import Blueprint, jsonify, request, send_file
@@ -201,32 +202,145 @@ def download_project_file():
     return send_file(absolute_file_path, as_attachment=True)
 
 
+def get_directory_tree(path):
+    try:
+        tree = {"name": os.path.basename(path) or path, "subcluster": []}
+
+        entries = os.listdir(path)
+
+        for entry in entries:
+            full_path = os.path.join(path, entry)
+            if os.path.isdir(full_path):
+                tree["subcluster"].append(get_directory_tree(full_path))
+
+        return tree
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# @main_routes.route("/<project_id>/status", methods=["GET"])
+# def get_project_status(project_id):
+#     directory_project = directory_project_path_full(project_id, [])
+
+#     if not os.path.isdir(directory_project):
+#         return jsonify({"error": "Invalid Project ID"}), 400
+#     raw_data_file = os.path.join(directory_project, filename_raw_data_csv())
+#     data_uploaded = os.path.isfile(raw_data_file)
+
+#     feature_ranking_completed = is_feature_ranking_file_present(directory_project)
+
+#     directory_project_cluster = directory_project_path_full(project_id, [])
+#     clusters_tree = get_directory_tree(directory_project_cluster)
+#     clusters = list_sub_directories(directory_project_cluster)
+
+#     kpi_list_filepath = os.path.join(directory_project, filename_kpi_list_pkl())
+#     with open(kpi_list_filepath, "rb") as kpi_list_pkl_file:
+#         kpi = pickle.load(kpi_list_pkl_file)
+
+#     important_features_filepath = os.path.join(
+#         directory_project, filename_important_features_list_pkl(kpi)
+#     )
+#     with open(important_features_filepath, "rb") as important_features_list_pkl_file:
+#         important_features = pickle.load(important_features_list_pkl_file)
+
+#     # Read the all KPI list file
+#     all_kpi_list_filepath = os.path.join(directory_project, filename_all_kpi_list_pkl())
+#     with open(all_kpi_list_filepath, "rb") as all_kpi_list_pkl_file:
+#         kpi_list = pickle.load(all_kpi_list_pkl_file)
+
+#     clustering_started = False
+#     if os.path.isdir(directory_project_cluster) and any(os.listdir(directory_project_cluster)):
+#         clustering_started = True
+
+#     # Response
+#     status = {
+#         "data_uploaded": data_uploaded,
+#         "feature_ranking_completed": feature_ranking_completed,
+#         "clustering_started": clustering_started,
+#         "clusters": clusters_tree,
+#         "important_features": important_features,
+#         "kpi": kpi,
+#         "kpi_list": kpi_list,
+#     }
+
+# return jsonify({"project_id": project_id, "status": status}), 200
+
+
 @main_routes.route("/<project_id>/status", methods=["GET"])
 def get_project_status(project_id):
-    directory_project = directory_project_path_full(project_id, [])
+    try:
+        # Construct the full directory path
+        directory_project = directory_project_path_full(project_id, [])
 
-    if not os.path.isdir(directory_project):
-        return jsonify({"error": "Invalid Project ID"}), 400
-    raw_data_file = os.path.join(directory_project, filename_raw_data_csv())
-    data_uploaded = os.path.isfile(raw_data_file)
+        # Check if the directory exists
+        if not os.path.isdir(directory_project):
+            return jsonify({"error": "Invalid Project ID"}), 400
 
-    feature_ranking_completed = is_feature_ranking_file_present(directory_project)
+        # Check if the raw data file exists
+        raw_data_file = os.path.join(directory_project, filename_raw_data_csv())
+        data_uploaded = os.path.isfile(raw_data_file)
 
-    directory_project_cluster = directory_project_path_full(project_id, [])
-    clusters = list_sub_directories(directory_project_cluster)
+        # Check if feature ranking file exists
+        feature_ranking_completed = is_feature_ranking_file_present(directory_project)
 
-    clustering_started = False
-    if os.path.isdir(directory_project_cluster) and any(os.listdir(directory_project_cluster)):
-        clustering_started = True
+        # Get the clusters directory and subdirectories
+        directory_project_cluster = directory_project_path_full(project_id, [])
+        clusters_tree = get_directory_tree(directory_project_cluster)
+        clusters = list_sub_directories(directory_project_cluster)
 
-    # Response
-    status = {
-        "data_uploaded": data_uploaded,
-        "feature_ranking_completed": feature_ranking_completed,
-        "clustering_started": clustering_started,
-    }
+        # Attempt to load the KPI list
+        kpi_list_filepath = os.path.join(directory_project, filename_kpi_list_pkl())
+        try:
+            with open(kpi_list_filepath, "rb") as kpi_list_pkl_file:
+                kpi = pickle.load(kpi_list_pkl_file)
+        except FileNotFoundError:
+            return jsonify({"error": "KPI list file not found"}), 404
+        except pickle.UnpicklingError:
+            return jsonify({"error": "Failed to unpickle the KPI list file"}), 500
 
-    return jsonify({"project_id": project_id, "status": status}), 200
+        # Attempt to load the important features file
+        important_features_filepath = os.path.join(
+            directory_project, filename_important_features_list_pkl(kpi)
+        )
+        try:
+            with open(important_features_filepath, "rb") as important_features_list_pkl_file:
+                important_features = pickle.load(important_features_list_pkl_file)
+        except FileNotFoundError:
+            return jsonify({"error": "Important features file not found"}), 404
+        except pickle.UnpicklingError:
+            return jsonify({"error": "Failed to unpickle the important features file"}), 500
+
+        # Attempt to load the all KPI list file
+        all_kpi_list_filepath = os.path.join(directory_project, filename_all_kpi_list_pkl())
+        try:
+            with open(all_kpi_list_filepath, "rb") as all_kpi_list_pkl_file:
+                kpi_list = pickle.load(all_kpi_list_pkl_file)
+        except FileNotFoundError:
+            return jsonify({"error": "All KPI list file not found"}), 404
+        except pickle.UnpicklingError:
+            return jsonify({"error": "Failed to unpickle the all KPI list file"}), 500
+
+        # Check if clustering has started by checking if the directory is not empty
+        clustering_started = False
+        if os.path.isdir(directory_project_cluster) and any(os.listdir(directory_project_cluster)):
+            clustering_started = True
+
+        # Prepare the response data
+        status = {
+            "data_uploaded": data_uploaded,
+            "feature_ranking_completed": feature_ranking_completed,
+            "clustering_started": clustering_started,
+            "clusters": clusters_tree,
+            "important_features": important_features,
+            "kpi": kpi,
+            "kpi_list": kpi_list,
+        }
+
+        return jsonify(status)
+
+    except Exception as e:
+        # Catch any unexpected exceptions
+        return jsonify({"error": str(e)}), 500
 
 
 @main_routes.route("/<project_id>/clusters/status", methods=["POST"])
