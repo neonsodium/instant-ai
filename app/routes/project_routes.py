@@ -269,6 +269,7 @@ def get_directory_tree(path):
 @main_routes.route("/<project_id>/status", methods=["GET"])
 def get_project_status(project_id):
     try:
+        # TODO
         # Construct the full directory path
         directory_project = directory_project_path_full(project_id, [])
 

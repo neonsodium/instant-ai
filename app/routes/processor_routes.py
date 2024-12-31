@@ -78,6 +78,7 @@ def start_feature_ranking(project_id):
     task_name = "feature_ranking"
     request_data_json = request.get_json()
     kpi_list = request_data_json.get("kpi_list", [])  # i.e drops these columns
+
     important_features = request_data_json.get("important_features", [])
     kpi = request_data_json.get("kpi", None)
 
@@ -91,6 +92,7 @@ def start_feature_ranking(project_id):
     if not kpi:
         return jsonify({"error": "Missing 'kpi' in request"}), 400
 
+    # TODO
     with open(
         os.path.join(directory_project, filename_important_features_list_pkl(kpi)), "wb"
     ) as important_features_list_pkl_file:
@@ -119,7 +121,9 @@ def start_feature_ranking(project_id):
             ),
             200,
         )
-
+    # TODO
+    if kpi not in kpi_list:
+        kpi_list.remove(kpi)
     result = async_optimised_feature_rank.delay(
         kpi, kpi_list, important_features, directory_project
     )
