@@ -38,6 +38,22 @@ def save_project_info(project_dir: str, file_name: str, info: str):
     return f"Information saved to {project_info_file}"
 
 
+def get_directory_tree(path):
+    try:
+        tree = {"name": os.path.basename(path) or path, "subcluster": []}
+
+        entries = os.listdir(path)
+
+        for entry in entries:
+            full_path = os.path.join(path, entry)
+            if os.path.isdir(full_path):
+                tree["subcluster"].append(get_directory_tree(full_path))
+
+        return tree
+    except Exception as e:
+        return {"error": str(e)}
+
+
 def directory_project_path_full(project_id: str, path: list) -> str:
     sub_dirs = [directory_cluster_format(cluster_num) for cluster_num in path]
     a = os_path_join_secure(all_project_dir_path(), project_id)
