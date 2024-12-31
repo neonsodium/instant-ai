@@ -216,6 +216,55 @@
 
 ---
 
+## **Time Series: Get encoded Columns
+
+- **Endpoint:** `/projects/<project_id>/time-series/encoded-columns`
+- **Method:** `POST`
+- **Description:** Service site trend graph of the time series
+- **Parameters:**
+  - `project_id` (string): ID of the project.
+  - `level` (int): Clustering level.
+  - `path` (array): Path of the clustering hierarchy.
+  - `column_name` (String): Name of the column.
+- **Example:**
+
+  ```bash
+  http://localhost:8009/projects/PROJECT_ID/time-series/encoded-columns \
+  -H "Content-Type: application/json" \
+  -d '{
+        "level": 1,
+        "path": [1],
+        "column_name": "Material"
+      }'
+    
+    ```
+
+---
+
+## **Time Series: Get Catagorical Columns
+
+- **Endpoint:** `/projects/<project_id>/time-series/categorical-columns`
+- **Method:** `POST`
+- **Description:** Service site trend graph of the time series
+- **Parameters:**
+  - `project_id` (string): ID of the project.
+  - `level` (int): Clustering level.
+  - `path` (array): Path of the clustering hierarchy.
+  - `column_name` (String): Name of the column.
+- **Example:**
+
+  ```bash
+  http://localhost:8009/projects/PROJECT_ID/time-series/categorical-columns \
+  -H "Content-Type: application/json" \
+  -d '{
+        "level": 1,
+        "path": [1],
+      }'
+    
+    ```
+
+---
+
 ### Notes
 
 - Replace `PROJECT_ID` and `TASK_ID` with appropriate values for your project.

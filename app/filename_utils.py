@@ -46,6 +46,10 @@ def filename_rev_one_hot_encoded_dict_pkl() -> str:
     return "dict_rev_one_hot_encode_data.pkl"
 
 
+def filename_categorical_columns_list_pkl() -> str:
+    return "list_categorical_columns.pkl"
+
+
 def directory_cluster_format(cluster_num: str | int) -> str:
     return f"cluster_{cluster_num}"
 

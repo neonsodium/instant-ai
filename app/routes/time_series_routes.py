@@ -12,7 +12,7 @@ from app.os_utils import *
 lazy_routes = Blueprint("lazy_routes", __name__)
 
 
-@lazy_routes.route("/<project_id>/time-series/encode", methods=["POST"])
+@lazy_routes.route("/<project_id>/time-series/encode", methods=["POST", "GET"])
 def initiate_feature_ranking(project_id):
     request_data_json = request.get_json()
     project_id = os.path.basename(request_data_json.get("project_id"))
@@ -24,6 +24,15 @@ def initiate_feature_ranking(project_id):
     date_column = request_data_json.get("date_column")
     increase_factor = request_data_json.get("increase_factor")
     zero_value_replacement = request_data_json.get("zero_value_replacement")
+    # user_added_vars_list = []
+    # kpi = "amount_paid"
+    # level = int(0)
+    # list_path = [0]
+    # no_of_months = 6
+    # project_id = "158de3c6-4af8-45c8-a127-ebefe6f94bab"
+    # date_column = "created_date"
+    # increase_factor = 34
+    # zero_value_replacement = 100
 
     directory_project = directory_project_path_full(project_id, [])
     if not os.path.isdir(directory_project):

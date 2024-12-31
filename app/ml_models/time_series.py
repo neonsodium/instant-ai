@@ -28,7 +28,8 @@ def time_series_analysis(
     df = aggregate_columns_by_date(df, date_column=date_column)
     df_ts = df
     del df, encoder
-    regressors = compute_feature_rankings(df_ts, kpi, [])
+    df = df_ts.drop(date_column, axis=1, inplace=False)
+    regressors = compute_feature_rankings(df, kpi, [])
     df_prophet = prepare_prophet_data(df_ts, date_column, kpi, regressors)
     model = Prophet(
         n_changepoints=100,

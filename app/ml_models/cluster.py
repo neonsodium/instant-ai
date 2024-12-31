@@ -12,7 +12,14 @@ from app.data_preparation_ulits.label_encode_data import (
     apply_label_encoding,
     reverse_label_encoding,
 )
-from app.filename_utils import directory_cluster_format, filename_raw_data_csv
+from app.data_preparation_ulits.one_hot_encode import one_hot_encode_data
+from app.filename_utils import (
+    directory_cluster_format,
+    filename_raw_data_csv,
+    filename_one_hot_encoded_data_csv,
+    filename_rev_one_hot_encoded_dict_pkl,
+    filename_categorical_columns_list_pkl,
+)
 
 
 def optimised_clustering(
@@ -94,6 +101,25 @@ def hierarchical_clustering_to_csv(data, directory_project):
         )
         cluster_directory = os.path.join(directory_project, directory_cluster_format(cluster))
         os.makedirs(cluster_directory, exist_ok=True)
-        cluster_filename_raw_data_path = os.path.join(cluster_directory, filename_raw_data_csv())
 
+        cluster_filename_raw_data_path = os.path.join(cluster_directory, filename_raw_data_csv())
         cluster_df.to_csv(cluster_filename_raw_data_path, index=False)
+
+        cluster_filename_one_hot_encoded_path = os.path.join(
+            cluster_directory, filename_one_hot_encoded_data_csv()
+        )
+        cluster_filename_one_hot_encoded_labels_path = os.path.join(
+            cluster_directory, filename_rev_one_hot_encoded_dict_pkl()
+        )
+        cluster_filename_categorical_columns_path = os.path.join(
+            cluster_directory, filename_categorical_columns_list_pkl()
+        )
+        one_hot_encode_data(
+            cluster_filename_raw_data_path,
+            cluster_filename_one_hot_encoded_labels_path,
+            cluster_filename_one_hot_encoded_path,
+        )
+
+        categorical_columns = cluster_df.select_dtypes(include=["object"]).columns.tolist()
+        with open(cluster_filename_categorical_columns_path, "wb") as file:
+            pickle.dump(categorical_columns, file)
