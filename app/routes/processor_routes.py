@@ -1,4 +1,5 @@
 import os
+import pickle
 
 from flask import Blueprint, jsonify, request
 
@@ -89,6 +90,19 @@ def start_feature_ranking(project_id):
 
     if not kpi:
         return jsonify({"error": "Missing 'kpi' in request"}), 400
+
+    with open(
+        os.path.join(directory_project, filename_important_features_list_pkl(kpi)), "wb"
+    ) as important_features_list_pkl_file:
+        pickle.dump(important_features, important_features_list_pkl_file)
+
+    with open(
+        os.path.join(directory_project, filename_all_kpi_list_pkl()), "wb"
+    ) as all_kpi_list_pkl_file:
+        pickle.dump(kpi_list, all_kpi_list_pkl_file)
+
+    with open(os.path.join(directory_project, filename_kpi_list_pkl()), "wb") as kpi_list_pkl_file:
+        pickle.dump(kpi, kpi_list_pkl_file)
 
     task_params = {"project_id": project_id, "kpi": kpi, "task_name": task_name}
     task_key = generate_task_key(**task_params)
