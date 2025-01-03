@@ -187,13 +187,14 @@
 
 ## **Time Series Graph
 
-- **Endpoint:** `/projects/<project_id>/time-series/encode`
+- **Endpoint:** `/projects/<project_id>/time-series/analysis`
 - **Method:** `POST`
 - **Description:** Service site trend graph of the time series
 - **Parameters:**
   - `project_id` (string): ID of the project.
   - `level` (int): Clustering level.
   - `path` (array): Path of the clustering hierarchy.
+  - `kpi` (string): The target KPI for Time series Analysis.
   - `user_added_vars_list` (list): User added target variables.
   - `no_of_months` (int): Number of months to predict.
   - `date_column` (string): Name of date column in the dataset.
@@ -202,7 +203,7 @@
 - **Example:**
 
   ```bash
-  curl -X POST http://127.0.0.1:8009/projects/PROJECT_ID/time-series/encode -H "Content-Type: application/json" -d '{
+  curl -X POST http://127.0.0.1:8009/projects/PROJECT_ID/time-series/analysis -H "Content-Type: application/json" -d '{
     "user_added_vars_list": ["var1", "var2"],
     "level": 2,
     "path": [0, 1],
@@ -216,55 +217,52 @@
 
 ---
 
-## **Time Series: Get encoded Columns
+## **Time Series: Get Encoded Columns**
 
 - **Endpoint:** `/projects/<project_id>/time-series/encoded-columns`
 - **Method:** `POST`
-- **Description:** Service site trend graph of the time series
+- **Description:** Retrieves a list of all the encoded categories for a categorical column, which are used as input for time-series Graph user_added_vars_list.
 - **Parameters:**
-  - `project_id` (string): ID of the project.
-  - `level` (int): Clustering level.
-  - `path` (array): Path of the clustering hierarchy.
-  - `column_name` (String): Name of the column.
+  - `project_id` (string): The ID of the project.
+  - `level` (int): The clustering level.
+  - `path` (array): The path of the clustering hierarchy.
+  - `column_name` (string): The name of the column.
 - **Example:**
 
   ```bash
-  http://localhost:8009/projects/PROJECT_ID/time-series/encoded-columns \
+  curl -X POST http://localhost:8009/projects/PROJECT_ID/time-series/encoded-columns \
   -H "Content-Type: application/json" \
   -d '{
         "level": 1,
         "path": [1],
         "column_name": "Material"
       }'
-    
-    ```
+  ```
 
 ---
 
-## **Time Series: Get Catagorical Columns
+## **Time Series: Get Categorical Columns**
 
 - **Endpoint:** `/projects/<project_id>/time-series/categorical-columns`
 - **Method:** `POST`
-- **Description:** Service site trend graph of the time series
+- **Description:** Retrieves a list of all categorical columns, which are used as input for encoded columns.
 - **Parameters:**
-  - `project_id` (string): ID of the project.
-  - `level` (int): Clustering level.
-  - `path` (array): Path of the clustering hierarchy.
-  - `column_name` (String): Name of the column.
+  - `project_id` (string): The ID of the project.
+  - `level` (int): The clustering level.
+  - `path` (array): The path of the clustering hierarchy.
 - **Example:**
 
   ```bash
-  http://localhost:8009/projects/PROJECT_ID/time-series/categorical-columns \
+  curl -X POST http://localhost:8009/projects/PROJECT_ID/time-series/categorical-columns \
   -H "Content-Type: application/json" \
   -d '{
         "level": 1,
-        "path": [1],
+        "path": [1]
       }'
-    
-    ```
+  ```
 
 ---
 
 ### Notes
 
-- Replace `PROJECT_ID` and `TASK_ID` with appropriate values for your project.
+- Replace `PROJECT_ID` with the appropriate project ID for your use case.
