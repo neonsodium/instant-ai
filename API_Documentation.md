@@ -262,6 +262,25 @@
   ```
 
 ---
+Here’s the revised request and response explanation:
+
+---
+
+## **Get Running Tasks**
+
+- **Endpoint:** `/projects/tasks/running`
+- **Method:** `GET`
+- **Description:** Retrieves a list of currently running tasks within the system.
+
+### **Request Example**
+
+```bash
+curl http://localhost:8080/projects/tasks/running
+```
+
+---
+
+This allows users to track ongoing tasks and their associated metadata.
 
 ### Notes
 
