@@ -185,7 +185,7 @@
 
 ---
 
-## **Time Series Graph
+## **Time Series Graph (Async)
 
 - **Endpoint:** `/projects/<project_id>/time-series/analysis`
 - **Method:** `POST`
@@ -214,6 +214,46 @@
     "zero_value_replacement": 0 }'
     
     ```
+
+---
+
+## **Time Series Figure**
+
+- **Endpoint:** `/projects/<project_id>/time-series/figure`
+- **Method(s):** `POST`, `GET`
+- **Description:** Retrieves the time series analysis figure for a specific project based on the given parameters.
+- **Parameters:**
+  - `project_id` (string): ID of the project.
+  - `level` (int): Clustering level.
+  - `path` (array): Path of the clustering hierarchy.
+  - `kpi` (string, optional): The target KPI for time series analysis.
+
+- **Responses:**
+  - **200 OK**:
+    - **Content:** A rendered HTML page (`time_series.html`) displaying the time series figure.
+  - **400 Bad Request**:
+    - **Error:** `"Invalid Project ID"`  
+      When the project ID directory does not exist.  
+    - **Error:** `"Data set not found"`  
+      When the required dataset file is missing.
+  - **404 Not Found**:
+    - **Error:** `"Cluster Does not exists."`  
+      When the specified cluster path is invalid.  
+    - **Error:** `"Figure file not found"`  
+      When the pickle file containing the figure is missing.
+  - **500 Internal Server Error**:
+    - **Error:** `"Failed to unpickle the figure file"`  
+      When there is an error unpickling the figure file.
+
+- **Example:**
+
+  ```bash
+  curl -X POST http://127.0.0.1:8009/projects/PROJECT_ID/time-series/figure -H "Content-Type: application/json" -d '{
+    "level": 2,
+    "path": [0, 1],
+    "kpi": "sales"
+  }'
+  ```
 
 ---
 
