@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import pickle
 from datetime import datetime
 
 from flask import current_app
@@ -9,6 +10,9 @@ from app.filename_utils import (
     directory_cluster_format,
     filename_project_description_txt,
     filename_project_name_txt,
+    filename_important_features_list_pkl,
+    filename_all_kpi_list_pkl,
+    filename_kpi_list_pkl,
 )
 from config import Config
 
@@ -135,3 +139,41 @@ def is_feature_ranking_file_present(directory_project: str) -> bool:
             return True
 
     return False
+
+
+def save_project_files(directory_project, kpi, important_features, kpi_list):
+    """
+    Saves important features, all KPI list, and individual KPI to files in the specified directory.
+
+    Parameters:
+        directory_project (str): The directory where the files will be saved.
+        kpi (str): The KPI name.
+        important_features (list): The list of important features.
+        kpi_list (list): The list of all KPIs.
+
+    Returns:
+        None
+    """
+    # Generate file paths
+    important_features_file = os.path.join(
+        directory_project, filename_important_features_list_pkl(kpi)
+    )
+    all_kpi_list_file = os.path.join(directory_project, filename_all_kpi_list_pkl())
+    kpi_file = os.path.join(directory_project, filename_kpi_list_pkl())
+
+    try:
+        # Save important features
+        with open(important_features_file, "wb") as important_features_list_pkl_file:
+            pickle.dump(important_features, important_features_list_pkl_file)
+
+        # Save all KPI list
+        with open(all_kpi_list_file, "wb") as all_kpi_list_pkl_file:
+            pickle.dump(kpi_list, all_kpi_list_pkl_file)
+
+        # Save individual KPI
+        with open(kpi_file, "wb") as kpi_list_pkl_file:
+            pickle.dump(kpi, kpi_list_pkl_file)
+
+    except Exception as e:
+        print(f"Error saving project files: {e}")
+        raise

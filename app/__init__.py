@@ -33,8 +33,8 @@ celery = make_celery(app)
 
 from app.routes.processor_routes import processor_routes
 from app.routes.project_routes import main_routes
-from app.routes.time_series_routes import lazy_routes
+from app.routes.time_series_routes import time_series_routes
 
-app.register_blueprint(lazy_routes, url_prefix="/projects")
+app.register_blueprint(time_series_routes, url_prefix="/projects")
 app.register_blueprint(main_routes, url_prefix="/projects")
 app.register_blueprint(processor_routes, url_prefix="/projects")

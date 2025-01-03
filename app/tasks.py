@@ -3,6 +3,7 @@ import os
 from hashlib import sha256
 
 from redis import Redis
+import pickle
 
 from app.data_preparation_ulits.drop_columns import drop_columns
 from app.data_preparation_ulits.label_encode_data import label_encode_data
@@ -10,6 +11,7 @@ from app.data_preparation_ulits.one_hot_encode import one_hot_encode_data
 from app.filename_utils import *
 from app.ml_models.cluster import optimised_clustering
 from app.ml_models.feature_rank import generate_optimized_feature_rankings
+from app.ml_models.time_series import time_series_analysis
 
 from . import celery
 
@@ -87,6 +89,43 @@ def async_optimised_feature_rank(self, kpi, kpi_list, important_features, direct
             kpi, kpi_list, important_features, directory_project, raw_data_file, drop_column_file
         )
         return {"status": "Feature ranking completed"}
+    finally:
+        if task_key:
+            redis_client.delete(task_key)
+        else:
+            print(f"Warning: Task key not found for task_id {self.request.id}")
+
+
+@celery.task(bind=True)
+def async_time_series_analysis(
+    self,
+    directory_project_cluster,
+    raw_data_file,
+    user_added_vars_list,
+    kpi,
+    no_of_months,
+    date_column,
+    increase_factor,
+    zero_value_replacement,
+):
+    task_key = redis_client.get(f"task:{self.request.id}")  # Retrieve the associated task key
+    try:
+        fig = time_series_analysis(
+            directory_project_cluster,
+            raw_data_file,
+            user_added_vars_list,
+            kpi,
+            no_of_months,
+            date_column,
+            increase_factor,
+            zero_value_replacement,
+        )
+        with open(
+            os.path.join(directory_project_cluster, filename_time_series_figure_pkl(kpi)), "wb"
+        ) as file:
+            pickle.dump(fig, file)
+
+        return {"status": "Analysis completed"}
     finally:
         if task_key:
             redis_client.delete(task_key)

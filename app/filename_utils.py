@@ -80,6 +80,11 @@ def filename_important_features_list_pkl(kpi: str) -> str:
     return f"list_important_features_{re.sub(r'[^A-Za-z0-9_]', '', kpi)}.pkl"
 
 
+# TODO add UUID
+def filename_time_series_figure_pkl(kpi: str) -> str:
+    return f"figure_time_series_{re.sub(r'[^A-Za-z0-9_]', '', kpi)}.pkl"
+
+
 def filename_all_kpi_list_pkl() -> str:
     return f"list_all_kpi.pkl"
 

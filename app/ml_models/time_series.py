@@ -29,6 +29,8 @@ def time_series_analysis(
     df_ts = df
     del df, encoder
     df = df_ts.drop(date_column, axis=1, inplace=False)
+    for col in df.columns:
+        print(col)
     regressors = compute_feature_rankings(df, kpi, [])
     df_prophet = prepare_prophet_data(df_ts, date_column, kpi, regressors)
     model = Prophet(
