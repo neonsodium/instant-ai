@@ -115,7 +115,7 @@ def get_one_hot_encoded_columns(project_id):
     return jsonify({"categorical_column": encoded_columns}), 200
 
 
-@time_series_routes.route("/<project_id>/time-series/categorical-columns", methods=["GET"])
+@time_series_routes.route("/<project_id>/time-series/categorical-columns", methods=["POST"])
 def list_categorical_columns(project_id):
     """
     Lists the categorical columns for the given project ID.
