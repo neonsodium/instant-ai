@@ -65,32 +65,31 @@ def hierarchical_clustering(df, features, n_clusters):
 
 def gaussian_clustering(df, features):
     scaler = StandardScaler()
-    x_scaled = scaler.fit_transform(df[features])
+    x = df[features]
+    x_scaled = scaler.fit_transform(x)
 
     n_components = np.arange(2, 11)
 
-    # models = [
-    #     GaussianMixture(n, covariance_type="full", random_state=0).fit(x_scaled)
-    #     for n in n_components
-    # ]
+    models = [
+        GaussianMixture(n, covariance_type="full", random_state=0).fit(x_scaled)
+        for n in n_components
+    ]
 
-    # bic_scores = [m.bic(x_scaled) for m in models]
-    # aic_scores = [m.aic(x_scaled) for m in models]
+    bic_scores = [m.bic(x_scaled) for m in models]
+    aic_scores = [m.aic(x_scaled) for m in models]
     silhouette_scores = []
     for n in n_components[1:]:
-        silhouette_scores.append(
-            silhouette_score(
-                x_scaled,
-                GaussianMixture(n, covariance_type="full", random_state=0).fit_predict(x_scaled),
-            )
-        )
+        gmm = GaussianMixture(n, covariance_type="full", random_state=0)
+        labels = gmm.fit_predict(x_scaled)
+        score = silhouette_score(x_scaled, labels)
+        silhouette_scores.append(score)
 
-    # optimal_bic_clusters = n_components[np.argmin(bic_scores)]
-    # optimal_aic_clusters = n_components[np.argmin(aic_scores)]
+    optimal_bic_clusters = n_components[np.argmin(bic_scores)]
+    optimal_aic_clusters = n_components[np.argmin(aic_scores)]
 
-    df["hierarchical_cluster"] = GaussianMixture(
-        n_components=n_components[1:][np.argmax(silhouette_scores)], random_state=0
-    ).fit_predict(x_scaled)
+    optimal_silhouette_clusters = n_components[1:][np.argmax(silhouette_scores)]
+    best_gmm = GaussianMixture(n_components=optimal_silhouette_clusters, random_state=0)
+    df["hierarchical_cluster"] = best_gmm.fit_predict(x_scaled)
     return df
 
 
