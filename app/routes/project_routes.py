@@ -8,7 +8,17 @@ from app.data_preparation_ulits.preprocessing_engine import validate_df
 from app.filename_utils import *
 from app.ml_models.summarising import summerise_cluster
 from app.os_utils import *
-from docs.swagger_docs import create_project_swagger, get_projects_swagger
+from docs.project_route_swagger import (create_project_swagger,
+                                        download_cluster_data_swagger,
+                                        download_project_file_swagger,
+                                        get_cluster_info_swagger,
+                                        get_cluster_status_swagger,
+                                        get_project_status_swagger,
+                                        get_projects_swagger,
+                                        list_all_files_in_projects_swagger,
+                                        list_dataset_columns_swagger,
+                                        summarize_cluster_swagger,
+                                        validate_dataset_swagger)
 
 main_routes = Blueprint("main_routes", __name__)
 
@@ -61,6 +71,7 @@ def create_project():
 
 
 @main_routes.route("/<project_id>/clusters", methods=["POST"])
+@swag_from(get_cluster_info_swagger)
 def get_cluster_info(project_id):
 
     request_data_json = request.get_json()
@@ -86,6 +97,7 @@ def get_cluster_info(project_id):
 
 
 @main_routes.route("/<project_id>/clusters/download", methods=["POST"])
+@swag_from(download_cluster_data_swagger)
 def download_cluster_data(project_id):
 
     request_data_json = request.get_json()
@@ -109,6 +121,7 @@ def download_cluster_data(project_id):
 
 
 @main_routes.route("/<project_id>/clusters/summarize", methods=["POST"])
+@swag_from(summarize_cluster_swagger)
 def summarize_cluster_info(project_id):
     request_data_json = request.get_json()
     level = int(request_data_json.get("level"))
@@ -135,6 +148,7 @@ def summarize_cluster_info(project_id):
 
 
 @main_routes.route("/<project_id>/dataset/validate", methods=["GET", "POST"])
+@swag_from(validate_dataset_swagger)
 def validate_dataset(project_id):
     directory_project = directory_project_path_full(project_id, [])
     if not os.path.isdir(directory_project):
@@ -148,6 +162,7 @@ def validate_dataset(project_id):
 
 
 @main_routes.route("/<project_id>/dataset/columns", methods=["GET", "POST"])
+@swag_from(list_dataset_columns_swagger)
 def list_dataset_columns(project_id):
 
     directory_project = directory_project_path_full(project_id, [])
@@ -169,6 +184,7 @@ def list_dataset_columns(project_id):
 
 
 @main_routes.route("/files", methods=["GET"])
+@swag_from(list_all_files_in_projects_swagger)
 def list_all_files_in_projects():
     """
     Lists all files in the root directory and its subdirectories.
@@ -185,6 +201,7 @@ def list_all_files_in_projects():
 
 
 @main_routes.route("/files/download", methods=["GET"])
+@swag_from(download_project_file_swagger)
 def download_project_file():
     """
     Downloads a file if the path is provided and valid.
@@ -206,6 +223,7 @@ def download_project_file():
 
 
 @main_routes.route("/<project_id>/status", methods=["GET"])
+@swag_from(get_project_status_swagger)
 def get_project_status(project_id):
     try:
         # TODO
@@ -292,6 +310,7 @@ def get_project_status(project_id):
 
 
 @main_routes.route("/<project_id>/clusters/status", methods=["POST"])
+@swag_from(get_cluster_status_swagger)
 def get_cluster_status(project_id):
     task_name = "clustering"
     # TODO add target varibale
