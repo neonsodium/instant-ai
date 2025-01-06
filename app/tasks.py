@@ -14,11 +14,11 @@ from app.ml_models.feature_rank import generate_optimized_feature_rankings
 from app.ml_models.time_series import time_series_analysis
 
 from . import celery
+from config import Config
 
-redis_client = Redis()
+redis_client = Redis(host=Config.REDIS_HOST, port=Config.REDIS_PORT)
 
 
-# TODO add error handling for all the async calls F++ ;_;
 @celery.task
 def async_data_processer(directory_project: str):
     # TODO
@@ -160,6 +160,5 @@ def generate_task_key(**kwargs):
     Returns:
         str: A SHA256 hash representing the task key.
     """
-    # Sort the dictionary to ensure consistent hashing
     sorted_data = json.dumps(kwargs, sort_keys=True)
     return sha256(sorted_data.encode()).hexdigest()

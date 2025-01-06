@@ -1,18 +1,18 @@
 import json
 import os
-import re
 import pickle
+import re
 from datetime import datetime
 
 from flask import current_app
 
 from app.filename_utils import (
     directory_cluster_format,
+    filename_all_kpi_list_pkl,
+    filename_important_features_list_pkl,
+    filename_kpi_list_pkl,
     filename_project_description_txt,
     filename_project_name_txt,
-    filename_important_features_list_pkl,
-    filename_all_kpi_list_pkl,
-    filename_kpi_list_pkl,
 )
 from config import Config
 
@@ -113,7 +113,6 @@ def list_projects(base_dir: str) -> list:
 
         creation_time = os.stat(project_dir).st_ctime
         creation_date = datetime.fromtimestamp(creation_time).strftime("%Y-%m-%d")
-        # creation_date = datetime.fromtimestamp(creation_time).strftime("%Y-%m-%d %H:%M:%S")
         if os.path.isdir(project_dir) and any(os.listdir(project_dir)):
             projects.append(
                 {

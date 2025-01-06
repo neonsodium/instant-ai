@@ -11,9 +11,11 @@ class Config:
     HOST = "127.0.0.1"
     PROJECTS_DIR = "projects"
     PROJECTS_DIR_VAR_NAME = "PROJECTS_DIR"
-
-    CELERY_BROKER_URL = "redis://localhost:6379/0"
-    CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+    REDIS_HOST = "localhost"
+    REDIS_PORT = 6379
+    REDIS_DB = 0
+    CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
+    CELERY_RESULT_BACKEND = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
     REDIS_TIMEOUT_TASK_ID = 60 * 30000
 
     if platform.system() == "Darwin" or platform.system() == "Windows":  # MacOS coz i work on
