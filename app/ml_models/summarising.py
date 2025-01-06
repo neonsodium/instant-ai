@@ -121,5 +121,4 @@ def summerise_cluster(
     output_df.to_csv(filename_feature_descriptions_csv, index=False)
     output_df.to_json(filename_feature_descriptions_json, orient="records", lines=True)
     json_data = output_df.to_json(orient="records")
-    # print(json_data)
     return json.loads(json_data)
