@@ -16,7 +16,7 @@ class Config:
     REDIS_DB = 0
     CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
     CELERY_RESULT_BACKEND = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
-    REDIS_TIMEOUT_TASK_ID = 60 * 30000
+    REDIS_TIMEOUT_TASK_ID = 60 * 300
 
     if platform.system() == "Darwin" or platform.system() == "Windows":  # MacOS coz i work on
         ENV = "development"
@@ -32,21 +32,15 @@ class DevelopmentConfig(Config):
     DEBUG = True
     PORT = 8080
     LOGIN_REQUIRED = True
-    PASSWORD = "p"
-    USERNAME = "p"
 
 
 class ProductionConfig(Config):
     DEBUG = False
     LOGIN_REQUIRED = True
     PORT = 8009  # 8009 to 80 on the internet on prod
-    USERNAME = "girish_pvl"
-    PASSWORD = "HelloML"
 
 
 class TestingConfig(Config):
     DEBUG = True
     LOGIN_REQUIRED = False
     PORT = 8080
-    USERNAME = "p"
-    PASSWORD = "p"
