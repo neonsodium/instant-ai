@@ -1,5 +1,6 @@
 import os
 
+from flasgger import Swagger
 from flask import Flask
 from flask_cors import CORS
 
@@ -9,6 +10,7 @@ from config import Config, DevelopmentConfig, ProductionConfig, TestingConfig
 app = Flask(__name__)
 CORS(app)
 
+app.config["SWAGGER"] = {"title": "My API", "uiversion": 3}
 
 if Config.ENV == "development":
     app.config.from_object(DevelopmentConfig)
@@ -34,6 +36,17 @@ celery = make_celery(app)
 from app.routes.processor_routes import processor_routes
 from app.routes.project_routes import main_routes
 from app.routes.time_series_routes import time_series_routes
+
+template = {
+    "swagger": "2.0",
+    "info": {"title": "Instant-AI", "description": "Docs", "version": "0.6.5"},
+}
+app.config["SWAGGER"] = {
+    "title": "Instant-Ai",
+    "uiversion": 3,
+    "template": "./resources/flasgger/swagger_ui.html",
+}
+Swagger(app, template=template)
 
 app.register_blueprint(time_series_routes, url_prefix="/projects")
 app.register_blueprint(main_routes, url_prefix="/projects")
