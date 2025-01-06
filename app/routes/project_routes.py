@@ -1,5 +1,4 @@
 import os
-import pickle
 
 import pandas as pd
 from flask import Blueprint, jsonify, request, send_file
@@ -228,8 +227,7 @@ def get_project_status(project_id):
         # Attempt to load the KPI list
         kpi_list_filepath = os.path.join(directory_project, filename_kpi_list_pkl())
         try:
-            with open(kpi_list_filepath, "rb") as kpi_list_pkl_file:
-                kpi = pickle.load(kpi_list_pkl_file)
+            kpi = load_from_pickle(kpi_list_filepath)
         except FileNotFoundError:
             return jsonify({"error": "KPI list file not found"}), 404
         except pickle.UnpicklingError:
@@ -240,8 +238,7 @@ def get_project_status(project_id):
             directory_project, filename_important_features_list_pkl(kpi)
         )
         try:
-            with open(important_features_filepath, "rb") as important_features_list_pkl_file:
-                important_features = pickle.load(important_features_list_pkl_file)
+            important_features = load_from_pickle(important_features_filepath)
         except FileNotFoundError:
             return jsonify({"error": "Important features file not found"}), 404
         except pickle.UnpicklingError:
@@ -250,8 +247,7 @@ def get_project_status(project_id):
         # Attempt to load the all KPI list file
         all_kpi_list_filepath = os.path.join(directory_project, filename_all_kpi_list_pkl())
         try:
-            with open(all_kpi_list_filepath, "rb") as all_kpi_list_pkl_file:
-                kpi_list = pickle.load(all_kpi_list_pkl_file)
+            kpi_list = save_to_pickle(all_kpi_list_filepath)
         except FileNotFoundError:
             return jsonify({"error": "All KPI list file not found"}), 404
         except pickle.UnpicklingError:
@@ -262,8 +258,7 @@ def get_project_status(project_id):
         )
 
         try:
-            with open(drop_columns_list_filepath, "wb") as file:
-                drop_columns_list = pickle.load(file)
+            drop_columns_list = load_from_pickle(drop_columns_list_filepath)
         except FileNotFoundError:
             return jsonify({"error": "All KPI list file not found"}), 404
         except pickle.UnpicklingError:

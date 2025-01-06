@@ -1,4 +1,3 @@
-import json
 import os
 import pickle
 import re
@@ -6,14 +5,12 @@ from datetime import datetime
 
 from flask import current_app
 
-from app.filename_utils import (
-    directory_cluster_format,
-    filename_all_kpi_list_pkl,
-    filename_important_features_list_pkl,
-    filename_kpi_list_pkl,
-    filename_project_description_txt,
-    filename_project_name_txt,
-)
+from app.filename_utils import (directory_cluster_format,
+                                filename_all_kpi_list_pkl,
+                                filename_important_features_list_pkl,
+                                filename_kpi_list_pkl,
+                                filename_project_description_txt,
+                                filename_project_name_txt)
 from config import Config
 
 
@@ -140,6 +137,46 @@ def is_feature_ranking_file_present(directory_project: str) -> bool:
     return False
 
 
+def save_to_pickle(data, file_path):
+    """
+    Saves the given data to a file using pickle.
+
+    Args:
+        data: The object to be pickled and saved.
+        file_path (str): The file path where the pickled object should be stored.
+
+    Returns:
+        bool: True if the operation was successful, False otherwise.
+    """
+    try:
+        with open(file_path, "wb") as file:
+            pickle.dump(data, file)
+        return True
+    except (pickle.PickleError, IOError) as e:
+        print(f"Error saving to pickle file: {e}")
+        return False
+
+
+def load_from_pickle(file_path):
+    """
+    Loads and returns data from a pickle file.
+
+    Args:
+        file_path (str): The file path of the pickle file to load.
+
+    Returns:
+        object: The deserialized object from the pickle file.
+        None: If the operation fails.
+    """
+    try:
+        with open(file_path, "rb") as file:
+            data = pickle.load(file)
+        return data
+    except (pickle.UnpicklingError, IOError) as e:
+        print(f"Error loading from pickle file: {e}")
+        return None
+
+
 def save_project_files(directory_project, kpi, important_features, kpi_list):
     """
     Saves important features, all KPI list, and individual KPI to files in the specified directory.
@@ -162,16 +199,9 @@ def save_project_files(directory_project, kpi, important_features, kpi_list):
 
     try:
         # Save important features
-        with open(important_features_file, "wb") as important_features_list_pkl_file:
-            pickle.dump(important_features, important_features_list_pkl_file)
-
-        # Save all KPI list
-        with open(all_kpi_list_file, "wb") as all_kpi_list_pkl_file:
-            pickle.dump(kpi_list, all_kpi_list_pkl_file)
-
-        # Save individual KPI
-        with open(kpi_file, "wb") as kpi_list_pkl_file:
-            pickle.dump(kpi, kpi_list_pkl_file)
+        save_to_pickle(important_features, important_features_file)
+        save_to_pickle(kpi_list, all_kpi_list_file)
+        save_to_pickle(kpi, kpi_file)
 
     except Exception as e:
         print(f"Error saving project files: {e}")

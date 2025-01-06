@@ -1,5 +1,4 @@
 import os
-import pickle
 
 import pandas as pd
 from sklearn.linear_model import LinearRegression
@@ -15,6 +14,7 @@ from app.ml_models.feature_ranking_ulits.permutation_importance_svr import \
 from app.ml_models.feature_ranking_ulits.random_forest import random_forest
 from app.ml_models.feature_ranking_ulits.seq_feature_selector import \
     perform_feature_selection
+from app.os_utils import save_to_pickle
 
 
 def generate_optimized_feature_rankings(
@@ -191,10 +191,7 @@ def save_results(final_output, directory_project, kpi, kpi_list):
     feature_list = final_output["Feature"].to_list()
     union_list = list(set(feature_list).union(kpi_list))
 
-    with open(
-        os.path.join(directory_project, filename_feature_rank_list_pkl(kpi)), "wb"
-    ) as feature_list_pkl_file:
-        pickle.dump(union_list, feature_list_pkl_file)
+    save_to_pickle(union_list, os.path.join(directory_project, filename_feature_rank_list_pkl(kpi)))
 
 
 def extract_feature_variables(df, kpi_list):

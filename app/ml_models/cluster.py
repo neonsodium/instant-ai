@@ -1,5 +1,4 @@
 import os
-import pickle
 
 import numpy as np
 import pandas as pd
@@ -8,17 +7,14 @@ from sklearn.mixture import GaussianMixture
 from sklearn.preprocessing import StandardScaler
 
 from app.data_preparation_ulits.label_encode_data import (
-    apply_label_encoding,
-    reverse_label_encoding,
-)
+    apply_label_encoding, reverse_label_encoding)
 from app.data_preparation_ulits.one_hot_encode import one_hot_encode_data
-from app.filename_utils import (
-    directory_cluster_format,
-    filename_categorical_columns_list_pkl,
-    filename_one_hot_encoded_data_csv,
-    filename_raw_data_csv,
-    filename_rev_one_hot_encoded_dict_pkl,
-)
+from app.filename_utils import (directory_cluster_format,
+                                filename_categorical_columns_list_pkl,
+                                filename_one_hot_encoded_data_csv,
+                                filename_raw_data_csv,
+                                filename_rev_one_hot_encoded_dict_pkl)
+from app.os_utils import load_from_pickle, save_to_pickle
 
 
 def optimised_clustering(
@@ -32,8 +28,7 @@ def optimised_clustering(
     else:
         df = pd.read_csv(input_file_path_raw_data_csv)
 
-    with open(input_file_path_feature_rank_pkl, "rb") as file:
-        features = pickle.load(file)
+    features = load_from_pickle(input_file_path_feature_rank_pkl)
 
     df, label_encoders = apply_label_encoding(df)
     df = gaussian_clustering(df, features)
@@ -89,5 +84,4 @@ def hierarchical_clustering_to_csv(data, directory_project):
         )
 
         categorical_columns = cluster_df.select_dtypes(include=["object"]).columns.tolist()
-        with open(cluster_filename_categorical_columns_path, "wb") as file:
-            pickle.dump(categorical_columns, file)
+        save_to_pickle(categorical_columns, cluster_filename_categorical_columns_path)
