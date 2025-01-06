@@ -56,6 +56,8 @@ def hierarchical_clustering(df, features, n_clusters):
     """
     scaler = StandardScaler()
     x = df[features]
+    print(features)
+    print(x_scaled)
     x_scaled = scaler.fit_transform(x)
 
     agg_clustering = AgglomerativeClustering(n_clusters=n_clusters, linkage="ward")
@@ -65,8 +67,10 @@ def hierarchical_clustering(df, features, n_clusters):
 
 def gaussian_clustering(df, features):
     scaler = StandardScaler()
+    print(features)
     x = df[features]
     x_scaled = scaler.fit_transform(x)
+    print(x_scaled)
 
     n_components = np.arange(2, 11)
 

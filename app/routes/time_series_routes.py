@@ -11,6 +11,7 @@ from app.filename_utils import (
     filename_important_features_list_pkl,
     filename_rev_one_hot_encoded_dict_pkl,
     filename_categorical_columns_list_pkl,
+    filename_time_series_figure_pkl,
 )
 from app.os_utils import *
 
@@ -51,9 +52,6 @@ def get_time_series_figure(project_id):
     if not os.path.isdir(directory_project):
         return jsonify({"error": "Invalid Project ID"}), 400
 
-    # if int(level) != len(list_path):
-    #     return jsonify({"error": "Level and Path don't match"}), 400
-
     directory_project_cluster = directory_project_path_full(project_id, list_path)
     if not os.path.exists(directory_project_cluster):
         return (jsonify({"error": "Cluster Does not exists.", "project_id": project_id}), 404)
@@ -63,7 +61,7 @@ def get_time_series_figure(project_id):
 
     try:
         with open(
-            os.path.join(directory_project, filename_important_features_list_pkl(kpi)), "rb"
+            os.path.join(directory_project_cluster, filename_time_series_figure_pkl(kpi)), "rb"
         ) as file:
             fig = pickle.load(file)
     except FileNotFoundError:
