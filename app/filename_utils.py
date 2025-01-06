@@ -89,6 +89,10 @@ def filename_all_kpi_list_pkl() -> str:
     return f"list_all_kpi.pkl"
 
 
+def filename_drop_columns_list_pkl() -> str:
+    return f"list_drop_columns.pkl"
+
+
 def filename_kpi_list_pkl() -> str:
     return f"list_kpi.pkl"
 

@@ -67,6 +67,8 @@ def drop_columns_from_dataset(project_id):
         return jsonify({"error": "Invaild column"}), 400
 
     result = async_drop_columns.delay(directory_project, drop_column_list)
+    with open(os.path.join(directory_project, filename_drop_columns_list_pkl()), "wb") as file:
+        pickle.dump(drop_column_list, file)
 
     return (jsonify({"message": "Column droppping has started", "task_id": result.id}), 202)
 

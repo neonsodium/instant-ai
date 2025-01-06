@@ -257,6 +257,18 @@ def get_project_status(project_id):
         except pickle.UnpicklingError:
             return jsonify({"error": "Failed to unpickle the all KPI list file"}), 500
 
+        drop_columns_list_filepath = os.path.join(
+            directory_project, filename_drop_columns_list_pkl()
+        )
+
+        try:
+            with open(drop_columns_list_filepath, "wb") as file:
+                drop_columns_list = pickle.load(file)
+        except FileNotFoundError:
+            return jsonify({"error": "All KPI list file not found"}), 404
+        except pickle.UnpicklingError:
+            return jsonify({"error": "Failed to unpickle the all KPI list file"}), 500
+
         # Check if clustering has started by checking if the directory is not empty
         clustering_started = False
         if os.path.isdir(directory_project_cluster) and any(os.listdir(directory_project_cluster)):
@@ -269,6 +281,7 @@ def get_project_status(project_id):
             "clustering_started": clustering_started,
             "clusters": clusters_tree,
             "important_features": important_features,
+            "drop_columns_list": drop_columns_list,
             "kpi": kpi,
             "kpi_list": kpi_list,
         }
