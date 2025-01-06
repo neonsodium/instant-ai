@@ -1,5 +1,4 @@
 import os
-import pickle
 
 from flask import Blueprint, jsonify, request
 
@@ -8,7 +7,7 @@ from app.os_utils import *
 from app.tasks import *
 
 processor_routes = Blueprint("processor_routes", __name__)
-redis_client = Redis()
+redis_client = Redis(host=Config.REDIS_HOST, port=Config.REDIS_PORT)
 
 
 @processor_routes.route("/tasks/<task_id>/status", methods=["GET", "POST"])
@@ -67,8 +66,10 @@ def drop_columns_from_dataset(project_id):
         return jsonify({"error": "Invaild column"}), 400
 
     result = async_drop_columns.delay(directory_project, drop_column_list)
-    with open(os.path.join(directory_project, filename_drop_columns_list_pkl()), "wb") as file:
-        pickle.dump(drop_column_list, file)
+
+    save_to_pickle(
+        drop_column_list, os.path.join(directory_project, filename_drop_columns_list_pkl())
+    )
 
     return (jsonify({"message": "Column droppping has started", "task_id": result.id}), 202)
 

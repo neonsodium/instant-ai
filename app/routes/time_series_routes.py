@@ -6,13 +6,11 @@ import plotly.graph_objects as go
 import plotly.io as pio
 from flask import Blueprint, jsonify, render_template, request
 
-from app.filename_utils import (
-    filename_raw_data_csv,
-    filename_important_features_list_pkl,
-    filename_rev_one_hot_encoded_dict_pkl,
-    filename_categorical_columns_list_pkl,
-    filename_time_series_figure_pkl,
-)
+from app.filename_utils import (filename_categorical_columns_list_pkl,
+                                filename_important_features_list_pkl,
+                                filename_raw_data_csv,
+                                filename_rev_one_hot_encoded_dict_pkl,
+                                filename_time_series_figure_pkl)
 from app.os_utils import *
 
 time_series_routes = Blueprint("lazy_routes", __name__)

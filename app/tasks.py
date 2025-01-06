@@ -3,7 +3,6 @@ import os
 from hashlib import sha256
 
 from redis import Redis
-import pickle
 
 from app.data_preparation_ulits.drop_columns import drop_columns
 from app.data_preparation_ulits.label_encode_data import label_encode_data
@@ -12,9 +11,10 @@ from app.filename_utils import *
 from app.ml_models.cluster import optimised_clustering
 from app.ml_models.feature_rank import generate_optimized_feature_rankings
 from app.ml_models.time_series import time_series_analysis
+from app.os_utils import save_to_pickle
+from config import Config
 
 from . import celery
-from config import Config
 
 redis_client = Redis(host=Config.REDIS_HOST, port=Config.REDIS_PORT)
 
@@ -120,10 +120,10 @@ def async_time_series_analysis(
             increase_factor,
             zero_value_replacement,
         )
-        with open(
-            os.path.join(directory_project_cluster, filename_time_series_figure_pkl(kpi)), "wb"
-        ) as file:
-            pickle.dump(fig, file)
+
+        save_to_pickle(
+            fig, os.path.join(directory_project_cluster, filename_time_series_figure_pkl(kpi))
+        )
 
         return {"status": "Analysis completed"}
     finally:
