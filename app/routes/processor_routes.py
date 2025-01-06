@@ -1,26 +1,35 @@
 import os
 
+from flasgger import swag_from
 from flask import Blueprint, jsonify, request
 
 from app.filename_utils import *
 from app.os_utils import *
 from app.tasks import *
+from docs.processor_route_swagger import (
+    drop_columns_from_dataset_swagger,
+    get_task_status_by_id_swagger,
+    initiate_subclustering_swagger,
+    initiate_time_series_swagger,
+    list_running_tasks_swagger,
+    start_feature_ranking_swagger,
+    upload_project_file_swagger,
+)
 
 processor_routes = Blueprint("processor_routes", __name__)
 redis_client = Redis(host=Config.REDIS_HOST, port=Config.REDIS_PORT)
 
-from flasgger import Swagger
-
-# swagger = Swagger(processor_routes)
-
 
 @processor_routes.route("/tasks/<task_id>/status", methods=["GET", "POST"])
+@swag_from(list_running_tasks_swagger)
+@swag_from(get_task_status_by_id_swagger)
 def get_task_status_by_id(task_id):
     result = celery.AsyncResult(task_id)
     return jsonify({"status": result.status})
 
 
 @processor_routes.route("/tasks/running", methods=["GET"])
+@swag_from(upload_project_file_swagger)
 def list_running_tasks():
     running_tasks = redis_client.hgetall("running_tasks")
 
@@ -34,6 +43,7 @@ def list_running_tasks():
 
 
 @processor_routes.route("/<project_id>/files/upload", methods=["POST"])
+@swag_from(upload_project_file_swagger)
 def upload_project_file(project_id):
 
     directory_project_base = directory_project_path_full(project_id, [])
@@ -53,6 +63,7 @@ def upload_project_file(project_id):
 
 
 @processor_routes.route("/<project_id>/dataset/columns/drop", methods=["POST"])
+@swag_from(drop_columns_from_dataset_swagger)
 def drop_columns_from_dataset(project_id):
     request_data_json = request.get_json()
 
@@ -78,22 +89,8 @@ def drop_columns_from_dataset(project_id):
     return (jsonify({"message": "Column droppping has started", "task_id": result.id}), 202)
 
 
-@processor_routes.route("/<project_id>/dataset/preprocess", methods=["GET", "POST"])
-def start_data_preprocessing(project_id):
-
-    directory_project = directory_project_path_full(project_id, [])
-
-    if not os.path.isdir(directory_project):
-        return jsonify({"error": "Invalid Project ID"}), 400
-
-    if not os.path.isfile(os.path.join(directory_project, filename_raw_data_csv())):
-        return jsonify({"message": "Data set not uploaded"}), 400
-
-    result = async_data_processer.delay(directory_project)
-    return (jsonify({"message": "File pre-processing has started", "task_id": result.id}), 202)
-
-
 @processor_routes.route("/<project_id>/features/ranking", methods=["POST"])
+@swag_from(start_feature_ranking_swagger)
 def start_feature_ranking(project_id):
     task_name = "feature_ranking"
     request_data_json = request.get_json()
@@ -167,6 +164,7 @@ def start_feature_ranking(project_id):
 
 
 @processor_routes.route("/<project_id>/clusters/subcluster", methods=["POST"])
+@swag_from(initiate_subclustering_swagger)
 def initiate_subclustering(project_id):
     task_name = "clustering"
     request_data_json = request.get_json()
@@ -251,6 +249,7 @@ def initiate_subclustering(project_id):
 
 
 @processor_routes.route("/<project_id>/time-series/analysis", methods=["POST", "GET"])
+@swag_from(initiate_time_series_swagger)
 def initiate_time_series(project_id):
     task_name = "time_series_analysis"
     request_data_json = request.get_json()
@@ -263,15 +262,6 @@ def initiate_time_series(project_id):
     date_column = request_data_json.get("date_column")
     increase_factor = request_data_json.get("increase_factor")
     zero_value_replacement = request_data_json.get("zero_value_replacement")
-    # user_added_vars_list = []
-    # kpi = "amount_paid"
-    # level = int(0)
-    # list_path = [0]
-    # no_of_months = 6
-    # project_id = "89dec336-be90-4e8c-bfa8-56c6083cd9a6"
-    # date_column = "created_date"
-    # increase_factor = 34
-    # zero_value_replacement = 100
 
     directory_project = directory_project_path_full(project_id, [])
     if not os.path.isdir(directory_project):
