@@ -7,13 +7,21 @@ import plotly.io as pio
 from flasgger import swag_from
 from flask import Blueprint, jsonify, request
 
-from app.filename_utils import (filename_categorical_columns_list_pkl,
-                                filename_raw_data_csv,
-                                filename_rev_one_hot_encoded_dict_pkl,
-                                filename_time_series_figure_pkl)
+from docs.time_series_route_swagger import (
+    time_series_figure_swagger,
+    encoded_columns_swagger,
+    categorical_columns_swagger,
+)
+
+from app.filename_utils import (
+    filename_categorical_columns_list_pkl,
+    filename_raw_data_csv,
+    filename_rev_one_hot_encoded_dict_pkl,
+    filename_time_series_figure_pkl,
+)
 from app.os_utils import *
 
-time_series_routes = Blueprint("lazy_routes", __name__)
+time_series_routes = Blueprint("time_series", __name__)
 
 
 def get_encoded_columns_for_column(column_name, encoder, categorical_columns):
@@ -37,6 +45,7 @@ def get_encoded_columns_for_column(column_name, encoder, categorical_columns):
 
 
 @time_series_routes.route("/<project_id>/time-series/figure", methods=["POST", "GET"])
+@swag_from(time_series_figure_swagger)
 def get_time_series_figure(project_id):
     request_data_json = request.get_json()
     project_id = os.path.basename(request_data_json.get("project_id"))
@@ -69,6 +78,7 @@ def get_time_series_figure(project_id):
 
 
 @time_series_routes.route("/<project_id>/time-series/encoded-columns", methods=["POST"])
+@swag_from(encoded_columns_swagger)
 def get_one_hot_encoded_columns(project_id):
     request_data_json = request.get_json()
     level = int(request_data_json.get("level"))
@@ -108,6 +118,7 @@ def get_one_hot_encoded_columns(project_id):
 
 
 @time_series_routes.route("/<project_id>/time-series/categorical-columns", methods=["POST"])
+@swag_from(categorical_columns_swagger)
 def list_categorical_columns(project_id):
     """
     Lists the categorical columns for the given project ID.
