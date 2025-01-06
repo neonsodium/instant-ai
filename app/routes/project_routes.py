@@ -60,7 +60,6 @@ def create_project():
     return jsonify({"project_id": new_project_id, **result})
 
 
-@swag_from("../../consume.yml")
 @main_routes.route("/<project_id>/clusters", methods=["POST"])
 def get_cluster_info(project_id):
 
@@ -274,7 +273,6 @@ def get_project_status(project_id):
         if os.path.isdir(directory_project_cluster) and any(os.listdir(directory_project_cluster)):
             clustering_started = True
 
-        # Prepare the response data
         status = {
             "data_uploaded": data_uploaded,
             "feature_ranking_completed": feature_ranking_completed,
