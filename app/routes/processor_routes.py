@@ -9,6 +9,10 @@ from app.tasks import *
 processor_routes = Blueprint("processor_routes", __name__)
 redis_client = Redis(host=Config.REDIS_HOST, port=Config.REDIS_PORT)
 
+from flasgger import Swagger
+
+# swagger = Swagger(processor_routes)
+
 
 @processor_routes.route("/tasks/<task_id>/status", methods=["GET", "POST"])
 def get_task_status_by_id(task_id):

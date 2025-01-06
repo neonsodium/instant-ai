@@ -1,17 +1,20 @@
 import os
 
 import pandas as pd
+from flasgger import swag_from
 from flask import Blueprint, jsonify, request, send_file
 
 from app.data_preparation_ulits.preprocessing_engine import validate_df
 from app.filename_utils import *
 from app.ml_models.summarising import summerise_cluster
 from app.os_utils import *
+from docs.swagger_docs import create_project_swagger, get_projects_swagger
 
 main_routes = Blueprint("main_routes", __name__)
 
 
 @main_routes.route("/", methods=["GET"])
+@swag_from(get_projects_swagger)
 def get_projects():
 
     if not os.path.exists(all_project_dir_path()):
@@ -30,6 +33,7 @@ def get_projects():
 
 
 @main_routes.route("/", methods=["POST"])
+@swag_from(create_project_swagger)
 def create_project():
     request_data_json = request.get_json()
 
@@ -56,6 +60,7 @@ def create_project():
     return jsonify({"project_id": new_project_id, **result})
 
 
+@swag_from("../../consume.yml")
 @main_routes.route("/<project_id>/clusters", methods=["POST"])
 def get_cluster_info(project_id):
 

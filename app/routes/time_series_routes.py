@@ -15,6 +15,10 @@ from app.os_utils import *
 
 time_series_routes = Blueprint("lazy_routes", __name__)
 
+from flasgger import Swagger
+
+# swagger = Swagger(time_series_routes)
+
 
 def get_encoded_columns_for_column(column_name, encoder, categorical_columns):
     """

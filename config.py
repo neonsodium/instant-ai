@@ -16,7 +16,7 @@ class Config:
     REDIS_DB = 0
     CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
     CELERY_RESULT_BACKEND = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
-    REDIS_TIMEOUT_TASK_ID = 60 * 300
+    REDIS_TIMEOUT_TASK_ID = 60 * 30
 
     if platform.system() == "Darwin" or platform.system() == "Windows":  # MacOS coz i work on
         ENV = "development"
