@@ -19,33 +19,59 @@ get_projects_swagger = {
 create_project_swagger = {
     "summary": "Create a new project",
     "description": "This endpoint allows users to create a new project by providing a name and description.",
-    "parameters": [
-        {
-            "name": "name",
-            "in": "body",
-            "type": "string",
-            "description": "Name of the new project",
-            "required": True,
+    "requestBody": {
+        "required": True,
+        "content": {
+            "application/json": {
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "description": "Name of the new project",
+                            "example": "test",
+                        },
+                        "description": {
+                            "type": "string",
+                            "description": "Description of the new project",
+                            "example": "test",
+                        },
+                    },
+                    "required": ["name", "description"],
+                }
+            }
         },
-        {
-            "name": "description",
-            "in": "body",
-            "type": "string",
-            "description": "Description of the new project",
-            "required": True,
-        },
-    ],
+    },
     "responses": {
         "200": {
             "description": "Project created successfully",
-            "schema": {
-                "type": "object",
-                "properties": {"project_id": {"type": "string"}, "path": {"type": "string"}},
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "project_id": {
+                                "type": "string",
+                                "example": "123e4567-e89b-12d3-a456-426614174000",
+                            },
+                            "path": {"type": "string", "example": "/path/to/project"},
+                        },
+                    }
+                }
             },
         },
         "400": {
             "description": "Bad Request, missing or invalid parameters",
-            "schema": {"type": "object", "properties": {"error": {"type": "string"}}},
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "error": {"type": "string", "example": "Project name is required"}
+                        },
+                    }
+                }
+            },
         },
     },
 }
@@ -248,7 +274,6 @@ summarize_cluster_swagger = {
     },
 }
 
-# swagger_schemas.py
 download_project_file_swagger = {
     "parameters": [
         {

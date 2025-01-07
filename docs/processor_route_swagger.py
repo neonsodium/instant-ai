@@ -71,54 +71,79 @@ upload_project_file_swagger = {
 }
 
 drop_columns_from_dataset_swagger = {
+    "summary": "Drop columns from the dataset",
+    "description": "This endpoint allows users to drop specified columns from the dataset of a given project.",
+    "parameters": [
+        {
+            "name": "project_id",
+            "in": "path",
+            "required": True,
+            "description": "ID of the project.",
+            "schema": {"type": "string", "example": "123e4567-e89b-12d3-a456-426614174000"},
+        }
+    ],
+    "requestBody": {
+        "required": True,
+        "content": {
+            "application/json": {
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "column": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "List of column names to drop from the dataset.",
+                            "example": ["col1", "col2"],
+                        }
+                    },
+                    "required": ["column"],
+                }
+            }
+        },
+    },
     "responses": {
         "202": {
             "description": "Column dropping task has started",
-            "schema": {
-                "type": "object",
-                "properties": {
-                    "message": {"type": "string", "description": "Status message"},
-                    "task_id": {
-                        "type": "string",
-                        "description": "Task ID of the background process",
-                    },
-                },
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "message": {
+                                "type": "string",
+                                "description": "Status message",
+                                "example": "Column drop task has been initiated.",
+                            },
+                            "task_id": {
+                                "type": "string",
+                                "description": "Task ID of the background process.",
+                                "example": "abc12345-def6-7890-ghij-klmn123456op",
+                            },
+                        },
+                    }
+                }
             },
         },
         "400": {
             "description": "Invalid request due to missing columns or invalid Project ID",
-            "schema": {
-                "type": "object",
-                "properties": {"error": {"type": "string", "description": "Error message"}},
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "error": {
+                                "type": "string",
+                                "description": "Error message",
+                                "example": "Invalid Project ID or column list is missing.",
+                            }
+                        },
+                    }
+                }
             },
         },
-    }
+    },
 }
 
-start_data_preprocessing_swagger = {
-    "responses": {
-        "202": {
-            "description": "Data preprocessing task has started",
-            "schema": {
-                "type": "object",
-                "properties": {
-                    "message": {"type": "string", "description": "Status message"},
-                    "task_id": {
-                        "type": "string",
-                        "description": "Task ID of the background process",
-                    },
-                },
-            },
-        },
-        "400": {
-            "description": "Invalid request due to missing dataset or invalid Project ID",
-            "schema": {
-                "type": "object",
-                "properties": {"error": {"type": "string", "description": "Error message"}},
-            },
-        },
-    }
-}
 
 start_feature_ranking_swagger = {
     "responses": {
