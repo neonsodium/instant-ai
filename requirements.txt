@@ -1,6 +1,6 @@
-celery
-redis
-matplotlib
+celery==5.4.0
+redis==5.2.0
+matplotlib=3.9.2
 blinker==1.8.2
 click==8.1.7
 cmdstanpy==1.2.4
@@ -27,7 +27,7 @@ prophet==1.1.5
 pyparsing==3.1.4
 python-dateutil==2.9.0.post0
 pytz==2024.1
-scikit-learn
+scikit-learn==1.5.2
 scipy==1.14.1
 six==1.16.0
 stanio==0.5.1
@@ -35,6 +35,6 @@ tenacity==9.0.0
 threadpoolctl==3.5.0
 tqdm==4.66.5
 tzdata==2024.1
-Werkzeug
+Werkzeug==3.0.4
 flask_cors
-flasgger
+flasgger==0.9.7.1
