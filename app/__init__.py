@@ -40,7 +40,7 @@ from app.routes.project_routes import main_routes
 from app.routes.time_series_routes import time_series_routes
 
 template = {
-    "swagger": "3.0",
+    "swagger": "2.0",
     "info": {"title": "Instant-AI", "description": "Docs", "version": "0.6.5"},
 }
 app.config["SWAGGER"] = {
