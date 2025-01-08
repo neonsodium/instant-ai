@@ -5,12 +5,14 @@ from datetime import datetime
 
 from flask import current_app
 
-from app.filename_utils import (directory_cluster_format,
-                                filename_all_kpi_list_pkl,
-                                filename_important_features_list_pkl,
-                                filename_kpi_list_pkl,
-                                filename_project_description_txt,
-                                filename_project_name_txt)
+from app.filename_utils import (
+    directory_cluster_format,
+    filename_all_kpi_list_pkl,
+    filename_important_features_list_pkl,
+    filename_kpi_list_pkl,
+    filename_project_description_txt,
+    filename_project_name_txt,
+)
 from config import Config
 
 

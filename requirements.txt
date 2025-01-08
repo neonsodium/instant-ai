@@ -38,3 +38,4 @@ tzdata==2024.1
 Werkzeug==3.0.4
 flask_cors
 flasgger==0.9.7.1
+flask-compress

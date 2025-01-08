@@ -2,6 +2,7 @@ import os
 
 from flasgger import Swagger
 from flask import Flask
+from flask_compress import Compress
 from flask_cors import CORS
 
 from app.celery_utils import make_celery
@@ -9,6 +10,7 @@ from config import Config, DevelopmentConfig, ProductionConfig, TestingConfig
 
 app = Flask(__name__)
 CORS(app)
+Compress(app)
 
 app.config["SWAGGER"] = {"title": "My API", "uiversion": 3}
 
@@ -38,7 +40,7 @@ from app.routes.project_routes import main_routes
 from app.routes.time_series_routes import time_series_routes
 
 template = {
-    "swagger": "2.0",
+    "swagger": "3.0",
     "info": {"title": "Instant-AI", "description": "Docs", "version": "0.6.5"},
 }
 app.config["SWAGGER"] = {

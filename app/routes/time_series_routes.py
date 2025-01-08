@@ -7,12 +7,6 @@ import plotly.io as pio
 from flasgger import swag_from
 from flask import Blueprint, jsonify, request
 
-from docs.time_series_route_swagger import (
-    time_series_figure_swagger,
-    encoded_columns_swagger,
-    categorical_columns_swagger,
-)
-
 from app.filename_utils import (
     filename_categorical_columns_list_pkl,
     filename_raw_data_csv,
@@ -20,6 +14,11 @@ from app.filename_utils import (
     filename_time_series_figure_pkl,
 )
 from app.os_utils import *
+from docs.time_series_route_swagger import (
+    categorical_columns_swagger,
+    encoded_columns_swagger,
+    time_series_figure_swagger,
+)
 
 time_series_routes = Blueprint("time_series", __name__)
 
