@@ -1,4 +1,6 @@
-# API Documentation (DEPRECATED!!!)
+# API Documentation (NOT DEPRECATED!!!)
+
+## Instant-Ai V2 coming soon, please contact Girish
 
 **Host:** `http://127.0.0.1:8009`
 
