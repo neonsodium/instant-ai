@@ -5,14 +5,9 @@ from datetime import datetime
 
 from flask import current_app
 
-from app.filename_utils import (
-    directory_cluster_format,
-    filename_all_kpi_list_pkl,
-    filename_important_features_list_pkl,
-    filename_kpi_list_pkl,
-    filename_project_description_txt,
-    filename_project_name_txt,
-)
+from app.utils.filename_utils import (directory_cluster_format,
+                                      filename_project_description_txt,
+                                      filename_project_name_txt)
 from config import Config
 
 
@@ -67,24 +62,28 @@ def create_directory(base_dir: str, *sub_dirs: str) -> dict:
     """
     Creates a nested directory structure under the specified base directory.
 
-    Usage:
-        create_project_directory(current_app.config[Config.PROJECTS_DIR_VAR_NAME], 'dir1', 'dir11', 'task123')
-        create_project_directory( project_dir_path(), 'dir1', 'dir11', 'task123')
-
     Args:
-        base_dir (str): base directory under which subdirectories will be created.
+        base_dir (str): Base directory under which subdirectories will be created.
         sub_dirs (str): Variable number of subdirectories to nest within the base directory.
 
     Returns:
-        dict: A response indicating 'success' or 'error' with a message.
+        dict: A response indicating 'success' or 'error' with a message and directory path.
     """
     directory_path = os_path_join_secure(base_dir, *sub_dirs)
 
     try:
         os.makedirs(directory_path, exist_ok=True)
-        return {"status": "success", "message": f"Directory created", "path": directory_path}
+        return {
+            "status": "success",
+            "message": "Directory created successfully.",
+            "path": directory_path,
+        }
     except OSError as e:
-        return {"status": "error", "message": f"Failed to create directory: {e}"}
+        return {
+            "status": "error",
+            "message": f"Failed to create directory: {str(e)}",
+            "path": directory_path,
+        }
 
 
 def all_project_dir_path() -> str:
@@ -177,34 +176,3 @@ def load_from_pickle(file_path):
     except (pickle.UnpicklingError, IOError) as e:
         print(f"Error loading from pickle file: {e}")
         return None
-
-
-def save_project_files(directory_project, kpi, important_features, kpi_list):
-    """
-    Saves important features, all KPI list, and individual KPI to files in the specified directory.
-
-    Parameters:
-        directory_project (str): The directory where the files will be saved.
-        kpi (str): The KPI name.
-        important_features (list): The list of important features.
-        kpi_list (list): The list of all KPIs.
-
-    Returns:
-        None
-    """
-    # Generate file paths
-    important_features_file = os.path.join(
-        directory_project, filename_important_features_list_pkl(kpi)
-    )
-    all_kpi_list_file = os.path.join(directory_project, filename_all_kpi_list_pkl())
-    kpi_file = os.path.join(directory_project, filename_kpi_list_pkl())
-
-    try:
-        # Save important features
-        save_to_pickle(important_features, important_features_file)
-        save_to_pickle(kpi_list, all_kpi_list_file)
-        save_to_pickle(kpi, kpi_file)
-
-    except Exception as e:
-        print(f"Error saving project files: {e}")
-        raise

@@ -7,18 +7,14 @@ from sklearn.mixture import GaussianMixture
 from sklearn.preprocessing import StandardScaler
 
 from app.data_preparation_ulits.label_encode_data import (
-    apply_label_encoding,
-    reverse_label_encoding,
-)
+    apply_label_encoding, reverse_label_encoding)
 from app.data_preparation_ulits.one_hot_encode import one_hot_encode_data
-from app.filename_utils import (
-    directory_cluster_format,
-    filename_categorical_columns_list_pkl,
-    filename_one_hot_encoded_data_csv,
-    filename_raw_data_csv,
-    filename_rev_one_hot_encoded_dict_pkl,
-)
-from app.os_utils import load_from_pickle, save_to_pickle
+from app.utils.filename_utils import (directory_cluster_format,
+                                      filename_categorical_columns_list_pkl,
+                                      filename_one_hot_encoded_data_csv,
+                                      filename_raw_data_csv,
+                                      filename_rev_one_hot_encoded_dict_pkl)
+from app.utils.os_utils import load_from_pickle, save_to_pickle
 
 
 def optimised_clustering(

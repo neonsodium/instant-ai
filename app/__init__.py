@@ -5,7 +5,7 @@ from flask import Flask
 from flask_compress import Compress
 from flask_cors import CORS
 
-from app.celery_utils import make_celery
+from app.utils.celery_utils import make_celery
 from config import Config, DevelopmentConfig, ProductionConfig, TestingConfig
 
 app = Flask(__name__)
