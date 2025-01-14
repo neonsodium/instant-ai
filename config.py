@@ -9,14 +9,19 @@ class Config:
     )
     DEBUG = False
     HOST = "127.0.0.1"
+
     PROJECTS_DIR = "projects"
+
     PROJECTS_DIR_VAR_NAME = "PROJECTS_DIR"
     REDIS_HOST = "localhost"
     REDIS_PORT = 6379
     REDIS_DB = 0
     CELERY_BROKER_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
     CELERY_RESULT_BACKEND = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
-    REDIS_TIMEOUT_TASK_ID = 60 * 30
+    REDIS_TIMEOUT_TASK_ID = 60 * 3000
+
+    MONGO_URI = "mongodb://localhost:27017"
+    MONGO_DB_NAME = "instant-ai"
 
     if platform.system() == "Darwin" or platform.system() == "Windows":  # MacOS coz i work on
         ENV = "development"
@@ -25,12 +30,10 @@ class Config:
     else:
         ENV = "testing"
 
-    ENV = "production"
-
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    PORT = 8080
+    PORT = 8009
     LOGIN_REQUIRED = True
 
 

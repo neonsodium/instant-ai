@@ -1,57 +1,135 @@
 import json
 import os
+from datetime import datetime
+from functools import wraps
 from hashlib import sha256
 
+import pandas as pd
 from redis import Redis
 
+from app import celery
 from app.data_preparation_ulits.drop_columns import drop_columns
-from app.data_preparation_ulits.label_encode_data import label_encode_data
-from app.data_preparation_ulits.one_hot_encode import one_hot_encode_data
-from app.filename_utils import *
 from app.ml_models.cluster import optimised_clustering
 from app.ml_models.feature_rank import generate_optimized_feature_rankings
 from app.ml_models.time_series import time_series_analysis
-from app.os_utils import save_to_pickle
+from app.models.project_model import ProjectModel
+from app.utils.filename_utils import *
+from app.utils.os_utils import save_to_pickle
 from config import Config
-
-from . import celery
 
 redis_client = Redis(host=Config.REDIS_HOST, port=Config.REDIS_PORT)
 
-
-@celery.task
-def async_drop_columns(directory_project: str, drop_column_list):
-    drop_columns(directory_project, drop_column_list)
-    return {"status": "Column removal process successfully."}
+project_model = ProjectModel()
 
 
-@celery.task
-def async_save_file(project_dir, file_content):
-    filepath_raw_data = os.path.join(project_dir, filename_raw_data_csv())
-    with open(filepath_raw_data, "wb") as f:
-        f.write(file_content)
-    # async_data_processer(project_dir)
-    return {"status": "File saved and processing started"}
+def delete_task_key(task_key, request_id):
+    if task_key:
+        redis_client.delete(task_key)
+    else:
+        print(f"Warning: Task key not found for task_id {request_id}")
+
+
+def update_task_status(collection, task_field):
+    """
+    A decorator to update task statuses in MongoDB and to remove task Id in Redis.
+
+    Args:
+        collection (pymongo.collection.Collection): The MongoDB collection instance.
+        task_field (str): The field in MongoDB where the task metadata is stored (e.g., "tasks", "column_drops").
+
+    Returns:
+        function: The wrapped function with task status management.
+    """
+
+    def decorator(func):
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            task_id = self.request.id
+            project_id = kwargs.get("project_id")
+            if not project_id:
+                raise ValueError("Project ID must be provided as a keyword argument.")
+
+            # Mark task as pending
+            task_status = {"status": "pending", "start_time": datetime.now().isoformat()}
+            collection.update_one(
+                {"_id": project_id, f"{task_field}.task_id": task_id},
+                {"$set": {f"{task_field}.$.status": task_status}},
+            )
+            task_key = kwargs.get("task_key")
+            try:
+                result = func(self, *args, **kwargs)
+
+                task_status = {"status": "completed", "completed_at": datetime.now().isoformat()}
+                collection.update_one(
+                    {"_id": project_id, f"{task_field}.task_id": task_id},
+                    {"$set": {f"{task_field}.$.status": task_status}},
+                )
+
+                delete_task_key(task_key, self.request.id)
+
+                return result
+
+            except Exception as e:
+                delete_task_key(task_key, self.request.id)
+
+                task_status = {
+                    "status": "failed",
+                    "error": str(e),
+                    "completed_at": datetime.now().isoformat(),
+                }
+                collection.update_one(
+                    {"_id": project_id, f"{task_field}.task_id": task_id},
+                    {"$set": {f"{task_field}.$.status": task_status}},
+                )
+                raise e
+
+        return wrapper
+
+    return decorator
 
 
 @celery.task(bind=True)
-def async_optimised_feature_rank(self, kpi, kpi_list, important_features, directory_project):
-    task_key = redis_client.get(f"task:{self.request.id}")  # Retrieve the associated task key
+@update_task_status(project_model.collection, "column_drops")
+def async_drop_columns(
+    self, directory_project: str, drop_column_list: list, project_id: str, task_key
+):
+    drop_columns(directory_project, drop_column_list)
+    return {"status": "Column removal process successfully completed."}
+
+
+@celery.task(bind=True)
+@update_task_status(project_model.collection, "tasks")
+def async_save_file(self, project_dir: str, file_content, project_id: str):
+    filepath_raw_data = os.path.join(project_dir, filename_raw_data_csv())
+    with open(filepath_raw_data, "wb") as f:
+        f.write(file_content)
+
+    df = pd.read_csv(filepath_raw_data)
+    columns = list(df.columns)
+
+    project_model.collection.update_one({"_id": project_id}, {"$set": {"columns": columns}})
+    return {"status": "File saved and processing completed successfully."}
+
+
+@celery.task(bind=True)
+@update_task_status(project_model.collection, "tasks")
+def async_optimised_feature_rank(
+    self, kpi, kpi_list, important_features, directory_project, project_id: str, task_key
+):
     try:
+        # TODO remove Pickle file
         drop_column_file = os.path.join(directory_project, filename_dropeed_column_data_csv())
         raw_data_file = os.path.join(directory_project, filename_raw_data_csv())
         generate_optimized_feature_rankings(
             kpi, kpi_list, important_features, directory_project, raw_data_file, drop_column_file
         )
         return {"status": "Feature ranking completed"}
-    finally:
-        if task_key:
-            redis_client.delete(task_key)
-        else:
-            print(f"Warning: Task key not found for task_id {self.request.id}")
+    except Exception as e:
+        raise e
 
 
 @celery.task(bind=True)
+@update_task_status(project_model.collection, "tasks")
 def async_time_series_analysis(
     self,
     directory_project_cluster,
@@ -62,8 +140,9 @@ def async_time_series_analysis(
     date_column,
     increase_factor,
     zero_value_replacement,
+    project_id: str,
+    task_key,
 ):
-    task_key = redis_client.get(f"task:{self.request.id}")  # Retrieve the associated task key
     try:
         fig = time_series_analysis(
             directory_project_cluster,
@@ -81,16 +160,15 @@ def async_time_series_analysis(
         )
 
         return {"status": "Analysis completed"}
-    finally:
-        if task_key:
-            redis_client.delete(task_key)
-        else:
-            print(f"Warning: Task key not found for task_id {self.request.id}")
+    except Exception as e:
+        raise e
 
 
 @celery.task(bind=True)
-def async_optimised_clustering(self, directory_project, input_file_path_feature_rank_pkl):
-    task_key = redis_client.get(f"task:{self.request.id}")  # Retrieve the associated task key
+@update_task_status(project_model.collection, "tasks")
+def async_optimised_clustering(
+    self, directory_project, input_file_path_feature_rank_pkl, project_id: str, task_key
+):
     try:
         drop_column_file = os.path.join(directory_project, filename_dropeed_column_data_csv())
         raw_data_file = os.path.join(directory_project, filename_raw_data_csv())
@@ -98,11 +176,8 @@ def async_optimised_clustering(self, directory_project, input_file_path_feature_
             directory_project, drop_column_file, raw_data_file, input_file_path_feature_rank_pkl
         )
         return {"status": "Clustering completed"}
-    finally:
-        if task_key:
-            redis_client.delete(task_key)
-        else:
-            print(f"Warning: Task key not found for task_id {self.request.id}")
+    except Exception as e:
+        raise e
 
 
 def generate_task_key(**kwargs):

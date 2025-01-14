@@ -4,25 +4,20 @@ import pickle
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.io as pio
-from flasgger import swag_from
 from flask import Blueprint, jsonify, request
 
-from app.filename_utils import (
-    filename_categorical_columns_list_pkl,
-    filename_raw_data_csv,
-    filename_rev_one_hot_encoded_dict_pkl,
-    filename_time_series_figure_pkl,
-)
-from app.os_utils import *
-from docs.time_series_route_swagger import (
-    categorical_columns_swagger,
-    encoded_columns_swagger,
-    time_series_figure_swagger,
-)
+from app.models.project_model import ProjectModel
+from app.utils.filename_utils import (filename_categorical_columns_list_pkl,
+                                      filename_raw_data_csv,
+                                      filename_rev_one_hot_encoded_dict_pkl,
+                                      filename_time_series_figure_pkl)
+from app.utils.os_utils import *
 
 time_series_routes = Blueprint("time_series", __name__)
+project_model = ProjectModel()
 
 
+# TODO More
 def get_encoded_columns_for_column(column_name, encoder, categorical_columns):
     """
     Get the encoded column names for a specific column after OneHotEncoding.
@@ -44,16 +39,18 @@ def get_encoded_columns_for_column(column_name, encoder, categorical_columns):
 
 
 @time_series_routes.route("/<project_id>/time-series/figure", methods=["POST", "GET"])
-@swag_from(time_series_figure_swagger)
 def get_time_series_figure(project_id):
     request_data_json = request.get_json()
     project_id = os.path.basename(request_data_json.get("project_id"))
-    level = int(request_data_json.get("level"))
     list_path = request_data_json.get("path")
     kpi = request_data_json.get("kpi", None)
 
-    directory_project = directory_project_path_full(project_id, [])
-    if not os.path.isdir(directory_project):
+    project = project_model.collection.find_one({"_id": project_id})
+    if not project:
+        return jsonify({"error": "Invalid Project ID"}), 400
+
+    directory_project_base = directory_project_path_full(project_id, [])
+    if not os.path.isdir(directory_project_base):
         return jsonify({"error": "Invalid Project ID"}), 400
 
     directory_project_cluster = directory_project_path_full(project_id, list_path)
@@ -77,19 +74,18 @@ def get_time_series_figure(project_id):
 
 
 @time_series_routes.route("/<project_id>/time-series/encoded-columns", methods=["POST"])
-@swag_from(encoded_columns_swagger)
 def get_one_hot_encoded_columns(project_id):
     request_data_json = request.get_json()
-    level = int(request_data_json.get("level"))
     list_path = request_data_json.get("path", [])
     column_name = request_data_json.get("column_name")
+
+    project = project_model.collection.find_one({"_id": project_id})
+    if not project:
+        return jsonify({"error": "Invalid Project ID"}), 400
 
     directory_project_base = directory_project_path_full(project_id, [])
     if not os.path.isdir(directory_project_base):
         return jsonify({"error": "Invalid Project ID"}), 404
-
-    if int(level) != len(list_path):
-        return jsonify({"error": "Level and Path don't match"}), 400
 
     directory_project_cluster = directory_project_path_full(project_id, list_path)
     if not os.path.exists(directory_project_cluster):
@@ -117,7 +113,6 @@ def get_one_hot_encoded_columns(project_id):
 
 
 @time_series_routes.route("/<project_id>/time-series/categorical-columns", methods=["POST"])
-@swag_from(categorical_columns_swagger)
 def list_categorical_columns(project_id):
     """
     Lists the categorical columns for the given project ID.
@@ -130,15 +125,15 @@ def list_categorical_columns(project_id):
     """
     try:
         request_data_json = request.get_json()
-        level = int(request_data_json.get("level"))
         list_path = request_data_json.get("path", [])
+
+        project = project_model.collection.find_one({"_id": project_id})
+        if not project:
+            return jsonify({"error": "Invalid Project ID"}), 400
 
         directory_project_base = directory_project_path_full(project_id, [])
         if not os.path.isdir(directory_project_base):
             return jsonify({"error": "Invalid Project ID"}), 404
-
-        if int(level) != len(list_path):
-            return jsonify({"error": "Level and Path don't match"}), 400
 
         directory_project_cluster = directory_project_path_full(project_id, list_path)
         if not os.path.exists(directory_project_cluster):
