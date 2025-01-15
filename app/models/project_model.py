@@ -53,8 +53,16 @@ class ProjectModel:
                 "id": str(proj["_id"]),  # Convert ObjectId to string
                 "name": proj["name"],
                 "description": proj["description"],
-                "created_at": proj["created_at"].isoformat() if proj["created_at"] else None,
-                "updated_at": proj["updated_at"].isoformat() if proj["updated_at"] else None,
+                "created_at": (
+                    datetime.fromisoformat(proj["created_at"]).isoformat()
+                    if isinstance(proj["created_at"], str)
+                    else proj["created_at"].isoformat() if proj["created_at"] else None
+                ),
+                "updated_at": (
+                    datetime.fromisoformat(proj["updated_at"]).isoformat()
+                    if isinstance(proj["updated_at"], str)
+                    else proj["updated_at"].isoformat() if proj["updated_at"] else None
+                ),
             }
             for proj in projects
         ]
