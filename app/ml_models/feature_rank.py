@@ -7,13 +7,12 @@ from app.data_preparation_ulits.label_encode_data import apply_label_encoding
 from app.ml_models.feature_ranking_ulits.extra_trees import extra_trees
 from app.ml_models.feature_ranking_ulits.f_test_anova import f_test_anova
 from app.ml_models.feature_ranking_ulits.mutual_info import mutual_info
-from app.ml_models.feature_ranking_ulits.permutation_importance_svr import \
-    permutation_importance_svr
+from app.ml_models.feature_ranking_ulits.permutation_importance_svr import (
+    permutation_importance_svr,
+)
 from app.ml_models.feature_ranking_ulits.random_forest import random_forest
-from app.ml_models.feature_ranking_ulits.seq_feature_selector import \
-    perform_feature_selection
-from app.utils.filename_utils import (filename_feature_rank_list_pkl,
-                                      filename_feature_rank_score_df)
+from app.ml_models.feature_ranking_ulits.seq_feature_selector import perform_feature_selection
+from app.utils.filename_utils import filename_feature_rank_list_pkl, filename_feature_rank_score_df
 from app.utils.os_utils import save_to_pickle
 
 

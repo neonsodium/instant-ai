@@ -11,7 +11,7 @@ fonttools==4.53.1
 holidays==0.55
 importlib_resources==6.4.4
 itsdangerous==2.2.0
-Jinja2==3.1.5
+Jinja2
 joblib==1.4.2
 kiwisolver==1.4.5
 MarkupSafe==2.1.5
@@ -35,8 +35,10 @@ tenacity==9.0.0
 threadpoolctl==3.5.0
 tqdm==4.66.5
 tzdata==2024.1
-Werkzeug==3.0.4
+Werkzeug
 flask_cors
 flasgger==0.9.7.1
 flask-compress
 pymongo==4.10.1
+mysql-connector-python
+psycopg2-binary
