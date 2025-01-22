@@ -2,7 +2,6 @@ import json
 import os
 from datetime import datetime
 
-import pandas as pd
 from flask import Blueprint, jsonify, request
 from redis import Redis
 from werkzeug.utils import secure_filename
@@ -10,11 +9,16 @@ from werkzeug.utils import secure_filename
 from app import celery
 from app.decorator import task_manager_decorator
 from app.models.project_model import ProjectModel
-from app.tasks import (async_drop_columns, async_optimised_clustering,
-                       async_optimised_feature_rank, async_save_file,
-                       async_time_series_analysis,
-                       filename_feature_rank_list_pkl)
-from app.utils.filename_utils import filename_raw_data_csv
+from app.tasks import (
+    async_drop_columns,
+    async_optimised_clustering,
+    async_optimised_feature_rank,
+    async_save_file,
+    async_time_series_analysis,
+    async_connector_table,
+)
+from app.utils.filename_utils import filename_raw_data_csv, filename_feature_rank_list_pkl
+from app.utils.model_utils import get_project_columns
 from app.utils.os_utils import directory_project_path_full
 from config import Config
 
@@ -43,7 +47,7 @@ def list_running_tasks():
 
 # Cant add decorator coz no json in request
 @processor_routes.route("/<project_id>/files/upload", methods=["POST"])
-def upload_project_file(project_id, task_key=None, task_params=None):
+def upload_project_file(project_id):
 
     directory_project_base = directory_project_path_full(project_id, [])
 
@@ -88,8 +92,7 @@ def upload_project_file(project_id, task_key=None, task_params=None):
             return jsonify({"error": "Failed to update project with file details"}), 500
 
         result = async_save_file.apply_async(
-            args=[directory_project_base, file.read()],  # Passing positional arguments
-            kwargs={"project_id": project_id},  # Passing project_id as a keyword argument
+            args=[directory_project_base, file.read()], kwargs={"project_id": project_id}
         )
 
         return (
@@ -114,7 +117,6 @@ def drop_columns_from_dataset(project_id, task_key=None, task_params=None):
     directory_project = directory_project_path_full(project_id, [])
     drop_column_list = request_data_json.get("column", [])
 
-    # Validate project existence in MongoDB
     project = project_model.collection.find_one({"_id": project_id})
     if not project:
         return jsonify({"error": "Invalid Project ID"}), 400
@@ -129,12 +131,10 @@ def drop_columns_from_dataset(project_id, task_key=None, task_params=None):
     if not drop_column_list:
         return jsonify({"error": "Invalid column list"}), 400
 
-    # Get the current column list from MongoDB
-    current_columns = project.get("columns", [])
-    # TODO Make function
-    if not current_columns:
-        df = pd.read_csv(raw_data_file)
-        current_columns = list(df.columns)
+    try:
+        current_columns = get_project_columns(project_id, raw_data_file)
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
 
     if not any(col in current_columns for col in drop_column_list):
         return (
@@ -165,6 +165,66 @@ def drop_columns_from_dataset(project_id, task_key=None, task_params=None):
         jsonify(
             {
                 "message": "Column dropping has started",
+                "task_id": result.id,
+                "project_id": project_id,
+            }
+        ),
+        202,
+    )
+
+
+@processor_routes.route("/<project_id>/dataset/connector", methods=["POST"])
+@task_manager_decorator("connector")
+def db_copy_project_file(project_id, task_key=None, task_params=None):
+    """
+        {
+    "db_config": {
+        "host": "localhost",
+        "user": "your_username",
+        "password": "your_password",
+        "database": "your_database"
+    },
+    "table": "your_table_name"
+    }
+    """
+    request_data_json = request.get_json()
+    db_config = request_data_json.get("db_config")
+    db_table_name = request_data_json.get("table")
+
+    directory_project_base = directory_project_path_full(project_id, [])
+
+    project = project_model.collection.find_one({"_id": project_id})
+    if not project:
+        return jsonify({"error": "Invalid Project ID"}), 400
+
+    if not os.path.isdir(directory_project_base):
+        return jsonify({"error": "Project directory not found"}), 400
+
+    result = async_connector_table.apply_async(
+        args=[directory_project_base, db_config, db_table_name],
+        kwargs={"project_id": project_id, "task_key": task_key},
+    )
+
+    file_path = os.path.join(directory_project_base, filename_raw_data_csv())
+    db_coonector_metadata = {
+        "db_name": db_config.get("database"),
+        "db_table": db_table_name,
+        "file_path": file_path,
+        "uploaded_at": datetime.now().isoformat(),
+    }
+
+    if (
+        project_model.collection.update_one(
+            {"_id": project_id}, {"$push": {"files": db_coonector_metadata}}
+        ).modified_count
+        == 0
+    ):
+        return jsonify({"error": "Failed to update project with file details"}), 500
+
+    return (
+        jsonify(
+            {
+                "message": "File processing has started",
                 "task_id": result.id,
                 "project_id": project_id,
             }

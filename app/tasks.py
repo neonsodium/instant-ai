@@ -4,6 +4,11 @@ from datetime import datetime
 from functools import wraps
 from hashlib import sha256
 
+# connectors
+import mysql.connector
+import csv
+import os
+
 import pandas as pd
 from redis import Redis
 
@@ -13,7 +18,11 @@ from app.ml_models.cluster import optimised_clustering
 from app.ml_models.feature_rank import generate_optimized_feature_rankings
 from app.ml_models.time_series import time_series_analysis
 from app.models.project_model import ProjectModel
-from app.utils.filename_utils import *
+from app.utils.filename_utils import (
+    filename_raw_data_csv,
+    filename_dropeed_column_data_csv,
+    filename_time_series_figure_pkl,
+)
 from app.utils.os_utils import save_to_pickle
 from config import Config
 
@@ -98,9 +107,47 @@ def async_drop_columns(
 
 
 @celery.task(bind=True)
+@update_task_status(project_model.collection, "connector")
+def async_connector_table(
+    self, directory_project: str, db_config, db_table_name, project_id: str, task_key
+):
+    filepath_raw_data = os.path.join(directory_project, filename_raw_data_csv())
+
+    try:
+        # Connect to the database
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        # Fetch data from the table
+        query = f"SELECT * FROM {db_table_name}"
+        cursor.execute(query)
+        rows = cursor.fetchall()
+
+        # Get column names
+        column_names = [desc[0] for desc in cursor.description]
+
+        # Write data to CSV
+        with open(filepath_raw_data, "w", newline="", encoding="utf-8") as file:
+            writer = csv.writer(file)
+            writer.writerow(column_names)  # Write headers
+            writer.writerows(rows)  # Write data rows
+
+        cursor.close()
+        conn.close()
+
+        return {"status": "File saved and processing completed successfully."}
+
+    except mysql.connector.Error as err:
+        return {"status": "Database error: " + str(err)}
+
+    except Exception as e:
+        return {"status": "Error: " + str(e)}
+
+
+@celery.task(bind=True)
 @update_task_status(project_model.collection, "tasks")
-def async_save_file(self, project_dir: str, file_content, project_id: str):
-    filepath_raw_data = os.path.join(project_dir, filename_raw_data_csv())
+def async_save_file(self, directory_project: str, file_content, project_id: str):
+    filepath_raw_data = os.path.join(directory_project, filename_raw_data_csv())
     with open(filepath_raw_data, "wb") as f:
         f.write(file_content)
 
