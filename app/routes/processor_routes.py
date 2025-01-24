@@ -191,12 +191,11 @@ def db_copy_project_file(project_id, task_key=None, task_params=None):
     db_config = request_data_json.get("db_config")
     db_table_name = request_data_json.get("table")
 
-    directory_project_base = directory_project_path_full(project_id, [])
-
     project = project_model.collection.find_one({"_id": project_id})
     if not project:
         return jsonify({"error": "Invalid Project ID"}), 400
 
+    directory_project_base = directory_project_path_full(project_id, [])
     if not os.path.isdir(directory_project_base):
         return jsonify({"error": "Project directory not found"}), 400
 
