@@ -1,7 +1,5 @@
 # API Documentation (NOT DEPRECATED!!!)
 
-## Instant-Ai V2 coming soon, please contact Girish
-
 **Host:** `http://127.0.0.1:8009`
 
 ---
@@ -143,12 +141,11 @@
 - **Parameters:**
   - `project_id` (string): ID of the project.
   - `kpi` (string): Variable to cluster.
-  - `level` (int): Clustering level.
   - `path` (array): Path of the clustering hierarchy.
 - **Example:**
 
   ```bash
-  curl http://127.0.0.1:8009/projects/PROJECT_ID/clusters/subcluster -H "Content-Type: application/json" -d '{ "kpi": "kpi", "level": 0, "path": [] }'
+  curl http://127.0.0.1:8009/projects/PROJECT_ID/clusters/subcluster -H "Content-Type: application/json" -d '{ "kpi": "kpi", "path": [] }'
   ```
 
 ---
@@ -160,12 +157,11 @@
 - **Description:** Summarizes the clustering results.
 - **Parameters:**
   - `project_id` (string): ID of the project.
-  - `level` (int): Clustering level.
   - `path` (array): Path of the clustering hierarchy.
 - **Example:**
 
   ```bash
-  curl http://127.0.0.1:8009/projects/PROJECT_ID/clusters/summarize -H "Content-Type: application/json" -d '{ "level": 0, "path": [] }'
+  curl http://127.0.0.1:8009/projects/PROJECT_ID/clusters/summarize -H "Content-Type: application/json" -d '{ "path": [] }'
   ```
 
 ---
@@ -177,12 +173,11 @@
 - **Description:** Download the sub clustering results as a csv file.
 - **Parameters:**
   - `project_id` (string): ID of the project.
-  - `level` (int): Clustering level.
   - `path` (array): Path of the clustering hierarchy.
 - **Example:**
 
   ```bash
-  curl http://127.0.0.1:8009/projects/PROJECT_ID/clusters/download -H "Content-Type: application/json" -d '{ "level": 2, "path": [1,2] }'
+  curl http://127.0.0.1:8009/projects/PROJECT_ID/clusters/download -H "Content-Type: application/json" -d '{ "path": [1,2] }'
   ```
 
 ---
@@ -194,7 +189,6 @@
 - **Description:** Service site trend graph of the time series
 - **Parameters:**
   - `project_id` (string): ID of the project.
-  - `level` (int): Clustering level.
   - `path` (array): Path of the clustering hierarchy.
   - `kpi` (string): The target KPI for Time series Analysis.
   - `user_added_vars_list` (list): User added target variables.
@@ -207,7 +201,6 @@
   ```bash
   curl -X POST http://127.0.0.1:8009/projects/PROJECT_ID/time-series/analysis -H "Content-Type: application/json" -d '{
     "user_added_vars_list": ["var1", "var2"],
-    "level": 2,
     "path": [0, 1],
     "kpi": "sales",
     "no_of_months": 6,
@@ -226,7 +219,6 @@
 - **Description:** Retrieves a list of all the encoded categories for a categorical column, which are used as input for time-series Graph user_added_vars_list.
 - **Parameters:**
   - `project_id` (string): The ID of the project.
-  - `level` (int): The clustering level.
   - `path` (array): The path of the clustering hierarchy.
   - `column_name` (string): The name of the column.
 - **Example:**
@@ -235,7 +227,6 @@
   curl -X POST http://localhost:8009/projects/PROJECT_ID/time-series/encoded-columns \
   -H "Content-Type: application/json" \
   -d '{
-        "level": 1,
         "path": [1],
         "column_name": "Material"
       }'
@@ -250,7 +241,6 @@
 - **Description:** Retrieves a list of all categorical columns, which are used as input for encoded columns.
 - **Parameters:**
   - `project_id` (string): The ID of the project.
-  - `level` (int): The clustering level.
   - `path` (array): The path of the clustering hierarchy.
 - **Example:**
 
@@ -258,7 +248,6 @@
   curl -X POST http://localhost:8009/projects/PROJECT_ID/time-series/categorical-columns \
   -H "Content-Type: application/json" \
   -d '{
-        "level": 1,
         "path": [1]
       }'
   ```
@@ -283,6 +272,30 @@ curl http://localhost:8080/projects/tasks/running
 ---
 
 This allows users to track ongoing tasks and their associated metadata.
+
+## **MySQL DB connec
+
+- **Endpoint:** `/projects/<project_id>/dataset/connector`
+- **Method:** `POST`
+- **Description:** Connect to the DB, and Convert the table to CSV file rather than using upload method. Note: will not work on Cloud.
+- **Parameters:**
+  - `project_id` (string): The ID of the project.
+  - `path` (array): The path of the clustering hierarchy.
+- **Example:**
+
+  ```bash
+  curl -X POST http://localhost:8009/projects/PROJECT_ID/dataset/connector \
+  -H "Content-Type: application/json" \
+  -d '{
+    "db_config": {
+        "host": "localhost",
+        "user": "your_username",
+        "password": "your_password",
+        "database": "your_database"
+    },
+    "table": "your_table_name"
+    }'
+  ```
 
 ### Notes
 
