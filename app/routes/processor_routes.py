@@ -16,6 +16,7 @@ from app.tasks import (
     async_save_file,
     async_time_series_analysis,
     async_connector_table,
+    async_mapping_columns,
 )
 from app.utils.filename_utils import filename_raw_data_csv, filename_feature_rank_list_pkl
 from app.utils.model_utils import get_project_columns
@@ -136,6 +137,15 @@ def drop_columns_from_dataset(project_id, task_key=None, task_params=None):
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
 
+    missing_columns = [col for col in drop_column_list if col not in current_columns]
+    if missing_columns:
+        return (
+            jsonify(
+                {"error": f"The following columns are missing in the dataset: {missing_columns}"}
+            ),
+            400,
+        )
+
     if not any(col in current_columns for col in drop_column_list):
         return (
             jsonify({"error": "None of the specified columns to drop exist in the dataset."}),
@@ -165,6 +175,82 @@ def drop_columns_from_dataset(project_id, task_key=None, task_params=None):
         jsonify(
             {
                 "message": "Column dropping has started",
+                "task_id": result.id,
+                "project_id": project_id,
+            }
+        ),
+        202,
+    )
+
+
+@processor_routes.route("/<project_id>/dataset/columns/mapping", methods=["POST"])
+@task_manager_decorator("mapping_columns")
+def mapping_columns_from_dataset(project_id, task_key=None, task_params=None):
+    request_data_json = request.get_json()
+
+    # Validate project directory
+    directory_project = directory_project_path_full(project_id, [])
+    if not os.path.isdir(directory_project):
+        return jsonify({"error": "Project directory not found"}), 400
+
+    # Validate raw data file
+    raw_data_file = os.path.join(directory_project, filename_raw_data_csv())
+    if not os.path.isfile(raw_data_file):
+        return jsonify({"message": "Dataset not uploaded"}), 400
+
+    # Validate column mapping
+    column_name_mapping = request_data_json.get("column_mapping")
+    if not column_name_mapping:
+        return jsonify({"error": "Missing 'column_mapping' in request"}), 400
+
+    if isinstance(column_name_mapping, str):
+        try:
+            column_name_mapping = json.loads(column_name_mapping)
+        except json.JSONDecodeError as e:
+            return jsonify({"error": f"Invalid JSON format: {str(e)}"}), 400
+    elif not isinstance(column_name_mapping, dict):
+        return jsonify({"error": "'column_mapping' must be a JSON object"}), 400
+
+    # Validate project
+    project = project_model.collection.find_one({"_id": project_id})
+    if not project:
+        return jsonify({"error": "Invalid Project ID"}), 400
+
+    # Check columns in dataset
+    try:
+        current_columns = get_project_columns(project_id, raw_data_file)
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+
+    missing_columns = [col for col in column_name_mapping if col not in current_columns]
+    if missing_columns:
+        return (
+            jsonify(
+                {"error": f"The following columns do not exist in the dataset: {missing_columns}"}
+            ),
+            400,
+        )
+
+    # Start async column mapping task
+    result = async_mapping_columns.apply_async(
+        args=[directory_project, column_name_mapping],
+        kwargs={"project_id": project_id, "task_key": task_key},
+    )
+
+    # Prepare metadata for MongoDB update
+    column_mapping_metadata = {
+        "column_mapping": column_name_mapping,
+        "updated_at": datetime.now().isoformat(),
+        "task_id": result.id,
+    }
+
+    updated_columns = [column_name_mapping.get(col, col) for col in current_columns]
+    project_model.collection.update_one({"_id": project_id}, {"$set": {"columns": updated_columns}})
+
+    return (
+        jsonify(
+            {
+                "message": "Column mapping has started",
                 "task_id": result.id,
                 "project_id": project_id,
             }
