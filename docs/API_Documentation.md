@@ -273,29 +273,71 @@ curl http://localhost:8080/projects/tasks/running
 
 This allows users to track ongoing tasks and their associated metadata.
 
-## **MySQL DB connec
+Here’s a cleaned-up version of your Markdown content for better readability and consistency:
+
+---
+
+## **MySQL DB Connect**
 
 - **Endpoint:** `/projects/<project_id>/dataset/connector`
 - **Method:** `POST`
-- **Description:** Connect to the DB, and Convert the table to CSV file rather than using upload method. Note: will not work on Cloud.
+- **Description:**  
+  Connect to the database and convert the specified table to a CSV file, bypassing the upload method. **Note:** This feature does not work on Cloud.
 - **Parameters:**
-  - `project_id` (string): The ID of the project.
-  - `path` (array): The path of the clustering hierarchy.
+- `project_id` (string): The ID of the project.
+- `db_config` (object): Database connection configuration, including:
+  - `host` (string): The database host.
+  - `user` (string): The username for database authentication.
+  - `password` (string): The password for database authentication.
+  - `database` (string): The name of the database.
+- `table` (string): The name of the table to export.
+
+### **Example**
+
+```bash
+curl -X POST http://localhost:8009/projects/PROJECT_ID/dataset/connector \
+-H "Content-Type: application/json" \
+-d '{
+  "db_config": {
+      "host": "localhost",
+      "user": "your_username",
+      "password": "your_password",
+      "database": "your_database"
+  },
+  "table": "your_table_name"
+}'
+```
+
+---
+
+## **Column Mapping**
+
+- **Endpoint:** `/projects/<project_id>/dataset/columns/mapping`
+- **Method:** `POST`
+- **Description:**  
+  Map or rename columns within a dataset.
+- **Parameters:**
+- `project_id` (string): The ID of the project.
+- `column_mapping` (object): Key-value pairs mapping original column names to their new names.
+
 - **Example:**
 
-  ```bash
-  curl -X POST http://localhost:8009/projects/PROJECT_ID/dataset/connector \
-  -H "Content-Type: application/json" \
-  -d '{
-    "db_config": {
-        "host": "localhost",
-        "user": "your_username",
-        "password": "your_password",
-        "database": "your_database"
-    },
-    "table": "your_table_name"
-    }'
-  ```
+```bash
+curl -X POST http://localhost:8009/projects/PROJECT_ID/dataset/columns/mapping \
+-H "Content-Type: application/json" \
+-d '{
+  "column_mapping": {
+      "COLUMN1": "RENAMED_COLUMN1",
+      "COLUMN2": "RENAMED_COLUMN2",
+      "COLUMN3": "RENAMED_COLUMN3",
+      "COLUMN4": "RENAMED_COLUMN4"
+  }
+}'
+```
+
+---
+
+This version improves clarity and formatting while keeping the information intact.
 
 ### Notes
 

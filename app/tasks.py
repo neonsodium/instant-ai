@@ -14,6 +14,7 @@ from redis import Redis
 
 from app import celery
 from app.data_preparation_ulits.drop_columns import drop_columns
+from app.data_preparation_ulits.mapping_columns import mapping_columns
 from app.ml_models.cluster import optimised_clustering
 from app.ml_models.feature_rank import generate_optimized_feature_rankings
 from app.ml_models.time_series import time_series_analysis
@@ -103,6 +104,15 @@ def async_drop_columns(
     self, directory_project: str, drop_column_list: list, project_id: str, task_key
 ):
     drop_columns(directory_project, drop_column_list)
+    return {"status": "Column removal process successfully completed."}
+
+
+@celery.task(bind=True)
+@update_task_status(project_model.collection, "mapping_columns")
+def async_mapping_columns(
+    self, directory_project: str, column_name_mapping: list, project_id: str, task_key
+):
+    mapping_columns(directory_project, column_name_mapping)
     return {"status": "Column removal process successfully completed."}
 
 
