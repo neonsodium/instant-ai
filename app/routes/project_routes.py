@@ -2,6 +2,7 @@ import os
 
 import pandas as pd
 from flask import Blueprint, jsonify, request, send_file
+from functools import wraps
 
 from app.data_preparation_ulits.preprocessing_engine import validate_df
 from app.ml_models.summarising import summerise_cluster
@@ -16,6 +17,28 @@ from app.utils.os_utils import directory_project_path_full, list_sub_directories
 
 project_model = ProjectModel()
 main_routes = Blueprint("main_routes", __name__)
+
+
+def validate_project(project_id):
+    project = project_model.collection.find_one({"_id": project_id})
+    if not project:
+        return jsonify({"error": "Invalid Project ID"}), 400
+    directory_project_base = directory_project_path_full(project_id, [])
+    if not os.path.isdir(directory_project_base):
+        return jsonify({"error": "Project directory not found"}), 400
+    return None
+
+
+def project_validation_decorator(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        project_id = kwargs.get("project_id")
+        validation_response = validate_project(project_id)
+        if validation_response:
+            return validation_response
+        return f(*args, **kwargs)
+
+    return decorated_function
 
 
 @main_routes.route("/", methods=["GET"])
@@ -61,18 +84,11 @@ def create_project():
 
 
 @main_routes.route("/<project_id>/clusters", methods=["POST"])
+@project_validation_decorator
 def get_cluster_info(project_id):
 
     request_data_json = request.get_json()
     list_path = request_data_json.get("path")
-
-    project = project_model.collection.find_one({"_id": project_id})
-    if not project:
-        return jsonify({"error": "Invalid Project ID"}), 400
-
-    directory_project_base = directory_project_path_full(project_id, [])
-    if not os.path.isdir(directory_project_base):
-        return jsonify({"error": "Invalid Project ID"}), 404
 
     directory_project_cluster = directory_project_path_full(project_id, list_path)
     if not os.path.exists(directory_project_cluster):
@@ -86,18 +102,11 @@ def get_cluster_info(project_id):
 
 
 @main_routes.route("/<project_id>/clusters/download", methods=["POST"])
+@project_validation_decorator
 def download_cluster_data(project_id):
 
     request_data_json = request.get_json()
     list_path: list = request_data_json.get("path")
-
-    project = project_model.collection.find_one({"_id": project_id})
-    if not project:
-        return jsonify({"error": "Invalid Project ID"}), 400
-
-    directory_project_base = directory_project_path_full(project_id, [])
-    if not os.path.isdir(directory_project_base):
-        return jsonify({"error": "Invalid Project ID"}), 404
 
     directory_project_cluster = directory_project_path_full(project_id, list_path)
     if not os.path.exists(directory_project_cluster):
@@ -109,18 +118,12 @@ def download_cluster_data(project_id):
 
 
 @main_routes.route("/<project_id>/clusters/summarize", methods=["POST"])
+@project_validation_decorator
 def summarize_cluster_info(project_id):
     request_data_json = request.get_json()
     list_path = request_data_json.get("path")
 
-    project = project_model.collection.find_one({"_id": project_id})
-    if not project:
-        return jsonify({"error": "Invalid Project ID"}), 400
-
     directory_project_cluster = directory_project_path_full(project_id, list_path)
-    if not os.path.exists(directory_project_cluster):
-        return (jsonify({"error": "Cluster Does not exists.", "project_id": project_id}), 404)
-
     clusters = list_sub_directories(directory_project_cluster)
     all_clusters_summary = []
 
@@ -135,16 +138,12 @@ def summarize_cluster_info(project_id):
 
 
 @main_routes.route("/<project_id>/dataset/validate", methods=["GET", "POST"])
+@project_validation_decorator
 def validate_dataset(project_id):
-    directory_project = directory_project_path_full(project_id, [])
-    if not os.path.isdir(directory_project):
-        return jsonify({"error": "Invalid Project ID"}), 400
 
-    project = project_model.collection.find_one({"_id": project_id})
-    if not project:
-        return jsonify({"error": "Invalid Project ID"}), 400
-
-    raw_data_file = os.path.join(directory_project, filename_raw_data_csv())
+    raw_data_file = os.path.join(
+        directory_project_path_full(project_id, []), filename_raw_data_csv()
+    )
     if not os.path.isfile(raw_data_file):
         return jsonify({"message": "Data set not uploaded"}), 400
 
@@ -152,14 +151,12 @@ def validate_dataset(project_id):
 
 
 @main_routes.route("/<project_id>/dataset/columns", methods=["GET", "POST"])
+@project_validation_decorator
 def list_dataset_columns(project_id):
-    directory_project = directory_project_path_full(project_id, [])
 
-    project = project_model.collection.find_one({"_id": project_id})
-    if not project:
-        return jsonify({"error": "Invalid Project ID"}), 400
-
-    raw_data_file = os.path.join(directory_project, filename_raw_data_csv())
+    raw_data_file = os.path.join(
+        directory_project_path_full(project_id, []), filename_raw_data_csv()
+    )
     if not os.path.isfile(raw_data_file):
         return jsonify({"message": "Data set not uploaded"}), 400
 

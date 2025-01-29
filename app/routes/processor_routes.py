@@ -5,6 +5,7 @@ from datetime import datetime
 from flask import Blueprint, jsonify, request
 from redis import Redis
 from werkzeug.utils import secure_filename
+from functools import wraps
 
 from app import celery
 from app.decorator import task_manager_decorator
@@ -28,6 +29,28 @@ redis_client = Redis(host=Config.REDIS_HOST, port=Config.REDIS_PORT)
 project_model = ProjectModel()
 
 
+def validate_project(project_id):
+    project = project_model.collection.find_one({"_id": project_id})
+    if not project:
+        return jsonify({"error": "Invalid Project ID"}), 400
+    directory_project_base = directory_project_path_full(project_id, [])
+    if not os.path.isdir(directory_project_base):
+        return jsonify({"error": "Project directory not found"}), 400
+    return None
+
+
+def project_validation_decorator(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        project_id = kwargs.get("project_id")
+        validation_response = validate_project(project_id)
+        if validation_response:
+            return validation_response
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
 @processor_routes.route("/tasks/<task_id>/status", methods=["GET", "POST"])
 def get_task_status_by_id(task_id):
     result = celery.AsyncResult(task_id)
@@ -48,21 +71,14 @@ def list_running_tasks():
 
 # Cant add decorator coz no json in request
 @processor_routes.route("/<project_id>/files/upload", methods=["POST"])
+@project_validation_decorator
 def upload_project_file(project_id):
-
-    directory_project_base = directory_project_path_full(project_id, [])
-
-    project = project_model.collection.find_one({"_id": project_id})
-    if not project:
-        return jsonify({"error": "Invalid Project ID"}), 400
-
-    if not os.path.isdir(directory_project_base):
-        return jsonify({"error": "Invalid Project ID"}), 400
 
     if "file" not in request.files:
         return jsonify({"error": "No file part in the request"}), 400
 
     file = request.files["file"]
+    directory_project_base = directory_project_path_full(project_id, [])
 
     if file:
         filename = secure_filename(file.filename)
@@ -112,20 +128,15 @@ def upload_project_file(project_id):
 
 @processor_routes.route("/<project_id>/dataset/columns/drop", methods=["POST"])
 @task_manager_decorator("drop_columns")
+@project_validation_decorator
 def drop_columns_from_dataset(project_id, task_key=None, task_params=None):
     request_data_json = request.get_json()
 
-    directory_project = directory_project_path_full(project_id, [])
     drop_column_list = request_data_json.get("column", [])
 
-    project = project_model.collection.find_one({"_id": project_id})
-    if not project:
-        return jsonify({"error": "Invalid Project ID"}), 400
-
-    if not os.path.isdir(directory_project):
-        return jsonify({"error": "Project directory not found"}), 400
-
-    raw_data_file = os.path.join(directory_project, filename_raw_data_csv())
+    raw_data_file = os.path.join(
+        directory_project_path_full(project_id, []), filename_raw_data_csv()
+    )
     if not os.path.isfile(raw_data_file):
         return jsonify({"message": "Data set not uploaded"}), 400
 
@@ -155,7 +166,7 @@ def drop_columns_from_dataset(project_id, task_key=None, task_params=None):
     updated_columns = [col for col in current_columns if col not in drop_column_list]
 
     result = async_drop_columns.apply_async(
-        args=[directory_project, drop_column_list],
+        args=[raw_data_file, drop_column_list],
         kwargs={"project_id": project_id, "task_key": task_key},
     )
 
@@ -185,16 +196,14 @@ def drop_columns_from_dataset(project_id, task_key=None, task_params=None):
 
 @processor_routes.route("/<project_id>/dataset/columns/mapping", methods=["POST"])
 @task_manager_decorator("mapping_columns")
+@project_validation_decorator
 def mapping_columns_from_dataset(project_id, task_key=None, task_params=None):
     request_data_json = request.get_json()
 
-    # Validate project directory
-    directory_project = directory_project_path_full(project_id, [])
-    if not os.path.isdir(directory_project):
-        return jsonify({"error": "Project directory not found"}), 400
-
     # Validate raw data file
-    raw_data_file = os.path.join(directory_project, filename_raw_data_csv())
+    raw_data_file = os.path.join(
+        directory_project_path_full(project_id, []), filename_raw_data_csv()
+    )
     if not os.path.isfile(raw_data_file):
         return jsonify({"message": "Dataset not uploaded"}), 400
 
@@ -233,7 +242,7 @@ def mapping_columns_from_dataset(project_id, task_key=None, task_params=None):
 
     # Start async column mapping task
     result = async_mapping_columns.apply_async(
-        args=[directory_project, column_name_mapping],
+        args=[raw_data_file, column_name_mapping],
         kwargs={"project_id": project_id, "task_key": task_key},
     )
 
@@ -261,6 +270,7 @@ def mapping_columns_from_dataset(project_id, task_key=None, task_params=None):
 
 @processor_routes.route("/<project_id>/dataset/connector", methods=["POST"])
 @task_manager_decorator("connector")
+@project_validation_decorator
 def db_copy_project_file(project_id, task_key=None, task_params=None):
     """
         {
@@ -277,20 +287,12 @@ def db_copy_project_file(project_id, task_key=None, task_params=None):
     db_config = request_data_json.get("db_config")
     db_table_name = request_data_json.get("table")
 
-    project = project_model.collection.find_one({"_id": project_id})
-    if not project:
-        return jsonify({"error": "Invalid Project ID"}), 400
-
-    directory_project_base = directory_project_path_full(project_id, [])
-    if not os.path.isdir(directory_project_base):
-        return jsonify({"error": "Project directory not found"}), 400
-
+    file_path = os.path.join(directory_project_path_full(project_id, []), filename_raw_data_csv())
     result = async_connector_table.apply_async(
-        args=[directory_project_base, db_config, db_table_name],
+        args=[file_path, db_config, db_table_name],
         kwargs={"project_id": project_id, "task_key": task_key},
     )
 
-    file_path = os.path.join(directory_project_base, filename_raw_data_csv())
     db_coonector_metadata = {
         "db_name": db_config.get("database"),
         "db_table": db_table_name,
@@ -320,16 +322,14 @@ def db_copy_project_file(project_id, task_key=None, task_params=None):
 
 @processor_routes.route("/<project_id>/features/ranking", methods=["POST"])
 @task_manager_decorator("feature_ranking")
+@project_validation_decorator
 def start_feature_ranking(project_id, task_key=None, task_params=None):
     request_data_json = request.get_json()
     kpi_list = request_data_json.get("kpi_list", [])
     important_features = request_data_json.get("important_features", [])
     kpi = request_data_json.get("kpi")
 
-    # Validate the project and dataset
-    project = project_model.collection.find_one({"_id": project_id})
-    if not project or not os.path.isdir(directory_project_path_full(project_id, [])):
-        return jsonify({"error": "Invalid Project ID"}), 400
+    # Validate dataset
 
     if not os.path.isfile(
         os.path.join(directory_project_path_full(project_id, []), filename_raw_data_csv())
@@ -359,6 +359,7 @@ def start_feature_ranking(project_id, task_key=None, task_params=None):
 
 @processor_routes.route("/<project_id>/clusters/subcluster", methods=["POST"])
 @task_manager_decorator("clustering")
+@project_validation_decorator
 def initiate_subclustering(project_id, task_key=None, task_params=None):
     request_data_json = request.get_json()
     list_path = request_data_json.get("path")
@@ -367,8 +368,6 @@ def initiate_subclustering(project_id, task_key=None, task_params=None):
     # Validate project and file paths
     project = project_model.collection.find_one({"_id": project_id})
     directory_project_base = directory_project_path_full(project_id, [])
-    if not project or not os.path.isdir(directory_project_base):
-        return jsonify({"error": "Invalid Project ID"}), 400
 
     if not os.path.isfile(os.path.join(directory_project_base, filename_raw_data_csv())):
         return jsonify({"message": "Data set not uploaded"}), 400
@@ -399,6 +398,7 @@ def initiate_subclustering(project_id, task_key=None, task_params=None):
 
 @processor_routes.route("/<project_id>/time-series/analysis", methods=["POST"])
 @task_manager_decorator("time_series_analysis")
+@project_validation_decorator
 def initiate_time_series(project_id, task_key=None, task_params=None):
     request_data_json = request.get_json()
     user_added_vars_list = request_data_json.get("user_added_vars_list", [])
@@ -408,14 +408,6 @@ def initiate_time_series(project_id, task_key=None, task_params=None):
     date_column = request_data_json.get("date_column")
     increase_factor = request_data_json.get("increase_factor")
     zero_value_replacement = request_data_json.get("zero_value_replacement")
-
-    project = project_model.collection.find_one({"_id": project_id})
-    if not project:
-        return jsonify({"error": "Invalid Project ID"}), 400
-
-    directory_project = directory_project_path_full(project_id, [])
-    if not os.path.isdir(directory_project):
-        return jsonify({"error": "Invalid Project ID"}), 400
 
     directory_project_cluster = directory_project_path_full(project_id, list_path)
     if not os.path.exists(directory_project_cluster):
