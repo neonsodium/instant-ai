@@ -2,7 +2,7 @@ import pandas as pd
 
 from app.models.project_model import ProjectModel
 from app.utils.filename_utils import create_project_uuid
-from app.utils.os_utils import create_directory, all_project_dir_path
+from app.utils.os_utils import all_project_dir_path, create_directory
 
 project_model = ProjectModel()
 
