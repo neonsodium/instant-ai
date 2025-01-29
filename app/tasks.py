@@ -100,28 +100,25 @@ def update_task_status(collection, task_field):
 
 @celery.task(bind=True)
 @update_task_status(project_model.collection, "column_drops")
-def async_drop_columns(
-    self, directory_project: str, drop_column_list: list, project_id: str, task_key
-):
-    drop_columns(directory_project, drop_column_list)
+def async_drop_columns(self, file_path: str, drop_column_list: list, project_id: str, task_key):
+    drop_columns(file_path, drop_column_list)
     return {"status": "Column removal process successfully completed."}
 
 
 @celery.task(bind=True)
 @update_task_status(project_model.collection, "mapping_columns")
 def async_mapping_columns(
-    self, directory_project: str, column_name_mapping: list, project_id: str, task_key
+    self, file_path: str, column_name_mapping: list, project_id: str, task_key
 ):
-    mapping_columns(directory_project, column_name_mapping)
+    mapping_columns(file_path, column_name_mapping)
     return {"status": "Column removal process successfully completed."}
 
 
 @celery.task(bind=True)
 @update_task_status(project_model.collection, "connector")
 def async_connector_table(
-    self, directory_project: str, db_config, db_table_name, project_id: str, task_key
+    self, filepath_raw_data: str, db_config, db_table_name, project_id: str, task_key
 ):
-    filepath_raw_data = os.path.join(directory_project, filename_raw_data_csv())
 
     try:
         # Connect to the database

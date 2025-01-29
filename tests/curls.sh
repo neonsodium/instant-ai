@@ -14,6 +14,7 @@ curl http://127.0.0.1:8009/projects/df274957-cb1c-44c8-91af-e5f4cd4f9ce5/status
 curl http://127.0.0.1:8009/projects/df274957-cb1c-44c8-91af-e5f4cd4f9ce5/dataset/columns
 curl http://127.0.0.1:8009/projects/df274957-cb1c-44c8-91af-e5f4cd4f9ce5/status
 
+curl http://127.0.0.1:8009/projects/df274957-cb1c-44c8-91af-e5f4cd4f9ce5/dataset/columns/mapping -H "Content-Type: application/json" -d '{  "column_mapping": {      "Invoice No": "Invoice_Number",    "Order Date": "Order_Date",    "Net Value /KL (NET_VAL_KL)": "Net_Value_per_KL",    "Packing Cost /KL": "Packing_Cost_per_KL"  }}'
 curl http://127.0.0.1:8009/projects/df274957-cb1c-44c8-91af-e5f4cd4f9ce5/dataset/columns/drop -H "Content-Type: application/json" -d '{ "column": ["IGST", "SGST","UGST", "CGST"] }'
 curl http://127.0.0.1:8009/projects/df274957-cb1c-44c8-91af-e5f4cd4f9ce5/features/ranking -H "Content-Type: application/json" -d '{ "kpi_list": [], "important_features":[], "kpi": "Revenue" }'
 sleep 100
@@ -30,7 +31,7 @@ curl http://127.0.0.1:8009/projects/df274957-cb1c-44c8-91af-e5f4cd4f9ce5/feature
 curl http://127.0.0.1:8009/projects/df274957-cb1c-44c8-91af-e5f4cd4f9ce5/status
 
 
-curl http://127.0.0.1:8009/projects/df274957-cb1c-44c8-91af-e5f4cd4f9ce5/clusters/subcluster -H "Content-Type: application/json" -d '{ "kpi": "Revenue", "level": 0, "path": [] }' && curl http://127.0.0.1:8009/df274957-cb1c-44c8-91af-e5f4cd4f9ce5/clusters/subcluster -H "Content-Type: application/json" -d '{ "kpi": "Revenue", "level": 0, "path": [] }'\n
+curl http://127.0.0.1:8009/projects/df274957-cb1c-44c8-91af-e5f4cd4f9ce5/clusters/subcluster -H "Content-Type: application/json" -d '{ "kpi": "Revenue", "level": 0, "path": [] }' && curl http://127.0.0.1:8009/df274957-cb1c-44c8-91af-e5f4cd4f9ce5/clusters/subcluster -H "Content-Type: application/json" -d '{ "kpi": "Revenue", "level": 0, "path": [] }'
 curl http://127.0.0.1:8009/projects/df274957-cb1c-44c8-91af-e5f4cd4f9ce5/status
 
 curl http://127.0.0.1:8009/projects/df274957-cb1c-44c8-91af-e5f4cd4f9ce5/time-series/analysis -H "Content-Type: application/json" -d '{ "user_added_vars_list": [], "path": [0], "kpi": "Revenue", "no_of_months": 3, "date_column": "Order Date", "increase_factor": 1.2 }'
