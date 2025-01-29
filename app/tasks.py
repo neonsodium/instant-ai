@@ -1,3 +1,4 @@
+import csv
 import json
 import os
 from datetime import datetime
@@ -6,9 +7,6 @@ from hashlib import sha256
 
 # connectors
 import mysql.connector
-import csv
-import os
-
 import pandas as pd
 from redis import Redis
 
@@ -19,11 +17,9 @@ from app.ml_models.cluster import optimised_clustering
 from app.ml_models.feature_rank import generate_optimized_feature_rankings
 from app.ml_models.time_series import time_series_analysis
 from app.models.project_model import ProjectModel
-from app.utils.filename_utils import (
-    filename_raw_data_csv,
-    filename_dropeed_column_data_csv,
-    filename_time_series_figure_pkl,
-)
+from app.utils.filename_utils import (filename_dropeed_column_data_csv,
+                                      filename_raw_data_csv,
+                                      filename_time_series_figure_pkl)
 from app.utils.os_utils import save_to_pickle
 from config import Config
 
