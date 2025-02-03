@@ -5,7 +5,8 @@ from prophet import Prophet
 
 from app.data_preparation_ulits.aggregate import aggregate_columns_by_date
 from app.data_preparation_ulits.one_hot_encode import apply_one_hot_encoding
-from app.ml_models.feature_rank import compute_feature_rankings
+from app.ml_models.feature_ranking_ulits.feature_ranking_time_series import \
+    ensemble_feature_importance_auto
 
 
 def time_series_analysis(
@@ -17,6 +18,7 @@ def time_series_analysis(
     date_column,
     increase_factor,
     zero_value_replacement,
+    adjustments,
 ):
     df = pd.read_csv(input_file_path_raw_data_csv)
     df[date_column] = pd.to_datetime(df[date_column])
@@ -30,7 +32,7 @@ def time_series_analysis(
     del df, encoder
     df = df_ts.drop(date_column, axis=1, inplace=False)
 
-    regressors = modified_regressors
+    regressors = ensemble_feature_importance_auto(df, kpi, df.columns())  # feature
     df_prophet = prepare_prophet_data(df_ts, date_column, kpi, regressors)
     model = Prophet(
         n_changepoints=100,
@@ -56,11 +58,12 @@ def time_series_analysis(
         increase_factor=increase_factor,
         zero_value_replacement=zero_value_replacement,
     )
+    df_new = adjust_columns(df_ts, forecasted_regressors_df, adjustments)
 
     fig = plot_actual_vs_forecast(
         historical_data=df_ts,
         forecasted_values_df=forecasted_regressors_df,
-        modified_forecast_df=modified_forecasted_regressors_df,
+        modified_forecast_df=df_new,  # adjustment_df <- modified_forecasted_regressors_df
         model=model,
         kpi=kpi,
         date_column=date_column,
@@ -219,3 +222,39 @@ def plot_actual_vs_forecast(
         template="plotly_white",
     )
     return fig
+
+
+def adjust_columns(df, forecasted_regressors_df, adjustments):
+    """
+    Adjusts numeric columns in a DataFrame based on given rules.
+
+    - "+23%" increases column values by 23%.
+    - "-10%" decreases column values by 10%.
+    - "+5" adds 5 to column values.
+    - "-2" subtracts 2 from column values.
+
+    Parameters:
+    df (pd.DataFrame): Input DataFrame
+    adjustments (dict): Column adjustments with percentage/absolute changes
+
+    Returns:
+    pd.DataFrame: Updated DataFrame
+    """
+    df = forecasted_regressors_df.copy()  # renamed from forecasted_values_df
+
+    for col, adjustment in adjustments.items():
+        if col not in df.columns:
+            print(f"Warning: Column '{col}' not found in DataFrame, skipping.")
+            continue
+
+        if isinstance(adjustment, str):
+            if adjustment.endswith("%"):
+                # Percentage change
+                percent_value = float(adjustment.strip("%")) / 100.0
+                df[col] = df[col] * (1 + percent_value)
+            else:
+                # Absolute change
+                abs_value = float(adjustment)
+                df[col] = df[col] + abs_value
+
+    return df

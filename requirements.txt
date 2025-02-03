@@ -42,3 +42,5 @@ flask-compress
 pymongo==4.10.1
 mysql-connector-python
 psycopg2-binary
+lightgbm
+xgboost

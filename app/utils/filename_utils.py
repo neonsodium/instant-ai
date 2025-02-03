@@ -18,6 +18,10 @@ def filename_pre_label_data_csv() -> str:
     return "data_pre_label.csv"
 
 
+def filename_cluster_defs_dict_pkl() -> str:
+    return "dict_cluster_defs.pkl"
+
+
 def filename_label_encoded_data_csv() -> str:
     return "data_label_encode.csv"
 

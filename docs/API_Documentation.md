@@ -133,6 +133,40 @@
 
 ---
 
+## **Feature weight**
+
+- **Endpoint:** `/projects/<project_id>/features/weight`
+- **Method:** `POST`
+- **Description:** Ranks features based on their importance, Async.
+- **Parameters:**
+  - `project_id` (string): ID of the project.
+  - `kpi` (string): The target KPI for feature ranking.
+  - `path` (array): Path of the clustering hierarchy.
+- **Example:**
+
+  ```bash
+  curl http://127.0.0.1:8009/projects/PROJECT_ID/features/weight -H "Content-Type: application/json" -d '{ "path": [1,2,4]  "kpi": "kpi" }'
+  ```
+
+---
+
+## **Feature weight Result**
+
+- **Endpoint:** `/projects/<project_id>/features/weight/result`
+- **Method:** `POST`
+- **Description:** Result of Ranks features based on their importance.
+- **Parameters:**
+  - `project_id` (string): ID of the project.
+  - `kpi` (string): The target KPI for feature ranking.
+  - `path` (array): Path of the clustering hierarchy.
+- **Example:**
+
+  ```bash
+  curl http://127.0.0.1:8009/projects/PROJECT_ID/features/weight/result -H "Content-Type: application/json" -d '{ "path": [1,2,4]  "kpi": "kpi" }'
+  ```
+
+---
+
 ## **Clustering**
 
 - **Endpoint:** `/projects/<project_id>/clusters/subcluster`
@@ -149,6 +183,24 @@
   ```
 
 ---
+
+## **Clustering Defination**
+
+- **Endpoint:** `/projects/<project_id>/clusters/defination`
+- **Method:** `POST`
+- **Description:** Result of Ranks features based on their importance.
+- **Parameters:**
+  - `project_id` (string): ID of the project.
+  - `kpi` (string): The target KPI for feature ranking.
+  - `path` (array): Path of the clustering hierarchy.
+  - `cluster_no` (int): The Cluster number to be selected.
+- **Example:**
+
+  ```bash
+  curl http://127.0.0.1:8009/projects/PROJECT_ID/clusters/defination -H "Content-Type: application/json" -d '{ "path": [1,2,4]  "kpi": "kpi", "cluster_no": 3}'
+  ```
+
+  ---
 
 ## **Summarize Clusters**
 
@@ -196,6 +248,10 @@
   - `date_column` (string): Name of date column in the dataset.
   - `increase_factor` (int): Name of date column in the dataset.
   - `zero_value_replacement` (int): Zero value Replacement.
+  - `adjustments` (dict): adjustments = {
+    'security_deposit': "+23%",
+    'branch_name_HSR Layout': "+5",
+    'num_books': "+2"}.
 - **Example:**
 
   ```bash
@@ -206,7 +262,12 @@
     "no_of_months": 6,
     "date_column": "date",
     "increase_factor": 1.2,
-    "zero_value_replacement": 0 }'
+    "zero_value_replacement": 0,
+    "adjustments" : {
+    "security_deposit": "+23%",        
+    "branch_name_HSR Layout": "+5",    
+    "num_books": "+2"      } }',
+    
     
     ```
 

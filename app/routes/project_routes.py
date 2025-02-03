@@ -9,11 +9,13 @@ from app.ml_models.summarising import summerise_cluster
 from app.models.project_model import ProjectModel
 from app.utils.filename_utils import (feature_descriptions_csv,
                                       feature_descriptions_json,
+                                      filename_cluster_defs_dict_pkl,
+                                      filename_feature_rank_score_df,
                                       filename_raw_data_csv)
 from app.utils.model_utils import (create_project_and_directory,
                                    get_project_columns)
 from app.utils.os_utils import (directory_project_path_full,
-                                list_sub_directories)
+                                list_sub_directories, load_from_pickle)
 
 project_model = ProjectModel()
 main_routes = Blueprint("main_routes", __name__)
@@ -117,6 +119,45 @@ def download_cluster_data(project_id):
     return send_file(absolute_file_path, as_attachment=True)
 
 
+@main_routes.route("/<project_id>/feature/weight/result", methods=["POST"])
+@project_validation_decorator
+def feature_ranking_weight(project_id):
+
+    request_data_json = request.get_json()
+    list_path: list = request_data_json.get("path")
+    kpi = request_data_json.get("kpi")
+
+    directory_project_cluster = directory_project_path_full(project_id, list_path)
+    if not os.path.exists(directory_project_cluster):
+        return (jsonify({"error": "Cluster Does not exists.", "project_id": project_id}), 404)
+
+    features = load_from_pickle(
+        os.path.join(directory_project_cluster, filename_feature_rank_score_df(kpi))
+    )
+
+    return jsonify(features)
+
+
+@main_routes.route("/<project_id>/clusters/defination", methods=["POST"])
+@project_validation_decorator
+def cluster_def(project_id):
+
+    request_data_json = request.get_json()
+    list_path: list = request_data_json.get("path")
+    kpi = request_data_json.get("kpi")
+    cluster_label = request_data_json.get("cluster_no")
+
+    directory_project_cluster = directory_project_path_full(project_id, list_path)
+    if not os.path.exists(directory_project_cluster):
+        return (jsonify({"error": "Cluster Does not exists.", "project_id": project_id}), 404)
+
+    cluster_definitions = load_from_pickle(
+        os.path.join(directory_project_cluster, filename_cluster_defs_dict_pkl(kpi))
+    )
+
+    return jsonify(cluster_definitions.get(cluster_label, pd.DataFrame()))
+
+
 @main_routes.route("/<project_id>/clusters/summarize", methods=["POST"])
 @project_validation_decorator
 def summarize_cluster_info(project_id):
@@ -124,10 +165,9 @@ def summarize_cluster_info(project_id):
     list_path = request_data_json.get("path")
 
     directory_project_cluster = directory_project_path_full(project_id, list_path)
-    clusters = list_sub_directories(directory_project_cluster)
     all_clusters_summary = []
 
-    for cluster in clusters:
+    for cluster in list_sub_directories(directory_project_cluster):
         data_raw = os.path.join(directory_project_cluster, cluster, filename_raw_data_csv())
         json_file = os.path.join(directory_project_cluster, cluster, feature_descriptions_json())
         csv_file = os.path.join(directory_project_cluster, cluster, feature_descriptions_csv())

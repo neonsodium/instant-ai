@@ -168,10 +168,9 @@ def async_optimised_feature_rank(
 ):
     try:
         # TODO remove Pickle file
-        drop_column_file = os.path.join(directory_project, filename_dropeed_column_data_csv())
         raw_data_file = os.path.join(directory_project, filename_raw_data_csv())
         generate_optimized_feature_rankings(
-            kpi, kpi_list, important_features, directory_project, raw_data_file, drop_column_file
+            kpi, kpi_list, important_features, directory_project, raw_data_file
         )
         return {"status": "Feature ranking completed"}
     except Exception as e:
@@ -190,6 +189,7 @@ def async_time_series_analysis(
     date_column,
     increase_factor,
     zero_value_replacement,
+    adjustments,
     project_id: str,
     task_key,
 ):
@@ -203,6 +203,7 @@ def async_time_series_analysis(
             date_column,
             increase_factor,
             zero_value_replacement,
+            adjustments,
         )
 
         save_to_pickle(
