@@ -23,13 +23,9 @@ def generate_optimized_feature_rankings(
     important_features: list,
     directory_project: str,
     input_file_path_raw_data_csv: str,
-    input_file_path_drop_column_csv: str,
 ):
 
-    if os.path.isfile(input_file_path_drop_column_csv):
-        df = pd.read_csv(input_file_path_drop_column_csv)
-    else:
-        df = pd.read_csv(input_file_path_raw_data_csv)
+    df = pd.read_csv(input_file_path_raw_data_csv)
 
     df, label_encoders = apply_label_encoding(df)
     del label_encoders
