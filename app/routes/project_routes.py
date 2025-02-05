@@ -7,15 +7,15 @@ from flask import Blueprint, jsonify, request, send_file
 from app.data_preparation_ulits.preprocessing_engine import validate_df
 from app.ml_models.summarising import summerise_cluster
 from app.models.project_model import ProjectModel
-from app.utils.filename_utils import (feature_descriptions_csv,
-                                      feature_descriptions_json,
-                                      filename_cluster_defs_dict_pkl,
-                                      filename_feature_rank_score_df,
-                                      filename_raw_data_csv)
-from app.utils.model_utils import (create_project_and_directory,
-                                   get_project_columns)
-from app.utils.os_utils import (directory_project_path_full,
-                                list_sub_directories, load_from_pickle)
+from app.utils.filename_utils import (
+    feature_descriptions_csv,
+    feature_descriptions_json,
+    filename_cluster_defs_dict_pkl,
+    filename_feature_rank_score_df,
+    filename_raw_data_csv,
+)
+from app.utils.model_utils import create_project_and_directory, get_project_columns
+from app.utils.os_utils import directory_project_path_full, list_sub_directories, load_from_pickle
 
 project_model = ProjectModel()
 main_routes = Blueprint("main_routes", __name__)
