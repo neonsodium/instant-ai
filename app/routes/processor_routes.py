@@ -10,12 +10,16 @@ from werkzeug.utils import secure_filename
 from app import celery
 from app.decorator import task_manager_decorator
 from app.models.project_model import ProjectModel
-from app.tasks import (async_connector_table, async_drop_columns,
-                       async_mapping_columns, async_optimised_clustering,
-                       async_optimised_feature_rank, async_save_file,
-                       async_time_series_analysis)
-from app.utils.filename_utils import (filename_feature_rank_list_pkl,
-                                      filename_raw_data_csv)
+from app.tasks import (
+    async_connector_table,
+    async_drop_columns,
+    async_mapping_columns,
+    async_optimised_clustering,
+    async_optimised_feature_rank,
+    async_save_file,
+    async_time_series_analysis,
+)
+from app.utils.filename_utils import filename_feature_rank_list_pkl, filename_raw_data_csv
 from app.utils.model_utils import get_project_columns
 from app.utils.os_utils import directory_project_path_full
 from config import Config
