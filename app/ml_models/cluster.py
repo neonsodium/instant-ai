@@ -24,6 +24,7 @@ def optimised_clustering(
     input_file_path_drop_column_csv,
     input_file_path_raw_data_csv,
     input_file_path_feature_rank_pkl,
+    kpi,
 ):
 
     df = pd.read_csv(input_file_path_raw_data_csv)
@@ -31,17 +32,17 @@ def optimised_clustering(
     features = load_from_pickle(input_file_path_feature_rank_pkl)
 
     df, label_encoders = apply_label_encoding(df)
-    df = gaussian_clustering(df, features)
-    df = reverse_label_encoding(df, label_encoders)
-    hierarchical_clustering_to_csv(df, directory_project)
     df_result, cluster_defs, target_summary = hierarchical_clustering_auto(
         df=df,
         feature_cols=features,
-        cluster_target="Revenue",  # optional
+        cluster_target=None,  # optional
         range_n_clusters=range(2, 11),
         random_state=42,
     )
     save_to_pickle(cluster_defs, os.path.join(directory_project, filename_cluster_defs_dict_pkl()))
+    df = gaussian_clustering(df, features)
+    hierarchical_clustering_to_csv(df, directory_project)
+    df = reverse_label_encoding(df, label_encoders)
 
 
 def gaussian_clustering(df, features):
