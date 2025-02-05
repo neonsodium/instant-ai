@@ -188,7 +188,7 @@
 
 - **Endpoint:** `/projects/<project_id>/clusters/defination`
 - **Method:** `POST`
-- **Description:** Result of Ranks features based on their importance.
+- **Description:** Some cluster defination.
 - **Parameters:**
   - `project_id` (string): ID of the project.
   - `kpi` (string): The target KPI for feature ranking.
