@@ -154,7 +154,6 @@ def cluster_def(project_id):
     cluster_definitions = load_from_pickle(
         os.path.join(directory_project_cluster, filename_cluster_defs_dict_pkl())
     )
-    print(cluster_definitions.get(cluster_label, pd.DataFrame()))
 
     return jsonify(cluster_definitions.get(cluster_label, pd.DataFrame()).to_dict(orient="records"))
 
