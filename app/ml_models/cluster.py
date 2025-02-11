@@ -24,10 +24,7 @@ from app.utils.os_utils import load_from_pickle, save_to_pickle
 
 
 def optimised_clustering(
-    directory_project,
-    input_file_path_drop_column_csv,
-    input_file_path_raw_data_csv,
-    input_file_path_feature_rank_pkl,
+    directory_project, input_file_path_raw_data_csv, input_file_path_feature_rank_pkl
 ):
 
     df = pd.read_csv(input_file_path_raw_data_csv)
@@ -42,10 +39,11 @@ def optimised_clustering(
         range_n_clusters=range(2, 11),
         random_state=42,
     )
+    del df_result, target_summary
     save_to_pickle(cluster_defs, os.path.join(directory_project, filename_cluster_defs_dict_pkl()))
     df = gaussian_clustering(df, features)
-    hierarchical_clustering_to_csv(df, directory_project)
     df = reverse_label_encoding(df, label_encoders)
+    hierarchical_clustering_to_csv(df, directory_project)
 
 
 def gaussian_clustering(df, features):
@@ -235,54 +233,3 @@ def get_cluster_weights(cluster_definitions, cluster_label):
         cluster_df = get_cluster_weights(cluster_definitions, cluster_label=2)
     """
     return cluster_definitions.get(cluster_label, pd.DataFrame())
-
-
-# function definition
-
-# feature_cols = [
-#     "reading_fee_paid",
-#     "Number_of_Months",
-#     "Membership_expiry_date",
-#     "transaction",
-#     "member_branch_id",
-#     "Coupon_Discount",
-#     "magazine_fee_paid",
-#     "branch_name",
-#     "created_name",
-#     "display_name",
-#     "branch_type",
-#     "Renewal_Amount",
-#     "over_due_adjustment_amount",
-#     "Member_Name",
-#     "Percentage_Share",
-#     "reversed",
-#     "adjustment_amount",
-#     "Message_Status",
-# ]
-
-# print(df[feature_cols].dtypes)
-
-# df_result, cluster_defs, target_summary = hierarchical_clustering_auto(
-#     df=df,
-#     feature_cols=feature_cols,
-#     cluster_target="Revenue",  # optional
-#     range_n_clusters=range(2, 11),
-#     random_state=42,
-# )
-
-
-# Calling a function
-
-
-# print(target_summary)
-
-# # Inspect definitions for cluster 0:
-# cluster0_defs = get_cluster_weights(cluster_defs, 0)
-# print(cluster0_defs)
-
-# # Inspect definitions for cluster 1:
-# cluster1_defs = get_cluster_weights(cluster_defs, 1)
-# print(cluster1_defs)
-
-# cluster1_defs = get_cluster_weights(cluster_defs, 2)
-# print(cluster1_defs)
