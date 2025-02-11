@@ -1,20 +1,44 @@
 import json
+import os
 from datetime import datetime
 from functools import wraps
 
-import redis
 from flask import current_app, jsonify, request
 
-from app.tasks import generate_task_key
-
-# Assuming redis_client is already initialized somewhere globally
-redis_client = redis.StrictRedis(host="localhost", port=6379, db=0)
 from app.models.project_model import ProjectModel
+from app.tasks import generate_task_key
+from app.utils.os_utils import directory_project_path_full
 
 project_model = ProjectModel()
 
 
-redis_client = redis.StrictRedis(host="localhost", port=6379, db=0)
+from redis import Redis
+
+from config import Config
+
+redis_client = Redis(host=Config.REDIS_HOST, port=Config.REDIS_PORT)
+
+
+def project_validation_decorator(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        project_id = kwargs.get("project_id")
+        validation_response = validate_project(project_id)
+        if validation_response:
+            return validation_response
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
+def validate_project(project_id):
+    project = project_model.collection.find_one({"_id": project_id})
+    if not project:
+        return jsonify({"error": "Invalid Project ID"}), 400
+    directory_project_base = directory_project_path_full(project_id, [])
+    if not os.path.isdir(directory_project_base):
+        return jsonify({"error": "Project directory not found"}), 400
+    return None
 
 
 def task_manager_decorator(task_name):

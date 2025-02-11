@@ -5,11 +5,9 @@ from datetime import datetime
 
 from flask import current_app
 
-from app.utils.filename_utils import (
-    directory_cluster_format,
-    filename_project_description_txt,
-    filename_project_name_txt,
-)
+from app.utils.filename_utils import (directory_cluster_format,
+                                      filename_project_description_txt,
+                                      filename_project_name_txt)
 from config import Config
 
 

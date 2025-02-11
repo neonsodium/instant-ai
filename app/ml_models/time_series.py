@@ -5,9 +5,8 @@ from prophet import Prophet
 
 from app.data_preparation_ulits.aggregate import aggregate_columns_by_date
 from app.data_preparation_ulits.one_hot_encode import apply_one_hot_encoding
-from app.ml_models.feature_ranking_ulits.feature_ranking_time_series import (
-    ensemble_feature_importance_auto,
-)
+from app.ml_models.feature_ranking_ulits.feature_ranking_time_series import \
+    ensemble_feature_importance_auto
 
 
 def time_series_analysis(
