@@ -6,16 +6,20 @@ from flask import Blueprint, jsonify, request, send_file
 from app.data_preparation_ulits.preprocessing_engine import validate_df
 from app.decorator import project_validation_decorator
 from app.ml_models.summarising import summerise_cluster
-from app.utils.filename_utils import (feature_descriptions_csv,
-                                      feature_descriptions_json,
-                                      filename_cluster_defs_dict_pkl,
-                                      filename_feature_rank_score_df,
-                                      filename_raw_data_csv)
-from app.utils.model_utils import (create_project_and_directory,
-                                   get_all_projects, get_project_columns,
-                                   get_project_info)
-from app.utils.os_utils import (directory_project_path_full,
-                                list_sub_directories, load_from_pickle)
+from app.utils.filename_utils import (
+    feature_descriptions_csv,
+    feature_descriptions_json,
+    filename_cluster_defs_dict_pkl,
+    filename_feature_rank_score_df,
+    filename_raw_data_csv,
+)
+from app.utils.model_utils import (
+    create_project_and_directory,
+    get_all_projects,
+    get_project_columns,
+    get_project_info,
+)
+from app.utils.os_utils import directory_project_path_full, list_sub_directories, load_from_pickle
 
 main_routes = Blueprint("main_routes", __name__)
 
@@ -130,7 +134,9 @@ def cluster_def(project_id):
     cluster_definitions = load_from_pickle(
         os.path.join(directory_project_cluster, filename_cluster_defs_dict_pkl())
     )
-    if not os.path.isfile(cluster_definitions):
+    if not os.path.isfile(
+        os.path.join(directory_project_cluster, filename_cluster_defs_dict_pkl())
+    ):
         return jsonify({"message": "Perform further subclustering"}), 400
 
     return jsonify(cluster_definitions.get(cluster_label, pd.DataFrame()).to_dict(orient="records"))
