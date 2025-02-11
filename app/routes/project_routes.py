@@ -1,46 +1,23 @@
 import os
-from functools import wraps
 
 import pandas as pd
 from flask import Blueprint, jsonify, request, send_file
 
 from app.data_preparation_ulits.preprocessing_engine import validate_df
+from app.decorator import project_validation_decorator
 from app.ml_models.summarising import summerise_cluster
-from app.models.project_model import ProjectModel
-from app.utils.filename_utils import (
-    feature_descriptions_csv,
-    feature_descriptions_json,
-    filename_cluster_defs_dict_pkl,
-    filename_feature_rank_score_df,
-    filename_raw_data_csv,
-)
-from app.utils.model_utils import create_project_and_directory, get_project_columns
-from app.utils.os_utils import directory_project_path_full, list_sub_directories, load_from_pickle
+from app.utils.filename_utils import (feature_descriptions_csv,
+                                      feature_descriptions_json,
+                                      filename_cluster_defs_dict_pkl,
+                                      filename_feature_rank_score_df,
+                                      filename_raw_data_csv)
+from app.utils.model_utils import (create_project_and_directory,
+                                   get_all_projects, get_project_columns,
+                                   get_project_info)
+from app.utils.os_utils import (directory_project_path_full,
+                                list_sub_directories, load_from_pickle)
 
-project_model = ProjectModel()
 main_routes = Blueprint("main_routes", __name__)
-
-
-def validate_project(project_id):
-    project = project_model.collection.find_one({"_id": project_id})
-    if not project:
-        return jsonify({"error": "Invalid Project ID"}), 400
-    directory_project_base = directory_project_path_full(project_id, [])
-    if not os.path.isdir(directory_project_base):
-        return jsonify({"error": "Project directory not found"}), 400
-    return None
-
-
-def project_validation_decorator(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        project_id = kwargs.get("project_id")
-        validation_response = validate_project(project_id)
-        if validation_response:
-            return validation_response
-        return f(*args, **kwargs)
-
-    return decorated_function
 
 
 @main_routes.route("/", methods=["GET"])
@@ -52,8 +29,7 @@ def get_projects():
         Response: A JSON response containing a list of projects or an error message.
     """
     try:
-        # Fetch projects from the database using ProjectModel
-        projects = project_model.get_all_projects()
+        projects = get_all_projects()
 
         if not projects:
             return jsonify({"message": "No projects found"}), 200
@@ -154,6 +130,8 @@ def cluster_def(project_id):
     cluster_definitions = load_from_pickle(
         os.path.join(directory_project_cluster, filename_cluster_defs_dict_pkl())
     )
+    if not os.path.isfile(cluster_definitions):
+        return jsonify({"message": "Perform further subclustering"}), 400
 
     return jsonify(cluster_definitions.get(cluster_label, pd.DataFrame()).to_dict(orient="records"))
 
@@ -211,7 +189,7 @@ def list_dataset_columns(project_id):
 def get_project_status(project_id):
     try:
 
-        project_data = project_model.collection.find_one({"_id": project_id})
+        project_data = get_project_info(project_id)
 
         if not project_data:
             return jsonify({"error": "Invalid Project ID"}), 400

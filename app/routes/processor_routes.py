@@ -1,54 +1,25 @@
 import json
 import os
 from datetime import datetime
-from functools import wraps
 
 from flask import Blueprint, jsonify, request
-from redis import Redis
 from werkzeug.utils import secure_filename
 
 from app import celery
-from app.decorator import task_manager_decorator
+from app.decorator import project_validation_decorator, task_manager_decorator
 from app.models.project_model import ProjectModel
-from app.tasks import (
-    async_connector_table,
-    async_drop_columns,
-    async_mapping_columns,
-    async_optimised_clustering,
-    async_optimised_feature_rank,
-    async_save_file,
-    async_time_series_analysis,
-)
-from app.utils.filename_utils import filename_feature_rank_list_pkl, filename_raw_data_csv
-from app.utils.model_utils import get_project_columns
+from app.tasks import (async_connector_table, async_drop_columns,
+                       async_mapping_columns, async_optimised_clustering,
+                       async_optimised_feature_rank, async_save_file,
+                       async_time_series_analysis)
+from app.utils.filename_utils import (filename_feature_rank_list_pkl,
+                                      filename_raw_data_csv)
+from app.utils.model_utils import get_all_running_tasking, get_project_columns
 from app.utils.os_utils import directory_project_path_full
-from config import Config
 
 processor_routes = Blueprint("processor_routes", __name__)
-redis_client = Redis(host=Config.REDIS_HOST, port=Config.REDIS_PORT)
+
 project_model = ProjectModel()
-
-
-def validate_project(project_id):
-    project = project_model.collection.find_one({"_id": project_id})
-    if not project:
-        return jsonify({"error": "Invalid Project ID"}), 400
-    directory_project_base = directory_project_path_full(project_id, [])
-    if not os.path.isdir(directory_project_base):
-        return jsonify({"error": "Project directory not found"}), 400
-    return None
-
-
-def project_validation_decorator(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        project_id = kwargs.get("project_id")
-        validation_response = validate_project(project_id)
-        if validation_response:
-            return validation_response
-        return f(*args, **kwargs)
-
-    return decorated_function
 
 
 @processor_routes.route("/tasks/<task_id>/status", methods=["GET", "POST"])
@@ -59,7 +30,7 @@ def get_task_status_by_id(task_id):
 
 @processor_routes.route("/tasks/running", methods=["GET"])
 def list_running_tasks():
-    running_tasks = redis_client.hgetall("running_tasks")
+    running_tasks = get_all_running_tasking()
 
     tasks_list = []
     for task_id, task_info in running_tasks.items():
@@ -69,7 +40,7 @@ def list_running_tasks():
     return jsonify({"running_tasks": tasks_list}), 200
 
 
-# Cant add decorator coz no json in request
+# ** Cant add decorator coz no json in request**
 @processor_routes.route("/<project_id>/files/upload", methods=["POST"])
 @project_validation_decorator
 def upload_project_file(project_id):
@@ -83,11 +54,6 @@ def upload_project_file(project_id):
     if file:
         filename = secure_filename(file.filename)
         file_path = os.path.join(directory_project_base, filename_raw_data_csv())
-
-        project = project_model.collection.find_one({"_id": project_id})
-
-        if not project:
-            return jsonify({"error": "Project not found"}), 404
 
         file.seek(0, os.SEEK_END)
         file_size = file.tell()
@@ -200,14 +166,12 @@ def drop_columns_from_dataset(project_id, task_key=None, task_params=None):
 def mapping_columns_from_dataset(project_id, task_key=None, task_params=None):
     request_data_json = request.get_json()
 
-    # Validate raw data file
     raw_data_file = os.path.join(
         directory_project_path_full(project_id, []), filename_raw_data_csv()
     )
     if not os.path.isfile(raw_data_file):
         return jsonify({"message": "Dataset not uploaded"}), 400
 
-    # Validate column mapping
     column_name_mapping = request_data_json.get("column_mapping")
     if not column_name_mapping:
         return jsonify({"error": "Missing 'column_mapping' in request"}), 400
@@ -219,11 +183,6 @@ def mapping_columns_from_dataset(project_id, task_key=None, task_params=None):
             return jsonify({"error": f"Invalid JSON format: {str(e)}"}), 400
     elif not isinstance(column_name_mapping, dict):
         return jsonify({"error": "'column_mapping' must be a JSON object"}), 400
-
-    # Validate project
-    project = project_model.collection.find_one({"_id": project_id})
-    if not project:
-        return jsonify({"error": "Invalid Project ID"}), 400
 
     # Check columns in dataset
     try:
@@ -240,7 +199,6 @@ def mapping_columns_from_dataset(project_id, task_key=None, task_params=None):
             400,
         )
 
-    # Start async column mapping task
     result = async_mapping_columns.apply_async(
         args=[raw_data_file, column_name_mapping],
         kwargs={"project_id": project_id, "task_key": task_key},
@@ -329,8 +287,6 @@ def start_feature_ranking(project_id, task_key=None, task_params=None):
     important_features = request_data_json.get("important_features", [])
     kpi = request_data_json.get("kpi")
 
-    # Validate dataset
-
     if not os.path.isfile(
         os.path.join(directory_project_path_full(project_id, []), filename_raw_data_csv())
     ):
@@ -339,7 +295,6 @@ def start_feature_ranking(project_id, task_key=None, task_params=None):
     if not kpi:
         return jsonify({"error": "Missing 'kpi' in request"}), 400
 
-    # Start task
     result = async_optimised_feature_rank.apply_async(
         args=[kpi, kpi_list, important_features, directory_project_path_full(project_id, [])],
         kwargs={"project_id": project_id, "task_key": task_key},
@@ -366,8 +321,6 @@ def start_feature_weight(project_id, task_key=None, task_params=None):
     important_features = request_data_json.get("important_features", [])
     list_path = request_data_json.get("path")
     kpi = request_data_json.get("kpi")
-
-    # Validate dataset
 
     if not os.path.isfile(
         os.path.join(directory_project_path_full(project_id, list_path), filename_raw_data_csv())
@@ -408,10 +361,7 @@ def initiate_subclustering(project_id, task_key=None, task_params=None):
     list_path = request_data_json.get("path")
     kpi = request_data_json.get("kpi")
 
-    # Validate project and file paths
-    project = project_model.collection.find_one({"_id": project_id})
     directory_project_base = directory_project_path_full(project_id, [])
-
     if not os.path.isfile(os.path.join(directory_project_base, filename_raw_data_csv())):
         return jsonify({"message": "Data set not uploaded"}), 400
 
@@ -421,7 +371,6 @@ def initiate_subclustering(project_id, task_key=None, task_params=None):
     if not os.path.exists(input_file_path_feature_rank_pkl):
         return jsonify({"error": f"Feature ranking file for {kpi} not found."}), 404
 
-    # Start task
     result = async_optimised_clustering.apply_async(
         args=[directory_project_path_full(project_id, list_path), input_file_path_feature_rank_pkl],
         kwargs={"project_id": project_id, "task_key": task_key},

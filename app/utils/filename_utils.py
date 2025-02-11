@@ -6,10 +6,6 @@ def create_project_uuid() -> str:
     return str(uuid.uuid4())
 
 
-def filename_dropeed_column_data_csv() -> str:
-    return "data_dropped_column.csv"
-
-
 def filename_raw_data_csv() -> str:
     return "data_raw.csv"
 
