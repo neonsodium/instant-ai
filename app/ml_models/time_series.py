@@ -5,20 +5,13 @@ from prophet import Prophet
 
 from app.data_preparation_ulits.aggregate import aggregate_columns_by_date
 from app.data_preparation_ulits.one_hot_encode import apply_one_hot_encoding
-from app.ml_models.feature_ranking_ulits.feature_ranking_time_series import \
-    ensemble_feature_importance_auto
+from app.ml_models.feature_ranking_ulits.feature_ranking_time_series import (
+    ensemble_feature_importance_auto,
+)
 
 
 def time_series_analysis(
-    directory_project,
-    input_file_path_raw_data_csv,
-    modified_regressors,
-    kpi,
-    no_of_months,
-    date_column,
-    increase_factor,
-    zero_value_replacement,
-    adjustments,
+    directory_project, input_file_path_raw_data_csv, kpi, no_of_months, date_column, adjustments
 ):
     df = pd.read_csv(input_file_path_raw_data_csv)
     df[date_column] = pd.to_datetime(df[date_column])
@@ -52,12 +45,6 @@ def time_series_analysis(
         start_date, end_date, df_ts, regressors, date_column, forecast_periods
     )
 
-    modified_forecasted_regressors_df = modify_forecast_and_prepare_dataset(
-        forecasted_regressors_df,
-        modified_regressors,
-        increase_factor=increase_factor,
-        zero_value_replacement=zero_value_replacement,
-    )
     df_new = adjust_columns(df_ts, forecasted_regressors_df, adjustments)
 
     fig = plot_actual_vs_forecast(

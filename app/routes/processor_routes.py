@@ -8,12 +8,16 @@ from werkzeug.utils import secure_filename
 from app import celery
 from app.decorator import project_validation_decorator, task_manager_decorator
 from app.models.project_model import ProjectModel
-from app.tasks import (async_connector_table, async_drop_columns,
-                       async_mapping_columns, async_optimised_clustering,
-                       async_optimised_feature_rank, async_save_file,
-                       async_time_series_analysis)
-from app.utils.filename_utils import (filename_feature_rank_list_pkl,
-                                      filename_raw_data_csv)
+from app.tasks import (
+    async_connector_table,
+    async_drop_columns,
+    async_mapping_columns,
+    async_optimised_clustering,
+    async_optimised_feature_rank,
+    async_save_file,
+    async_time_series_analysis,
+)
+from app.utils.filename_utils import filename_feature_rank_list_pkl, filename_raw_data_csv
 from app.utils.model_utils import get_all_running_tasking, get_project_columns
 from app.utils.os_utils import directory_project_path_full
 
@@ -393,13 +397,10 @@ def initiate_subclustering(project_id, task_key=None, task_params=None):
 @project_validation_decorator
 def initiate_time_series(project_id, task_key=None, task_params=None):
     request_data_json = request.get_json()
-    user_added_vars_list = request_data_json.get("user_added_vars_list", [])
     list_path = request_data_json.get("path")
     kpi = request_data_json.get("kpi", None)
     no_of_months = request_data_json.get("no_of_months")
     date_column = request_data_json.get("date_column")
-    increase_factor = request_data_json.get("increase_factor")
-    zero_value_replacement = request_data_json.get("zero_value_replacement")
     adjustments = request_data_json.get("adjustments")
 
     directory_project_cluster = directory_project_path_full(project_id, list_path)
@@ -415,12 +416,9 @@ def initiate_time_series(project_id, task_key=None, task_params=None):
         args=[
             directory_project_cluster,
             raw_data_file,
-            user_added_vars_list,
             kpi,
             no_of_months,
             date_column,
-            increase_factor,
-            zero_value_replacement,
             adjustments,
         ],
         kwargs={"project_id": project_id, "task_key": task_key},
