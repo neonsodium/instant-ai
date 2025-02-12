@@ -17,8 +17,7 @@ from app.ml_models.cluster import optimised_clustering
 from app.ml_models.feature_rank import generate_optimized_feature_rankings
 from app.ml_models.time_series import time_series_analysis
 from app.models.project_model import ProjectModel
-from app.utils.filename_utils import (filename_raw_data_csv,
-                                      filename_time_series_figure_pkl)
+from app.utils.filename_utils import filename_raw_data_csv, filename_time_series_figure_pkl
 from app.utils.os_utils import save_to_pickle
 from config import Config
 
@@ -182,27 +181,16 @@ def async_time_series_analysis(
     self,
     directory_project_cluster,
     raw_data_file,
-    user_added_vars_list,
     kpi,
     no_of_months,
     date_column,
-    increase_factor,
-    zero_value_replacement,
     adjustments,
     project_id: str,
     task_key,
 ):
     try:
         fig = time_series_analysis(
-            directory_project_cluster,
-            raw_data_file,
-            user_added_vars_list,
-            kpi,
-            no_of_months,
-            date_column,
-            increase_factor,
-            zero_value_replacement,
-            adjustments,
+            directory_project_cluster, raw_data_file, kpi, no_of_months, date_column, adjustments
         )
 
         save_to_pickle(
