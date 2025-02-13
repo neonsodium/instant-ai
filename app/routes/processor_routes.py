@@ -14,6 +14,7 @@ from app.tasks import (
     async_mapping_columns,
     async_optimised_clustering,
     async_optimised_feature_rank,
+    async_optimised_feature_rank_one_hot_encoded,
     async_save_file,
     async_time_series_analysis,
 )
@@ -321,8 +322,6 @@ def start_feature_ranking(project_id, task_key=None, task_params=None):
 @project_validation_decorator
 def start_feature_weight(project_id, task_key=None, task_params=None):
     request_data_json = request.get_json()
-    kpi_list = request_data_json.get("kpi_list", [])
-    important_features = request_data_json.get("important_features", [])
     list_path = request_data_json.get("path")
     kpi = request_data_json.get("kpi")
 
@@ -335,13 +334,8 @@ def start_feature_weight(project_id, task_key=None, task_params=None):
         return jsonify({"error": "Missing 'kpi' in request"}), 400
 
     # Start task
-    result = async_optimised_feature_rank.apply_async(
-        args=[
-            kpi,
-            kpi_list,
-            important_features,
-            directory_project_path_full(project_id, list_path),
-        ],
+    result = async_optimised_feature_rank_one_hot_encoded.apply_async(
+        args=[kpi, directory_project_path_full(project_id, list_path)],
         kwargs={"project_id": project_id, "task_key": task_key},
     )
 

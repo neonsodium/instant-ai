@@ -14,7 +14,10 @@ from app import celery
 from app.data_preparation_ulits.drop_columns import drop_columns
 from app.data_preparation_ulits.mapping_columns import mapping_columns
 from app.ml_models.cluster import optimised_clustering
-from app.ml_models.feature_rank import generate_optimized_feature_rankings
+from app.ml_models.feature_rank import (
+    generate_optimized_feature_rankings,
+    generate_optimized_feature_rankings_one_hot_encoded,
+)
 from app.ml_models.time_series import time_series_analysis
 from app.models.project_model import ProjectModel
 from app.utils.filename_utils import filename_raw_data_csv, filename_time_series_figure_pkl
@@ -170,6 +173,20 @@ def async_optimised_feature_rank(
         generate_optimized_feature_rankings(
             kpi, kpi_list, important_features, directory_project, raw_data_file
         )
+        return {"status": "Feature ranking completed"}
+    except Exception as e:
+        raise e
+
+
+@celery.task(bind=True)
+@update_task_status(project_model.collection, "tasks")
+def async_optimised_feature_rank_one_hot_encoded(
+    self, kpi, directory_project, project_id: str, task_key
+):
+    try:
+        # TODO remove Pickle file
+        raw_data_file = os.path.join(directory_project, filename_raw_data_csv())
+        generate_optimized_feature_rankings_one_hot_encoded(kpi, directory_project, raw_data_file)
         return {"status": "Feature ranking completed"}
     except Exception as e:
         raise e

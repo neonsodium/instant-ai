@@ -21,10 +21,6 @@ def ensemble_feature_importance_auto(
     X = df[features].copy()
     y = df[target_col].copy()
 
-    # 2) Auto-detect classification vs. regression
-    #    Simple heuristic:
-    #    - If y is numeric but # unique <= 10 => classification
-    #    - Else => regression
     y_unique = y.nunique(dropna=False)
     if pd.api.types.is_numeric_dtype(y):
         if y_unique <= 10:
@@ -36,12 +32,11 @@ def ensemble_feature_importance_auto(
 
     print(f"Auto-detected task_type = {task_type} (unique target values = {y_unique})")
 
-    # 3) Train/test split (80/20)
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=random_state
     )
+    del X_test, y_test
 
-    # 4) Initialize the 4 models
     if task_type == "classification":
         model_rf = RandomForestClassifier(n_estimators=100, random_state=random_state)
         model_lgb = LGBMClassifier(random_state=random_state)
@@ -57,25 +52,21 @@ def ensemble_feature_importance_auto(
         model_xgb = XGBRegressor(random_state=random_state)
         model_lin = Lasso(alpha=0.01, max_iter=10000, random_state=random_state)
 
-    # 5) Fit each model
     model_rf.fit(X_train, y_train)
     model_lgb.fit(X_train, y_train)
     model_xgb.fit(X_train, y_train)
     model_lin.fit(X_train, y_train)
 
-    # 6) Get raw importances
     rf_imp = _extract_importance(model_rf, features)
     lgb_imp = _extract_importance(model_lgb, features)
     xgb_imp = _extract_importance(model_xgb, features)
     lin_imp = _extract_importance(model_lin, features)
 
-    # 7) Normalize importances
     rf_imp_norm = _normalize_importances(rf_imp)
     lgb_imp_norm = _normalize_importances(lgb_imp)
     xgb_imp_norm = _normalize_importances(xgb_imp)
     lin_imp_norm = _normalize_importances(lin_imp)
 
-    # 8) Combine into a DataFrame
     df_imp = pd.DataFrame(
         {
             "feature": features,
@@ -90,7 +81,6 @@ def ensemble_feature_importance_auto(
         ["rf_importance", "lgbm_importance", "xgb_importance", "linear_importance"]
     ].mean(axis=1)
 
-    # 9) Sort descending
     df_imp.sort_values("final_importance", ascending=False, inplace=True)
     df_imp.reset_index(drop=True, inplace=True)
 
@@ -117,7 +107,7 @@ def _extract_importance(model, feature_names):
                 abs_coef = np.abs(coefs).flatten()
             if len(abs_coef) == n_features:
                 return abs_coef
-        # For Lasso => model.coef_ is 1D
+
         if hasattr(model, "coef_") and isinstance(model.coef_, np.ndarray):
             c = np.abs(model.coef_)
             if c.shape[0] == n_features:
