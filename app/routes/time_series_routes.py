@@ -7,10 +7,12 @@ import plotly.io as pio
 from flask import Blueprint, jsonify, request
 
 from app.models.project_model import ProjectModel
-from app.utils.filename_utils import (filename_categorical_columns_list_pkl,
-                                      filename_raw_data_csv,
-                                      filename_rev_one_hot_encoded_dict_pkl,
-                                      filename_time_series_figure_pkl)
+from app.utils.filename_utils import (
+    filename_categorical_columns_list_pkl,
+    filename_raw_data_csv,
+    filename_rev_one_hot_encoded_dict_pkl,
+    filename_time_series_figure_pkl,
+)
 from app.utils.os_utils import *
 
 time_series_routes = Blueprint("time_series", __name__)

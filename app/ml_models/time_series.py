@@ -11,7 +11,12 @@ from app.ml_models.feature_ranking_ulits.feature_ranking_time_series import (
 
 
 def time_series_analysis(
-    directory_project, input_file_path_raw_data_csv, kpi, no_of_months, date_column, adjustments
+    directory_project: str,
+    input_file_path_raw_data_csv: str,
+    kpi: str,
+    no_of_months,
+    date_column: str,
+    adjustments: dict,
 ):
     df = pd.read_csv(input_file_path_raw_data_csv)
     df[date_column] = pd.to_datetime(df[date_column])
@@ -128,30 +133,6 @@ def forecast_regressors_for_date_range(
         future_df = future_df.drop(columns="yhat").rename(columns={regressor: regressor})
 
     return future_df
-
-
-def modify_forecast_and_prepare_dataset(
-    forecasted_values_df, modified_regressors, increase_factor=4.80, zero_value_replacement=3.80
-):
-    """
-    forecasted_values_df -> forcasted_regressor (def forecast_regressors_for_date_range )
-    modified_regressors -> user input
-    increase_factor -> user input
-    zero_value_replacement -> user input
-    """
-    modified_forecast_df = forecasted_values_df.copy()
-
-    modified_forecast_df = modified_forecast_df.fillna(0)
-
-    for regressor in modified_regressors:
-        if regressor in modified_forecast_df.columns:
-            modified_forecast_df[regressor] = modified_forecast_df[regressor].apply(
-                lambda x: x * increase_factor if x != 0 else zero_value_replacement
-            )
-        else:
-            raise ValueError(f"Regressor '{regressor}' is not found in the DataFrame.")
-
-    return modified_forecast_df
 
 
 def plot_actual_vs_forecast(

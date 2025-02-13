@@ -111,6 +111,11 @@ def feature_ranking_weight(project_id):
     if not os.path.exists(directory_project_cluster):
         return (jsonify({"error": "Cluster Does not exists.", "project_id": project_id}), 404)
 
+    if not os.path.isfile(
+        os.path.join(directory_project_cluster, filename_feature_rank_score_df(kpi))
+    ):
+        return jsonify({"error": "Parameter weights not found"}), 400
+
     features = load_from_pickle(
         os.path.join(directory_project_cluster, filename_feature_rank_score_df(kpi))
     )
