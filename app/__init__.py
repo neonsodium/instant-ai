@@ -9,7 +9,12 @@ from app.utils.celery_utils import make_celery
 from config import Config, DevelopmentConfig, ProductionConfig, TestingConfig
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(
+    app,
+    resources={r"/*": {"origins": "*"}},
+    allow_headers=["Content-Type", "Authorization"],
+    methods=["GET", "POST", "OPTIONS", "PUT", "DELETE"],
+)
 Compress(app)
 
 app.config["SWAGGER"] = {"title": "My API", "uiversion": 3}
