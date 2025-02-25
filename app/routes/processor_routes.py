@@ -317,8 +317,8 @@ def start_feature_ranking(project_id, task_key=None, task_params=None):
     )
 
 
-@processor_routes.route("/<project_id>/features/weight", methods=["POST"])
-@task_manager_decorator("feature_weight")
+@processor_routes.route("/<project_id>/features/onehot", methods=["POST"])
+@task_manager_decorator("feature_ranking_onehotencoded")
 @project_validation_decorator
 def start_feature_weight(project_id, task_key=None, task_params=None):
     request_data_json = request.get_json()
@@ -336,6 +336,49 @@ def start_feature_weight(project_id, task_key=None, task_params=None):
     # Start task
     result = async_optimised_feature_rank_one_hot_encoded.apply_async(
         args=[kpi, directory_project_path_full(project_id, list_path)],
+        kwargs={"project_id": project_id, "task_key": task_key},
+    )
+
+    return (
+        jsonify(
+            {
+                "message": "Feature Ranking has started",
+                "task_id": str(result.id),
+                "project_id": project_id,
+            }
+        ),
+        202,
+    )
+
+
+@processor_routes.route("/<project_id>/features/label", methods=["POST"])
+@task_manager_decorator("feature_ranking_labelencoded")
+@project_validation_decorator
+def start_feature_weight(project_id, task_key=None, task_params=None):
+    request_data_json = request.get_json()
+    kpi_list = request_data_json.get("kpi_list", [])
+    important_features = request_data_json.get("important_features", [])
+    list_path = request_data_json.get("path")
+    kpi = request_data_json.get("kpi")
+
+    # Validate dataset
+
+    if not os.path.isfile(
+        os.path.join(directory_project_path_full(project_id, list_path), filename_raw_data_csv())
+    ):
+        return jsonify({"message": "Cluster not found"}), 400
+
+    if not kpi:
+        return jsonify({"error": "Missing 'kpi' in request"}), 400
+
+    # Start task
+    result = async_optimised_feature_rank.apply_async(
+        args=[
+            kpi,
+            kpi_list,
+            important_features,
+            directory_project_path_full(project_id, list_path),
+        ],
         kwargs={"project_id": project_id, "task_key": task_key},
     )
 

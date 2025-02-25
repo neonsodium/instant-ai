@@ -99,7 +99,7 @@ def download_cluster_data(project_id):
     return send_file(absolute_file_path, as_attachment=True)
 
 
-@main_routes.route("/<project_id>/features/weight/result", methods=["POST"])
+@main_routes.route("/<project_id>/features/weight/onehot", methods=["POST"])
 @project_validation_decorator
 def feature_ranking_weight(project_id):
 
@@ -121,6 +121,25 @@ def feature_ranking_weight(project_id):
     )
 
     return jsonify(features.to_dict(orient="records"))
+
+
+@main_routes.route("/<project_id>/feature/weight/label", methods=["POST"])
+@project_validation_decorator
+def feature_ranking_weight(project_id):
+
+    request_data_json = request.get_json()
+    list_path: list = request_data_json.get("path")
+    kpi = request_data_json.get("kpi")
+
+    directory_project_cluster = directory_project_path_full(project_id, list_path)
+    if not os.path.exists(directory_project_cluster):
+        return (jsonify({"error": "Cluster Does not exists.", "project_id": project_id}), 404)
+
+    features = load_from_pickle(
+        os.path.join(directory_project_cluster, filename_feature_rank_score_df(kpi))
+    )
+
+    return jsonify(features)
 
 
 @main_routes.route("/<project_id>/clusters/defination", methods=["POST"])
