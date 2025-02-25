@@ -133,9 +133,9 @@
 
 ---
 
-## **Feature weight**
+## **Feature weight onehot encoded**
 
-- **Endpoint:** `/projects/<project_id>/features/weight`
+- **Endpoint:** `/projects/<project_id>/features/onehot`
 - **Method:** `POST`
 - **Description:** Ranks features based on their importance, Async.
 - **Parameters:**
@@ -150,9 +150,43 @@
 
 ---
 
-## **Feature weight Result**
+## **Feature weight onehot encoded Result**
 
-- **Endpoint:** `/projects/<project_id>/features/weight/result`
+- **Endpoint:** `/projects/<project_id>/features/weight/onehot`
+- **Method:** `POST`
+- **Description:** Result of Ranks features based on their importance.
+- **Parameters:**
+  - `project_id` (string): ID of the project.
+  - `kpi` (string): The target KPI for feature ranking.
+  - `path` (array): Path of the clustering hierarchy.
+- **Example:**
+
+  ```bash
+  curl http://127.0.0.1:8009/projects/PROJECT_ID/features/weight/result -H "Content-Type: application/json" -d '{ "path": [1,2,4]  "kpi": "kpi" }'
+  ```
+
+---
+
+## **Feature weight label encoded**
+
+- **Endpoint:** `/projects/<project_id>/features/label`
+- **Method:** `POST`
+- **Description:** Ranks features based on their importance, Async.
+- **Parameters:**
+  - `project_id` (string): ID of the project.
+  - `kpi` (string): The target KPI for feature ranking.
+  - `path` (array): Path of the clustering hierarchy.
+- **Example:**
+
+  ```bash
+  curl http://127.0.0.1:8009/projects/PROJECT_ID/features/weight -H "Content-Type: application/json" -d '{ "path": [1,2,4]  "kpi": "kpi" }'
+  ```
+
+---
+
+## **Feature weight label encoded Result**
+
+- **Endpoint:** `/projects/<project_id>/features/weight/label`
 - **Method:** `POST`
 - **Description:** Result of Ranks features based on their importance.
 - **Parameters:**
