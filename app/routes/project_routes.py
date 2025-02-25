@@ -101,7 +101,7 @@ def download_cluster_data(project_id):
 
 @main_routes.route("/<project_id>/features/weight/onehot", methods=["POST"])
 @project_validation_decorator
-def feature_ranking_weight(project_id):
+def feature_ranking_weight_onehot(project_id):
 
     request_data_json = request.get_json()
     list_path: list = request_data_json.get("path")
@@ -125,7 +125,7 @@ def feature_ranking_weight(project_id):
 
 @main_routes.route("/<project_id>/feature/weight/label", methods=["POST"])
 @project_validation_decorator
-def feature_ranking_weight(project_id):
+def feature_ranking_weight_label(project_id):
 
     request_data_json = request.get_json()
     list_path: list = request_data_json.get("path")
