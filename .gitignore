@@ -26,3 +26,4 @@ venv
 celery_worker.log
 flask_app.log
 celery_app.log
+scripts/deploy.sh
