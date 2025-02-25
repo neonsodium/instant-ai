@@ -320,7 +320,7 @@ def start_feature_ranking(project_id, task_key=None, task_params=None):
 @processor_routes.route("/<project_id>/features/onehot", methods=["POST"])
 @task_manager_decorator("feature_ranking_onehotencoded")
 @project_validation_decorator
-def start_feature_weight(project_id, task_key=None, task_params=None):
+def start_feature_weight_onehot(project_id, task_key=None, task_params=None):
     request_data_json = request.get_json()
     list_path = request_data_json.get("path")
     kpi = request_data_json.get("kpi")
@@ -354,7 +354,7 @@ def start_feature_weight(project_id, task_key=None, task_params=None):
 @processor_routes.route("/<project_id>/features/label", methods=["POST"])
 @task_manager_decorator("feature_ranking_labelencoded")
 @project_validation_decorator
-def start_feature_weight(project_id, task_key=None, task_params=None):
+def start_feature_weight_label(project_id, task_key=None, task_params=None):
     request_data_json = request.get_json()
     kpi_list = request_data_json.get("kpi_list", [])
     important_features = request_data_json.get("important_features", [])
