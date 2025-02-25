@@ -145,7 +145,7 @@
 - **Example:**
 
   ```bash
-  curl http://127.0.0.1:8009/projects/PROJECT_ID/features/weight -H "Content-Type: application/json" -d '{ "path": [1,2,4]  "kpi": "kpi" }'
+  curl http://127.0.0.1:8009/projects/PROJECT_ID/features/onehot -H "Content-Type: application/json" -d '{ "path": [1,2,4]  "kpi": "kpi" }'
   ```
 
 ---
@@ -162,7 +162,7 @@
 - **Example:**
 
   ```bash
-  curl http://127.0.0.1:8009/projects/PROJECT_ID/features/weight/result -H "Content-Type: application/json" -d '{ "path": [1,2,4]  "kpi": "kpi" }'
+  curl http://127.0.0.1:8009/projects/PROJECT_ID/features/weight/onehot -H "Content-Type: application/json" -d '{ "path": [1,2,4]  "kpi": "kpi" }'
   ```
 
 ---
@@ -179,7 +179,7 @@
 - **Example:**
 
   ```bash
-  curl http://127.0.0.1:8009/projects/PROJECT_ID/features/weight -H "Content-Type: application/json" -d '{ "path": [1,2,4]  "kpi": "kpi" }'
+  curl http://127.0.0.1:8009/projects/PROJECT_ID/features/label -H "Content-Type: application/json" -d '{ "path": [1,2,4]  "kpi": "kpi" }'
   ```
 
 ---
@@ -196,7 +196,7 @@
 - **Example:**
 
   ```bash
-  curl http://127.0.0.1:8009/projects/PROJECT_ID/features/weight/result -H "Content-Type: application/json" -d '{ "path": [1,2,4]  "kpi": "kpi" }'
+  curl http://127.0.0.1:8009/projects/PROJECT_ID/features/weight/label -H "Content-Type: application/json" -d '{ "path": [1,2,4]  "kpi": "kpi" }'
   ```
 
 ---
