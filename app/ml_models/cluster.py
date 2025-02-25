@@ -32,38 +32,39 @@ def optimised_clustering(
     features = load_from_pickle(input_file_path_feature_rank_pkl)
 
     df, label_encoders = apply_label_encoding(df)
-    df_result, cluster_defs, target_summary, best_n_sil = hierarchical_clustering_auto(
+    df_gmm, cluster_size_n = gaussian_clustering(df, features)
+    df_result, cluster_defs, target_summary = hierarchical_clustering_auto(
         df=df,
         feature_cols=features,
-        cluster_target=None,  # optional
+        cluster_size_n=cluster_size_n,
+        cluster_target=None,
         range_n_clusters=range(2, 11),
         random_state=42,
     )
     save_to_pickle(cluster_defs, os.path.join(directory_project, filename_cluster_defs_dict_pkl()))
     del df_result, target_summary, cluster_defs
-    df = gaussian_clustering(df, features, best_n_sil)
-    df = reverse_label_encoding(df, label_encoders)
-    hierarchical_clustering_to_csv(df, directory_project)
+    df_gmm = reverse_label_encoding(df, label_encoders)
+    hierarchical_clustering_to_csv(df_gmm, directory_project)
 
 
-def gaussian_clustering(df, features, best_n_sil):
+def gaussian_clustering(df, features):
     scaler = StandardScaler()
     x = df[features]
     x_scaled = scaler.fit_transform(x)
 
-    # n_components = np.arange(2, 11)
+    n_components = np.arange(2, 11)
 
-    # silhouette_scores = []
-    # for n in n_components[1:]:
-    #     gmm = GaussianMixture(n, covariance_type="full", random_state=0)
-    #     labels = gmm.fit_predict(x_scaled)
-    #     score = silhouette_score(x_scaled, labels)
-    #     silhouette_scores.append(score)
+    silhouette_scores = []
+    for n in n_components[1:]:
+        gmm = GaussianMixture(n, covariance_type="full", random_state=0)
+        labels = gmm.fit_predict(x_scaled)
+        score = silhouette_score(x_scaled, labels)
+        silhouette_scores.append(score)
 
-    # optimal_silhouette_clusters = n_components[1:][np.argmax(silhouette_scores)]
-    best_gmm = GaussianMixture(n_components=best_n_sil, random_state=0)
+    optimal_silhouette_clusters = n_components[1:][np.argmax(silhouette_scores)]
+    best_gmm = GaussianMixture(n_components=optimal_silhouette_clusters, random_state=0)
     df["hierarchical_cluster"] = best_gmm.fit_predict(x_scaled)
-    return df
+    return df, optimal_silhouette_clusters
 
 
 def hierarchical_clustering_to_csv(data, directory_project):
@@ -100,6 +101,7 @@ def hierarchical_clustering_to_csv(data, directory_project):
 def hierarchical_clustering_auto(
     df: pd.DataFrame,
     feature_cols: list,
+    cluster_size_n: int,
     cluster_target: str = None,
     range_n_clusters=range(2, 11),
     random_state=0,
@@ -128,37 +130,38 @@ def hierarchical_clustering_auto(
     X_scaled = scaler.fit_transform(X_raw)
 
     # (C) Compute metrics for GMM across range_n_clusters
-    bic_scores = []
-    aic_scores = []
-    silhouette_scores = []
+    # bic_scores = []
+    # aic_scores = []
+    # silhouette_scores = []
 
-    for n in range_n_clusters:
-        gmm = GaussianMixture(n_components=n, covariance_type="full", random_state=random_state)
-        gmm.fit(X_scaled)
+    # for n in range_n_clusters:
+    #     gmm = GaussianMixture(n_components=n, covariance_type="full", random_state=random_state)
+    #     gmm.fit(X_scaled)
 
-        bic_scores.append(gmm.bic(X_scaled))
-        aic_scores.append(gmm.aic(X_scaled))
+    #     bic_scores.append(gmm.bic(X_scaled))
+    #     aic_scores.append(gmm.aic(X_scaled))
 
-        if n >= 2:
-            labels = gmm.predict(X_scaled)
-            sil_score = silhouette_score(X_scaled, labels)
-            silhouette_scores.append(sil_score)
-        else:
-            silhouette_scores.append(np.nan)
+    #     if n >= 2:
+    #         labels = gmm.predict(X_scaled)
+    #         sil_score = silhouette_score(X_scaled, labels)
+    #         silhouette_scores.append(sil_score)
+    #     else:
+    #         silhouette_scores.append(np.nan)
 
     # (D) Find the best cluster count by Silhouette (you can change to BIC or AIC)
     # Convert range_n_clusters to a list or array
-    n_components_list = np.array(list(range_n_clusters), dtype=int)
+    # n_components_list = np.array(list(range_n_clusters), dtype=int)
 
-    # For Silhouette: skip n=1, so we consider indices for n>=2
-    silhouette_array = np.array(silhouette_scores, dtype=float)
-    best_idx = np.nanargmax(silhouette_array)  # index of max silhouette
-    best_n_sil = n_components_list[best_idx]  # cluster count
+    # # For Silhouette: skip n=1, so we consider indices for n>=2
+    # silhouette_array = np.array(silhouette_scores, dtype=float)
+    # best_idx = np.nanargmax(silhouette_array)  # index of max silhouette
+    # best_n_sil = n_components_list[best_idx]  # cluster count
+    best_n_sil = cluster_size_n
 
     # print(f"Auto-selected cluster count (by Silhouette) = {best_n_sil}")
 
     # (E) Hierarchical Clustering with best_n_sil
-    hier_clustering = AgglomerativeClustering(n_clusters=best_n_sil, linkage="ward")
+    hier_clustering = AgglomerativeClustering(n_clusters=cluster_size_n, linkage="ward")
     cluster_labels = hier_clustering.fit_predict(X_scaled)
 
     df_out["hierarchical_cluster"] = cluster_labels
