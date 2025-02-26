@@ -166,7 +166,7 @@ def hierarchical_clustering_auto(
     # print(f"Auto-selected cluster count (by Silhouette) = {best_n_sil}")
 
     # (E) Hierarchical Clustering with best_n_sil
-    hier_clustering = AgglomerativeClustering(n_clusters=10, linkage="ward")
+    hier_clustering = AgglomerativeClustering(n_clusters=cluster_size_n, linkage="ward")
     cluster_labels = hier_clustering.fit_predict(X_scaled)
 
     df_out["hierarchical_cluster"] = cluster_labels
