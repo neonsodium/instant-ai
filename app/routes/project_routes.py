@@ -139,7 +139,7 @@ def feature_ranking_weight_label(project_id):
         os.path.join(directory_project_cluster, filename_feature_rank_score_df(kpi))
     )
 
-    return jsonify(features)
+    return jsonify(features.to_dict(orient="records"))
 
 
 @main_routes.route("/<project_id>/clusters/defination", methods=["POST"])
