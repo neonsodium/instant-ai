@@ -182,7 +182,7 @@ def hierarchical_clustering_auto(
         df_out=df_out, feature_cols=feature_cols, cluster_col="hierarchical_cluster"
     )
 
-    return df_out, cluster_definitions, target_summary, best_n_sil
+    return df_out, cluster_definitions, target_summary
 
 
 def _extract_cluster_definitions_hierarchical(
