@@ -123,7 +123,7 @@ def feature_ranking_weight_onehot(project_id):
     return jsonify(features.to_dict(orient="records"))
 
 
-@main_routes.route("/<project_id>/feature/weight/label", methods=["POST"])
+@main_routes.route("/<project_id>/features/weight/label", methods=["POST"])
 @project_validation_decorator
 def feature_ranking_weight_label(project_id):
 
