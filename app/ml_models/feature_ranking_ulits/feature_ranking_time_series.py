@@ -79,7 +79,7 @@ def ensemble_feature_importance_auto(
 
     df_imp["final_importance"] = df_imp[
         # ["rf_importance", "lgbm_importance", "xgb_importance", "linear_importance"]
-        ["rf_importance", "lgbm_importance", "xgb_importance", "linear_importance"]
+        ["rf_importance", "xgb_importance", "linear_importance"]
     ].mean(axis=1)
 
     df_imp.sort_values("final_importance", ascending=False, inplace=True)
