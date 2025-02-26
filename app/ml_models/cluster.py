@@ -33,6 +33,9 @@ def optimised_clustering(
 
     df, label_encoders = apply_label_encoding(df)
     df_gmm, cluster_size_n = gaussian_clustering(df, features)
+    print("=" * 80)
+    print(cluster_size_n)
+    print("=" * 80)
     df_result, cluster_defs, target_summary = hierarchical_clustering_auto(
         df=df,
         feature_cols=features,
@@ -157,7 +160,9 @@ def hierarchical_clustering_auto(
     # best_idx = np.nanargmax(silhouette_array)  # index of max silhouette
     # best_n_sil = n_components_list[best_idx]  # cluster count
     best_n_sil = cluster_size_n
-
+    print("=" * 80)
+    print(cluster_size_n)
+    print("=" * 80)
     # print(f"Auto-selected cluster count (by Silhouette) = {best_n_sil}")
 
     # (E) Hierarchical Clustering with best_n_sil
