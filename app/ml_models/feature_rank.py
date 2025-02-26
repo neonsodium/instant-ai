@@ -54,7 +54,7 @@ def generate_optimized_feature_rankings_one_hot_encoded(
         final_output, os.path.join(directory_project, filename_feature_rank_score_df(kpi))
     )
 
-    return final_output["Feature"].to_list()
+    pass
 
 
 def compute_feature_rankings(df, kpi, kpi_list):
