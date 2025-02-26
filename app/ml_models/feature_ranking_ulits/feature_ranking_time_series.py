@@ -14,7 +14,7 @@ def ensemble_feature_importance_auto(
     random_state: int = 42,
 ):
 
-    # 1) Determine feature columns if not provided
+    df = df.loc[:, ~df.columns.duplicated()]
     if features is None:
         features = [c for c in df.columns if c != target_col]
 
@@ -39,7 +39,7 @@ def ensemble_feature_importance_auto(
 
     if task_type == "classification":
         model_rf = RandomForestClassifier(n_estimators=100, random_state=random_state)
-        model_lgb = LGBMClassifier(random_state=random_state)
+        # model_lgb = LGBMClassifier(random_state=random_state)
         model_xgb = XGBClassifier(
             use_label_encoder=False, eval_metric="logloss", random_state=random_state
         )
@@ -48,22 +48,22 @@ def ensemble_feature_importance_auto(
         )
     else:
         model_rf = RandomForestRegressor(n_estimators=100, random_state=random_state)
-        model_lgb = LGBMRegressor(random_state=random_state)
+        # model_lgb = LGBMRegressor(random_state=random_state)
         model_xgb = XGBRegressor(random_state=random_state)
         model_lin = Lasso(alpha=0.01, max_iter=10000, random_state=random_state)
 
     model_rf.fit(X_train, y_train)
-    model_lgb.fit(X_train, y_train)
+    # model_lgb.fit(X_train, y_train)
     model_xgb.fit(X_train, y_train)
     model_lin.fit(X_train, y_train)
 
     rf_imp = _extract_importance(model_rf, features)
-    lgb_imp = _extract_importance(model_lgb, features)
+    # lgb_imp = _extract_importance(model_lgb, features)
     xgb_imp = _extract_importance(model_xgb, features)
     lin_imp = _extract_importance(model_lin, features)
 
     rf_imp_norm = _normalize_importances(rf_imp)
-    lgb_imp_norm = _normalize_importances(lgb_imp)
+    # lgb_imp_norm = _normalize_importances(lgb_imp)
     xgb_imp_norm = _normalize_importances(xgb_imp)
     lin_imp_norm = _normalize_importances(lin_imp)
 
@@ -71,7 +71,7 @@ def ensemble_feature_importance_auto(
         {
             "feature": features,
             "rf_importance": rf_imp_norm,
-            "lgbm_importance": lgb_imp_norm,
+            # "lgbm_importance": lgb_imp_norm,
             "xgb_importance": xgb_imp_norm,
             "linear_importance": lin_imp_norm,
         }
