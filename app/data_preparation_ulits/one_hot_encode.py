@@ -14,27 +14,28 @@ def one_hot_encode_data(
         pickle.dump(encoder, file)
 
 
-def apply_one_hot_encoding(df):
-    """
-    Applies OneHotEncoding to all object-type columns in the DataFrame with modified column names.
+def apply_one_hot_encoding(df, datetime_threshold=0.9):
 
-    Parameters:
-        df (pd.DataFrame): The input DataFrame.
+    categorical_columns = []
+    for col in df.select_dtypes(include=["object"]).columns:
+        dt_series = pd.to_datetime(df[col], errors="coerce")
+        if dt_series.notna().sum() / len(df[col]) >= datetime_threshold:
+            continue
+        else:
+            categorical_columns.append(col)
 
-    Returns:
-        pd.DataFrame: The DataFrame with OneHotEncoded columns.
-        OneHotEncoder: The fitted OneHotEncoder object for potential reverse transformation.
-    """
-    categorical_columns = df.select_dtypes(include=["object"]).columns.tolist()
-    encoder = OneHotEncoder(sparse_output=False)
-    encoded_data = encoder.fit_transform(df[categorical_columns])
+    if categorical_columns:
+        encoder = OneHotEncoder(sparse_output=False)
+        encoded_data = encoder.fit_transform(df[categorical_columns])
 
-    # Get the feature names but modify them to remove column prefixes
-    encoded_columns = [
-        name.split("_", 1)[-1] for name in encoder.get_feature_names_out(categorical_columns)
-    ]
+        encoded_columns = [
+            name.split("_")[-1] for name in encoder.get_feature_names_out(categorical_columns)
+        ]
+        encoded_df = pd.DataFrame(encoded_data, columns=encoded_columns, index=df.index)
 
-    encoded_df = pd.DataFrame(encoded_data, columns=encoded_columns, index=df.index)
-    df_encoded = pd.concat([df.drop(categorical_columns, axis=1), encoded_df], axis=1)
+        df_encoded = pd.concat([df.drop(categorical_columns, axis=1), encoded_df], axis=1)
+    else:
+        df_encoded = df.copy()
+        encoder = None
 
     return df_encoded, encoder
