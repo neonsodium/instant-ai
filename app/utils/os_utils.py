@@ -21,23 +21,6 @@ def os_path_join_secure(base_dir: str, *sub_dirs: str) -> str:
     return full_path
 
 
-def load_project_info(project_dir: str, file_name: str) -> str:
-    """Load the project name or description from a file inside the project directory."""
-    project_info_file = os.path.join(project_dir, file_name)
-    if os.path.isfile(project_info_file):
-        with open(project_info_file, "r") as f:
-            return f.read().strip()
-    return "Unknown"
-
-
-def save_project_info(project_dir: str, file_name: str, info: str):
-    """Save the project name or description to a file inside the project directory."""
-    project_info_file = os.path.join(project_dir, file_name)
-    with open(project_info_file, "w") as f:
-        f.write(info)
-    return f"Information saved to {project_info_file}"
-
-
 def get_directory_tree(path):
     try:
         tree = {"name": os.path.basename(path) or path, "subcluster": []}
@@ -100,30 +83,6 @@ def list_sub_directories(base_dir: str) -> list:
         if os.path.isdir(project_dir):
             list_sub_dir.append(project_id)
     return list_sub_dir
-
-
-def list_projects(base_dir: str) -> list:
-    """List all projects with their IDs, names*, and creation dates."""
-    projects = []
-
-    for project_id in list_sub_directories(base_dir):
-        project_dir = os.path.join(base_dir, project_id)
-        project_name = load_project_info(project_dir, filename_project_name_txt())
-        project_desc = load_project_info(project_dir, filename_project_description_txt())
-
-        creation_time = os.stat(project_dir).st_ctime
-        creation_date = datetime.fromtimestamp(creation_time).strftime("%Y-%m-%d")
-        if os.path.isdir(project_dir) and any(os.listdir(project_dir)):
-            projects.append(
-                {
-                    "project_id": project_id,
-                    "name": project_name,
-                    "creation_date": creation_date,
-                    "description": project_desc,
-                }
-            )
-
-    return projects
 
 
 def is_feature_ranking_file_present(directory_project: str) -> bool:

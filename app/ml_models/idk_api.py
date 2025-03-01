@@ -1,5 +1,7 @@
-import pandas as pd
 from datetime import timedelta
+
+import pandas as pd
+
 
 def analyze_similarity_with_recent_data(historical_file, new_file, kpi_column, date_column):
     """
@@ -41,8 +43,8 @@ def analyze_similarity_with_recent_data(historical_file, new_file, kpi_column, d
 
     # Filter historical data for the matching period
     historical_matching = historical_data[
-        (historical_data[date_column] >= historical_start) &
-        (historical_data[date_column] <= historical_end)
+        (historical_data[date_column] >= historical_start)
+        & (historical_data[date_column] <= historical_end)
     ]
 
     # Aggregate KPI values for the historical and new periods
@@ -51,7 +53,7 @@ def analyze_similarity_with_recent_data(historical_file, new_file, kpi_column, d
 
     # Calculate percent change
     if historical_kpi_sum == 0:
-        percent_change = float('inf') if new_kpi_sum > 0 else float('-inf')
+        percent_change = float("inf") if new_kpi_sum > 0 else float("-inf")
     else:
         percent_change = ((new_kpi_sum - historical_kpi_sum) / historical_kpi_sum) * 100
 
@@ -61,7 +63,7 @@ def analyze_similarity_with_recent_data(historical_file, new_file, kpi_column, d
         "Matching Historical Period": (historical_start, historical_end),
         "New KPI Value": new_kpi_sum,
         "Historical KPI Value": historical_kpi_sum,
-        "Percent Change (KPI)": percent_change
+        "Percent Change (KPI)": percent_change,
     }
 
     return results
