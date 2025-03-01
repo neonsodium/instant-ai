@@ -426,7 +426,30 @@ curl -X POST http://localhost:8009/projects/PROJECT_ID/dataset/columns/mapping \
 
 ---
 
-This version improves clarity and formatting while keeping the information intact.
+## **Analyze Similarity Between Files**  
+
+- **Endpoint:** `/projects/<project_id>/files/analyze_similarity`  
+- **Method:** `POST`  
+- **Description:** Compares a new data file with historical data to calculate the percent change for a given KPI.  
+- **Parameters:**  
+  - `project_id` (string): ID of the project.  
+  - `historical_file` (file): The historical CSV file containing past data.  
+  - `new_file` (file): The new CSV file to compare against historical data.  
+  - `kpi_column` (string): The KPI column to measure percent change.  
+  - `date_column` (string): The date column to align periods for comparison.  
+
+- **Example:**  
+
+  ```bash
+  curl -X POST http://127.0.0.1:8009/projects/PROJECT_ID/files/analyze_similarity \
+       -H "Content-Type: multipart/form-data" \
+       -F "historical_file=@historical_data.csv" \
+       -F "new_file=@new_data.csv" \
+       -F "kpi_column=revenue" \
+       -F "date_column=date"
+  ```
+
+---
 
 ### Notes
 

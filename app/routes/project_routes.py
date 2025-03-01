@@ -6,6 +6,7 @@ from flask import Blueprint, jsonify, request, send_file
 from app.data_preparation_ulits.preprocessing_engine import validate_df
 from app.decorator import project_validation_decorator
 from app.ml_models.summarising import summerise_cluster
+from app.ml_models.idk_api import analyze_similarity_with_recent_data
 from app.utils.filename_utils import (
     feature_descriptions_csv,
     feature_descriptions_json,
@@ -81,6 +82,35 @@ def get_cluster_info(project_id):
     return jsonify(
         {"Cluster Path": directory_project_cluster, "project_id": project_id, "clusters": clusters}
     )
+
+
+@main_routes.route("/<project_id>/files/analyze_similarity", methods=["POST"])
+@project_validation_decorator
+def analyze_similarity_files(project_id):
+
+    if "historical_file" not in request.files or "new_file" not in request.files:
+        return jsonify({"error": "Both historical_file and new_file are required"}), 400
+
+    historical_file = request.files["historical_file"]
+    new_file = request.files["new_file"]
+
+    directory_project_base = directory_project_path_full(project_id, [])
+
+    historical_path = os.path.join(directory_project_base, historical_file.filename)
+    new_path = os.path.join(directory_project_base, new_file.filename)
+
+    historical_file.save(historical_path)
+    new_file.save(new_path)
+
+    kpi_column = request.form.get("kpi_column")
+    date_column = request.form.get("date_column")
+
+    if not kpi_column or not date_column:
+        return jsonify({"error": "Both kpi_column and date_column parameters are required"}), 400
+
+    result = analyze_similarity_with_recent_data(historical_path, new_path, kpi_column, date_column)
+
+    return jsonify(result), 200
 
 
 @main_routes.route("/<project_id>/clusters/download", methods=["POST"])
