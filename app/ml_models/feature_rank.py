@@ -4,7 +4,7 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 
 from app.data_preparation_ulits.label_encode_data import apply_label_encoding
-from app.data_preparation_ulits.one_hot_encode import apply_one_hot_encoding
+from app.data_preparation_ulits.one_hot_encode import prepare_data_for_feature_ranking
 from app.ml_models.feature_ranking_ulits.extra_trees import extra_trees
 from app.ml_models.feature_ranking_ulits.feature_ranking_time_series import (
     ensemble_feature_importance_auto,
@@ -44,9 +44,7 @@ def generate_optimized_feature_rankings_one_hot_encoded(
 ):
 
     df = pd.read_csv(input_file_path_raw_data_csv)
-
-    df, encoder = apply_one_hot_encoding(df)
-    del encoder
+    df = prepare_data_for_feature_ranking(df, target_col=kpi)
     top_features = ensemble_feature_importance_auto(df, kpi)
 
     final_output = pd.concat([top_features], ignore_index=True)
