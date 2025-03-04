@@ -303,6 +303,23 @@
 
 ---
 
+## **Time Series Figure
+
+- **Endpoint:** `/projects/<project_id>/time-series/figure`
+- **Method:** `POST` or `GET`
+- **Description:** figure for time series graph.
+- **Parameters:**
+  - `project_id` (string): ID of the project.
+  - `kpi` (string): Variable to cluster.
+  - `path` (array): Path of the clustering hierarchy.
+- **Example:**
+
+  ```bash
+  curl http://127.0.0.1:8009/projects/PROJECT_ID//time-series/figure -H "Content-Type: application/json" -d '{ "kpi": "kpi", "path": [] }'
+  ```
+
+---
+
 ## **Time Series: Get Encoded Columns**
 
 - **Endpoint:** `/projects/<project_id>/time-series/encoded-columns`
