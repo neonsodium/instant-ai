@@ -279,6 +279,7 @@
   - `kpi` (string): The target KPI for Time series Analysis.
   - `no_of_months` (int): Number of months to predict.
   - `date_column` (string): Name of date column in the dataset.
+  - `regessors` (list): Regessors list.
   - `adjustments` (dict): adjustments = {
     'security_deposit': "+23%",
     'branch_name_HSR Layout': "+5",
@@ -291,6 +292,7 @@
     "kpi": "sales",
     "no_of_months": 6,
     "date_column": "date",
+    "regessors": ["Hello", "World", "Goodbye mf"],
     "adjustments" : {
     "security_deposit": "+23%",        
     "branch_name_HSR Layout": "+5",    

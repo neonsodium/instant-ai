@@ -439,6 +439,7 @@ def initiate_time_series(project_id, task_key=None, task_params=None):
     no_of_months = request_data_json.get("no_of_months")
     date_column = request_data_json.get("date_column")
     adjustments = request_data_json.get("adjustments")
+    regressors = request_data_json.get("regressors")
 
     directory_project_cluster = directory_project_path_full(project_id, list_path)
     if not os.path.exists(directory_project_cluster):
@@ -457,6 +458,7 @@ def initiate_time_series(project_id, task_key=None, task_params=None):
             no_of_months,
             date_column,
             adjustments,
+            regressors,
         ],
         kwargs={"project_id": project_id, "task_key": task_key},
     )

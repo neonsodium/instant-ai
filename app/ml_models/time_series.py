@@ -17,6 +17,7 @@ def time_series_analysis(
     no_of_months,
     date_column: str,
     adjustments: dict,
+    regressors: list,
 ):
     df = pd.read_csv(input_file_path_raw_data_csv)
     df[date_column] = pd.to_datetime(df[date_column])
@@ -25,12 +26,12 @@ def time_series_analysis(
     end_date = start_date + relativedelta(months=no_of_months)
     forecast_periods = (end_date - start_date).days + 30
     df, encoder = apply_one_hot_encoding(df)
+    # regressors = ensemble_feature_importance_auto(df, kpi)  # feature
     df = aggregate_columns_by_date(df, date_column=date_column)
     df_ts = df
     del df, encoder
     df = df_ts.drop(date_column, axis=1, inplace=False)
 
-    regressors = ensemble_feature_importance_auto(df, kpi, df.columns())  # feature
     df_prophet = prepare_prophet_data(df_ts, date_column, kpi, regressors)
     model = Prophet(
         n_changepoints=100,
