@@ -7,6 +7,7 @@ import plotly.io as pio
 from flask import Blueprint, jsonify, request
 
 from app.models.project_model import ProjectModel
+from app.decorator import project_validation_decorator
 from app.utils.filename_utils import (
     filename_categorical_columns_list_pkl,
     filename_raw_data_csv,
@@ -41,19 +42,11 @@ def get_encoded_columns_for_column(column_name, encoder, categorical_columns):
 
 
 @time_series_routes.route("/<project_id>/time-series/figure", methods=["POST", "GET"])
+@project_validation_decorator
 def get_time_series_figure(project_id):
     request_data_json = request.get_json()
-    project_id = os.path.basename(request_data_json.get("project_id"))
     list_path = request_data_json.get("path")
     kpi = request_data_json.get("kpi", None)
-
-    project = project_model.collection.find_one({"_id": project_id})
-    if not project:
-        return jsonify({"error": "Invalid Project ID"}), 400
-
-    directory_project_base = directory_project_path_full(project_id, [])
-    if not os.path.isdir(directory_project_base):
-        return jsonify({"error": "Invalid Project ID"}), 400
 
     directory_project_cluster = directory_project_path_full(project_id, list_path)
     if not os.path.exists(directory_project_cluster):
@@ -76,18 +69,11 @@ def get_time_series_figure(project_id):
 
 
 @time_series_routes.route("/<project_id>/time-series/encoded-columns", methods=["POST"])
+@project_validation_decorator
 def get_one_hot_encoded_columns(project_id):
     request_data_json = request.get_json()
     list_path = request_data_json.get("path", [])
     column_name = request_data_json.get("column_name")
-
-    project = project_model.collection.find_one({"_id": project_id})
-    if not project:
-        return jsonify({"error": "Invalid Project ID"}), 400
-
-    directory_project_base = directory_project_path_full(project_id, [])
-    if not os.path.isdir(directory_project_base):
-        return jsonify({"error": "Invalid Project ID"}), 404
 
     directory_project_cluster = directory_project_path_full(project_id, list_path)
     if not os.path.exists(directory_project_cluster):
@@ -115,6 +101,7 @@ def get_one_hot_encoded_columns(project_id):
 
 
 @time_series_routes.route("/<project_id>/time-series/categorical-columns", methods=["POST"])
+@project_validation_decorator
 def list_categorical_columns(project_id):
     """
     Lists the categorical columns for the given project ID.
@@ -128,14 +115,6 @@ def list_categorical_columns(project_id):
     try:
         request_data_json = request.get_json()
         list_path = request_data_json.get("path", [])
-
-        project = project_model.collection.find_one({"_id": project_id})
-        if not project:
-            return jsonify({"error": "Invalid Project ID"}), 400
-
-        directory_project_base = directory_project_path_full(project_id, [])
-        if not os.path.isdir(directory_project_base):
-            return jsonify({"error": "Invalid Project ID"}), 404
 
         directory_project_cluster = directory_project_path_full(project_id, list_path)
         if not os.path.exists(directory_project_cluster):
