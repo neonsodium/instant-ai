@@ -52,7 +52,9 @@ def update_task_status(collection, task_field):
         @wraps(func)
         def wrapper(self, *args, **kwargs):
             task_id = self.request.id
+
             project_id = kwargs.get("project_id")
+
             if not project_id:
                 raise ValueError("Project ID must be provided as a keyword argument.")
 
@@ -64,6 +66,7 @@ def update_task_status(collection, task_field):
             )
             task_key = kwargs.get("task_key")
             try:
+
                 result = func(self, *args, **kwargs)
 
                 task_status = {"status": "completed", "completed_at": datetime.now().isoformat()}
@@ -202,12 +205,19 @@ def async_time_series_analysis(
     no_of_months,
     date_column,
     adjustments,
+    regressors,
     project_id: str,
     task_key,
 ):
     try:
         fig = time_series_analysis(
-            directory_project_cluster, raw_data_file, kpi, no_of_months, date_column, adjustments
+            directory_project_cluster,
+            raw_data_file,
+            kpi,
+            no_of_months,
+            date_column,
+            adjustments,
+            regressors,
         )
 
         save_to_pickle(
