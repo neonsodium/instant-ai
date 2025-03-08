@@ -77,7 +77,6 @@ def upload_project_file(project_id):
             ).modified_count
             == 0
         ):
-            print("vednath", project_id)
             return jsonify({"error": "Failed to update project with file details"}), 500
 
         result = async_save_file.apply_async(
@@ -450,6 +449,7 @@ def initiate_time_series(project_id, task_key=None, task_params=None):
         return jsonify({"message": "Data set not found"}), 400
 
     raw_data_file = os.path.join(directory_project_cluster, filename_raw_data_csv())
+    print("vednath", project_id)
 
     result = async_time_series_analysis.apply_async(
         args=[
