@@ -77,6 +77,7 @@ def upload_project_file(project_id):
             ).modified_count
             == 0
         ):
+            print("vednath", project_id)
             return jsonify({"error": "Failed to update project with file details"}), 500
 
         result = async_save_file.apply_async(
