@@ -60,6 +60,19 @@ def get_all_projects():
     return project_model.get_all_projects()
 
 
+def delete_project(projecit_id):
+    """
+    Delete a project by its ID.
+
+    Args:
+        project_id (str): Unique identifier for the project.
+
+    Returns:
+        bool: True if the deletion was successful, False otherwise.
+    """
+    return project_model.delete_project(projecit_id)
+
+
 def create_project_and_directory(project_name, project_description):
     """
     Create a new project UUID, associated directory structure, and store the project in the database.

@@ -135,3 +135,16 @@ class ProjectModel:
                 "$push": {"tasks": task_metadata}
             },  # Assuming the "tasks" field exists as an array in the project document
         )
+
+    def delete_project(self, project_id: str) -> bool:
+        """
+        Delete a project by its ID.
+
+        Args:
+            project_id (str): Unique identifier for the project.
+
+        Returns:
+            bool: True if the deletion was successful, False otherwise.
+        """
+        result = self.collection.delete_one({"_id": project_id})
+        return result.deleted_count > 0

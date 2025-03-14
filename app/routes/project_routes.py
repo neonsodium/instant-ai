@@ -19,6 +19,7 @@ from app.utils.model_utils import (
     get_all_projects,
     get_project_columns,
     get_project_info,
+    delete_project,
 )
 from app.utils.os_utils import directory_project_path_full, list_sub_directories, load_from_pickle
 
@@ -82,6 +83,13 @@ def get_cluster_info(project_id):
     return jsonify(
         {"Cluster Path": directory_project_cluster, "project_id": project_id, "clusters": clusters}
     )
+
+
+@main_routes.route("/<project_id>/delete", methods=["POST"])
+@project_validation_decorator
+def delete_project(project_id):
+    delete_project(project_id)
+    return jsonify({"message": f"project deleted with project ID {project_id}"})
 
 
 @main_routes.route("/<project_id>/files/analyze_similarity", methods=["POST"])

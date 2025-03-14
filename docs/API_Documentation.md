@@ -470,6 +470,22 @@ curl -X POST http://localhost:8009/projects/PROJECT_ID/dataset/columns/mapping \
 
 ---
 
+## **Delete Project**  
+
+- **Endpoint:** `/projects/<project_id>/delete`  
+- **Method:** `GET`  
+- **Description:** Delete Project.  
+- **Parameters:**  
+  - `project_id` (string): ID of the project.  
+
+- **Example:**  
+
+  ```bash
+  curl -X GET http://127.0.0.1:8009/projects/PROJECT_ID/delete \
+  ```
+
+---
+
 ### Notes
 
 - Replace `PROJECT_ID` with the appropriate project ID for your use case.
