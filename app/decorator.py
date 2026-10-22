@@ -32,6 +32,12 @@ def project_validation_decorator(f):
 
 
 def validate_project(project_id):
+    '''Validate that the project exists and its directory is present.
+    Args:
+        project_id (str): The ID of the project to validate.
+    Returns:
+        tuple: A tuple containing a JSON response and an HTTP status code if validation fails, or None if validation passes.
+    '''
     project = project_model.collection.find_one({"_id": project_id})
     if not project:
         return jsonify({"error": "Invalid Project ID"}), 400
@@ -52,10 +58,10 @@ def task_manager_decorator(task_name):
             # Merge additional task-specific params if required
             task_params.update(request_data_json)
 
-            task_key = generate_task_key(**task_params)
+            task_key_hash = generate_task_key(**task_params)
 
             # Check for existing task
-            existing_task_id = redis_client.get(task_key)
+            existing_task_id = redis_client.get(task_key_hash)
             if existing_task_id:
                 return (
                     jsonify(
@@ -69,7 +75,7 @@ def task_manager_decorator(task_name):
                 )
 
             # Call the original function
-            response = func(*args, **kwargs, task_key=task_key, task_params=task_params)
+            response = func(*args, **kwargs, task_key=task_key_hash, task_params=task_params)
 
             # Handle response from the original function
             # Handle response as a tuple
@@ -89,7 +95,7 @@ def task_manager_decorator(task_name):
                 }
                 redis_client.hset(f"running_{task_name}_tasks", task_id, json.dumps(task_info))
                 redis_client.setex(
-                    task_key, current_app.config.get("REDIS_TIMEOUT_TASK_ID"), f"task:{task_id}"
+                    task_key_hash, current_app.config.get("REDIS_TIMEOUT_TASK_ID"), f"task:{task_id}"
                 )
                 project_model.add_task_metadata(project_id, task_id, task_info)
 
